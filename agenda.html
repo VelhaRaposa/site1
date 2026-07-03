@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda — Caio Garé</title>
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<section style="padding-top:60px;">
+  <div class="container">
+    <p class="eyebrow">agenda</p>
+    <h1>Lives e vídeos</h1>
+    <p class="lead" style="max-width:560px;">Todo conteúdo acontece no YouTube. Aqui você encontra os horários fixos e os vídeos mais recentes organizados por tema.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container" style="max-width:640px;">
+    <h2>Horários fixos</h2>
+    <div id="agenda-list"></div>
+    <a href="https://www.youtube.com/@caiogare" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:24px;">Ir para o YouTube</a>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <h2>Vídeos recentes</h2>
+    <div class="grid grid-3" id="agenda-videos"></div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/analytics.js"></script>
+<script src="assets/js/nav.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("agenda-list").innerHTML = SITE.agenda.map(a => `
+    <div class="schedule-row">
+      <span class="day">${a.dia}</span>
+      <span class="time">${a.horario}</span>
+      <span>${a.titulo}</span>
+    </div>
+  `).join("");
+
+  document.getElementById("agenda-videos").innerHTML = SITE.videos.map(v => `
+    <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
+      <div class="video-thumb">▶</div>
+      <span class="tag">${v.pilar}</span>
+      <div class="video-title">${v.titulo}</div>
+      <div class="video-meta">${v.views}</div>
+    </a>
+  `).join("");
+});
+</script>
+</body>
+</html>

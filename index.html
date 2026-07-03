@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caio Garé — Bitcoin, mercados e macro</title>
+<meta name="description" content="Análises diárias de Bitcoin, macroeconomia e mercados globais. Acompanhe as lives de Caio Garé, 38,2 mil inscritos no YouTube.">
+<meta property="og:title" content="Caio Garé — Bitcoin, mercados e macro">
+<meta property="og:description" content="Análises diárias de Bitcoin, macroeconomia e mercados globais.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.caiogare.com.br">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header id="site-header"></header>
+
+<section class="hero">
+  <svg class="hero-chart" viewBox="0 0 1100 340" preserveAspectRatio="none" aria-hidden="true">
+    <polyline points="0,260 90,240 180,270 270,210 360,230 450,160 540,190 630,120 720,150 810,90 900,120 990,60 1100,80"
+      fill="none" stroke="#F7931A" stroke-width="2" opacity="0.5"/>
+    <g stroke="#2B3448" stroke-width="1">
+      <line x1="0" y1="60" x2="1100" y2="60"/>
+      <line x1="0" y1="130" x2="1100" y2="130"/>
+      <line x1="0" y1="200" x2="1100" y2="200"/>
+      <line x1="0" y1="270" x2="1100" y2="270"/>
+    </g>
+  </svg>
+  <div class="container hero-inner">
+    <div>
+      <p class="eyebrow">bitcoin · mercados · macro</p>
+      <h1>Entendendo o Bitcoin através da macroeconomia</h1>
+      <p class="lead">Análises diárias sobre inflação, juros, liquidez global e geopolítica — e o que isso significa, de fato, para o Bitcoin. Sem hype, com tese.</p>
+      <div class="hero-actions">
+        <a href="https://www.youtube.com/@caiogare" target="_blank" rel="noopener" class="btn btn-primary">Assistir no YouTube</a>
+        <a href="media-kit.html" class="btn btn-ghost">Ver Media Kit</a>
+      </div>
+    </div>
+    <div class="hero-photo">foto de perfil<br>(substituir por imagem real)</div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="grid grid-3">
+      <div class="stat">
+        <div class="num">38,2 mil</div>
+        <div class="label">inscritos no YouTube</div>
+      </div>
+      <div class="stat">
+        <div class="num">diárias</div>
+        <div class="label">lives de segunda a sábado</div>
+      </div>
+      <div class="stat">
+        <div class="num">2021</div>
+        <div class="label">no ar desde então</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">últimos vídeos</p>
+      <h2>O que está no ar essa semana</h2>
+    </div>
+    <div class="grid grid-3" id="home-videos"></div>
+    <div style="margin-top:28px;">
+      <a href="agenda.html" class="btn btn-ghost">Ver agenda completa →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="icon">₿</div>
+        <h3>Ferramenta DCA</h3>
+        <p>Simule quanto você teria hoje se investisse mensalmente em Bitcoin desde uma data escolhida.</p>
+        <a href="dca.html" class="meta" style="color:var(--accent);">Simular agora →</a>
+      </div>
+      <div class="card">
+        <div class="icon">◈</div>
+        <h3>Parceiros recomendados</h3>
+        <p>Corretoras, plataformas P2P e hardwallets que eu de fato uso e indico.</p>
+        <a href="parceiros.html" class="meta" style="color:var(--accent);">Ver parceiros →</a>
+      </div>
+      <div class="card">
+        <div class="icon">✎</div>
+        <h3>Cursos</h3>
+        <p>Conteúdo estruturado para quem quer ir além das lives diárias.</p>
+        <a href="cursos.html" class="meta" style="color:var(--accent);">Ver cursos →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/content.js"></script>
+<script src="assets/js/analytics.js"></script>
+<script src="assets/js/nav.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const wrap = document.getElementById("home-videos");
+  wrap.innerHTML = SITE.videos.slice(0,3).map(v => `
+    <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
+      <div class="video-thumb">▶</div>
+      <span class="tag">${v.pilar}</span>
+      <div class="video-title">${v.titulo}</div>
+      <div class="video-meta">${v.views}</div>
+    </a>
+  `).join("");
+});
+</script>
+</body>
+</html>

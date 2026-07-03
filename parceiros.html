@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parceiros recomendados — Caio Garé</title>
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<section style="padding-top:60px;">
+  <div class="container">
+    <p class="eyebrow">parceiros</p>
+    <h1>Corretoras, P2P e hardwallets</h1>
+    <p class="lead" style="max-width:560px;">Plataformas que eu de fato uso ou já testei. Clicar nos links abaixo ajuda a manter o canal — sem custo extra pra você.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="grid grid-3" id="partners-list"></div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/analytics.js"></script>
+<script src="assets/js/nav.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("partners-list").innerHTML = SITE.parceiros.map(p => `
+    <div class="card">
+      <span class="tag">${p.tipo}</span>
+      <h3>${p.nome}</h3>
+      <p>${p.descricao}</p>
+      <button class="btn btn-primary" style="width:100%;" onclick="trackPartnerClick('${p.idClique}', '${p.url}')">Acessar</button>
+    </div>
+  `).join("");
+});
+</script>
+</body>
+</html>

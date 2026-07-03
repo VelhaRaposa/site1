@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cursos — Caio Garé</title>
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<section style="padding-top:60px;">
+  <div class="container">
+    <p class="eyebrow">cursos</p>
+    <h1>Aprofunde além das lives</h1>
+    <p class="lead" style="max-width:560px;">Conteúdo estruturado para quem quer entender a fundo macroeconomia e Bitcoin, no seu ritmo.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="grid grid-3" id="courses-list"></div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/analytics.js"></script>
+<script src="assets/js/nav.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("courses-list").innerHTML = SITE.cursos.map(c => `
+    <div class="card">
+      <h3>${c.titulo}</h3>
+      <p>${c.descricao}</p>
+      <div class="meta" style="margin-bottom:14px;">${c.preco}</div>
+      <a href="${c.url}" class="btn btn-primary" style="width:100%;text-align:center;">Saiba mais</a>
+    </div>
+  `).join("");
+});
+</script>
+</body>
+</html>

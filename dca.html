@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora DCA de Bitcoin — Caio Garé</title>
+<meta name="description" content="Simule quanto você teria hoje investindo mensalmente em Bitcoin (DCA) desde uma data escolhida.">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<section style="padding-top:60px;">
+  <div class="container" style="max-width:640px;">
+    <p class="eyebrow">ferramenta</p>
+    <h1>Calculadora DCA de Bitcoin</h1>
+    <p class="lead">Simule quanto você teria hoje se comprasse um valor fixo em Bitcoin todo mês, a partir de uma data escolhida. Os preços históricos vêm da CoinGecko.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container" style="max-width:640px;">
+    <form id="dca-form">
+      <label for="valor">Valor investido por mês (R$)</label>
+      <input type="number" id="valor" min="10" step="10" value="200" required>
+
+      <label for="inicio">Comprando desde</label>
+      <input type="month" id="inicio" required>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;">Calcular</button>
+    </form>
+
+    <div id="dca-result" style="margin-top:32px;"></div>
+    <div id="dca-error" style="margin-top:20px;color:var(--red);font-size:.9rem;"></div>
+
+    <div class="disclaimer-box">
+      <strong>Sobre esta simulação:</strong> cálculo histórico, sem taxas de corretora e sem considerar imposto de renda. Rentabilidade passada não é garantia de resultado futuro. Isto não é recomendação de investimento.
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="assets/js/content.js"></script>
+<script src="assets/js/analytics.js"></script>
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/dca.js"></script>
+</body>
+</html>
