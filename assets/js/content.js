@@ -32,7 +32,7 @@ const SITE = {
   // 1. Crie conta em https://www.coingecko.com/en/api/pricing → "Create Free Account" (Demo)
   // 2. No painel, gere uma chave (Developer Dashboard → + Add New Key)
   // 3. Cole a chave abaixo, entre as aspas
-  coingeckoApiKey: "",
+  coingeckoApiKey: "CG-9yMSe6jEirCMgnumArYKVTzk",
 
   // ---------- INDICADORES DO TICKER (atualize manualmente quando mudar) ----------
   // BTC/USD e USD/BRL são buscados automaticamente. Só Selic e CDI
