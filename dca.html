@@ -3,36 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora DCA de Bitcoin — Caio Garé</title>
-<meta name="description" content="Simule quanto você teria hoje investindo mensalmente em Bitcoin (DCA) desde uma data escolhida.">
+<title>Calculadora de Bitcoin — DCA e Lump Sum — Caio Garé</title>
+<meta name="description" content="Simule quanto você teria hoje comprando Bitcoin ao longo do tempo (DCA) ou de uma vez (Lump Sum), com dados históricos reais.">
 <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
 <link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .tabs{display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--border);}
+  .tab-btn{
+    background:none;border:none;color:var(--text-muted);font-family:var(--font-body);
+    font-weight:600;font-size:.92rem;padding:10px 4px;cursor:pointer;
+    border-bottom:2px solid transparent;
+  }
+  .tab-btn.active{color:var(--accent);border-color:var(--accent);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:600px){.field-row{grid-template-columns:1fr;}}
+  #dca-chart{width:100%;height:auto;margin-top:8px;}
+</style>
 </head>
 <body>
 <header id="site-header"></header>
 
 <section style="padding-top:60px;">
-  <div class="container" style="max-width:640px;">
+  <div class="container" style="max-width:720px;">
     <p class="eyebrow">ferramenta</p>
-    <h1>Calculadora DCA de Bitcoin</h1>
-    <p class="lead">Simule quanto você teria hoje se comprasse um valor fixo em Bitcoin todo mês, a partir de uma data escolhida. Os preços históricos vêm da CoinGecko.</p>
+    <h1>Simulador de Bitcoin</h1>
+    <p class="lead">Compare comprar aos poucos (DCA) ou de uma vez (Lump Sum), com preços históricos reais.</p>
   </div>
 </section>
 
 <section class="section-border-top">
-  <div class="container" style="max-width:640px;">
-    <form id="dca-form">
-      <label for="valor">Valor investido por mês (R$)</label>
-      <input type="number" id="valor" min="10" step="10" value="200" required>
+  <div class="container" style="max-width:720px;">
 
-      <label for="inicio">Comprando desde</label>
-      <input type="month" id="inicio" required>
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-mode="dca">DCA (aportes recorrentes)</button>
+      <button type="button" class="tab-btn" data-mode="lump">Lump Sum (de uma vez)</button>
+    </div>
+
+    <form id="dca-form">
+      <div id="campo-valor-dca">
+        <label for="valor">Valor investido por período (R$)</label>
+        <input type="number" id="valor" min="1" step="10" value="200" required>
+
+        <label for="frequencia">Frequência das compras</label>
+        <select id="frequencia">
+          <option value="daily">Diária</option>
+          <option value="weekly" selected>Semanal</option>
+          <option value="monthly">Mensal</option>
+        </select>
+      </div>
+
+      <div id="campo-valor-lump" style="display:none;">
+        <label for="valor-lump">Valor total investido de uma vez (R$)</label>
+        <input type="number" id="valor-lump" min="1" step="10" value="5000">
+      </div>
+
+      <div class="field-row">
+        <div>
+          <label for="inicio">Data inicial</label>
+          <input type="date" id="inicio" required>
+        </div>
+        <div>
+          <label for="fim">Data final</label>
+          <input type="date" id="fim" required>
+        </div>
+      </div>
+
+      <p style="font-size:.78rem;color:var(--text-muted);margin-top:-10px;">
+        No plano gratuito, o período máximo é de 365 dias entre as datas.
+      </p>
 
       <button type="submit" class="btn btn-primary" style="width:100%;">Calcular</button>
     </form>
 
     <div id="dca-result" style="margin-top:32px;"></div>
     <div id="dca-error" style="margin-top:20px;color:var(--red);font-size:.9rem;"></div>
+    <div id="dca-chart-wrap" style="margin-top:24px;"></div>
 
     <div class="disclaimer-box">
       <strong>Sobre esta simulação:</strong> cálculo histórico, sem taxas de corretora e sem considerar imposto de renda. Rentabilidade passada não é garantia de resultado futuro. Isto não é recomendação de investimento.

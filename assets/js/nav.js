@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { href: "sobre.html", label: "Sobre" },
   { href: "agenda.html", label: "Agenda" },
   { href: "dca.html", label: "Ferramenta DCA" },
-  { href: "parceiros.html", label: "Parceiros" },
+  { href: "parceiros.html", label: "Onde comprar" },
   { href: "contato.html", label: "Contato" },
 ];
 
@@ -42,34 +42,51 @@ function renderHeader(){
 
 async function renderTicker(){
   const track = document.getElementById("ticker-track");
-  const base = [
-    { label: "SELIC", value: "15,00%", dir: "flat" },
-    { label: "CDI", value: "14,90%", dir: "flat" },
-    { label: "PRÓXIMA LIVE", value: "09h00", dir: "flat" },
-  ];
 
   const renderRow = (items) => {
-    const row = items.map(i =>
+    track.innerHTML = items.map(i =>
       `<span><strong>${i.label}</strong> ${i.value} ${i.dir === 'up' ? '▲' : i.dir === 'down' ? '▼' : ''}</span>`
     ).join("");
-    track.innerHTML = row + row; // duplicado p/ loop contínuo
   };
 
-  renderRow([{ label: "BTC/USD", value: "carregando…", dir: "flat" }, ...base]);
+  const base = [
+    { label: "SELIC", value: SITE.selic, dir: "flat" },
+    { label: "CDI", value: SITE.cdi, dir: "flat" },
+  ];
+
+  renderRow([
+    { label: "BTC/USD", value: "carregando…", dir: "flat" },
+    { label: "USD/BRL", value: "carregando…", dir: "flat" },
+    ...base,
+  ]);
 
   try {
-    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true");
-    const data = await res.json();
-    const price = data.bitcoin.usd;
-    const change = data.bitcoin.usd_24h_change;
-    const btcItem = {
-      label: "BTC/USD",
-      value: "$" + price.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + (change >= 0 ? "+" : "") + change.toFixed(1) + "%)",
-      dir: change >= 0 ? "up" : "down",
-    };
-    renderRow([btcItem, ...base]);
+    const [btcRes, fxRes] = await Promise.all([
+      fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true"),
+      fetch("https://api.frankfurter.app/latest?from=USD&to=BRL"),
+    ]);
+    const btcData = await btcRes.json();
+    const fxData = await fxRes.json();
+
+    const btcPrice = btcData.bitcoin.usd;
+    const btcChange = btcData.bitcoin.usd_24h_change;
+    const usdBrl = fxData.rates.BRL;
+
+    renderRow([
+      {
+        label: "BTC/USD",
+        value: "$" + btcPrice.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + (btcChange >= 0 ? "+" : "") + btcChange.toFixed(1) + "%)",
+        dir: btcChange >= 0 ? "up" : "down",
+      },
+      { label: "USD/BRL", value: "R$" + usdBrl.toFixed(2), dir: "flat" },
+      ...base,
+    ]);
   } catch (e) {
-    renderRow([{ label: "BTC/USD", value: "indisponível", dir: "flat" }, ...base]);
+    renderRow([
+      { label: "BTC/USD", value: "indisponível", dir: "flat" },
+      { label: "USD/BRL", value: "indisponível", dir: "flat" },
+      ...base,
+    ]);
   }
 }
 
@@ -81,10 +98,11 @@ function renderFooter(){
       <div class="footer-grid">
         <div>
           <a href="index.html" class="logo"><span>C</span>aio Garé</a>
-          <p style="max-width:280px;margin-top:10px;">Bitcoin, mercados e macro. Análises diárias no YouTube.</p>
+          <p style="max-width:280px;margin-top:10px;">Bitcoin, mercados e macro.<br>Análises no YouTube.</p>
         </div>
         <ul class="footer-links">
           <li><a href="${SITE.youtubeUrl}" target="_blank" rel="noopener">YouTube</a></li>
+          <li><a href="${SITE.spotifyUrl}" target="_blank" rel="noopener">Spotify</a></li>
           <li><a href="${SITE.xUrl}" target="_blank" rel="noopener">X</a></li>
           <li><a href="${SITE.instagramUrl}" target="_blank" rel="noopener">Instagram</a></li>
           <li><a href="media-kit.html">Media Kit</a></li>
@@ -129,6 +147,33 @@ function renderCookieBanner(){
     localStorage.setItem("cookies_aceitos", "1");
     banner.remove();
   });
+}
+
+/* ---------- busca automática dos vídeos recentes do YouTube ----------
+   Usa o feed RSS público do canal (sem precisar de chave de API paga).
+   Se SITE.youtubeChannelId estiver vazio ou a busca falhar, usa a
+   lista manual SITE.videos do content.js. */
+async function getLatestVideos(limit = 6){
+  if (!SITE.youtubeChannelId) return SITE.videos.slice(0, limit);
+
+  try {
+    const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${SITE.youtubeChannelId}`;
+    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
+    const res = await fetch(proxyUrl);
+    const data = await res.json();
+    if (data.status !== "ok" || !data.items || data.items.length === 0) {
+      return SITE.videos.slice(0, limit);
+    }
+    return data.items.slice(0, limit).map(item => ({
+      titulo: item.title,
+      pilar: "",
+      views: "",
+      url: item.link,
+      thumb: item.thumbnail || (item.enclosure && item.enclosure.link) || "",
+    }));
+  } catch (e) {
+    return SITE.videos.slice(0, limit);
+  }
 }
 
 /* ---------- rastreamento de cliques em parceiros ----------

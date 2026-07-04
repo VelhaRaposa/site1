@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Caio Garé — Bitcoin, mercados e macro</title>
-<meta name="description" content="Análises diárias de Bitcoin, macroeconomia e mercados globais. Acompanhe as lives de Caio Garé, 38,2 mil inscritos no YouTube.">
+<meta name="description" content="Análises de Bitcoin, macroeconomia e mercados globais. Acompanhe as lives de Caio Garé, 38,2 mil inscritos no YouTube.">
 <meta property="og:title" content="Caio Garé — Bitcoin, mercados e macro">
-<meta property="og:description" content="Análises diárias de Bitcoin, macroeconomia e mercados globais.">
+<meta property="og:description" content="Análises de Bitcoin, macroeconomia e mercados globais.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.caiogare.com.br">
 <meta name="twitter:card" content="summary">
@@ -32,13 +32,14 @@
     <div>
       <p class="eyebrow">bitcoin · mercados · macro</p>
       <h1>Entendendo o Bitcoin através da macroeconomia</h1>
-      <p class="lead">Análises diárias sobre inflação, juros, liquidez global e geopolítica — e o que isso significa, de fato, para o Bitcoin. Sem hype, com tese.</p>
+      <p class="lead">Análises sobre inflação, juros, liquidez global e geopolítica — e o que isso significa, de fato, para o Bitcoin. Sem hype, com tese.</p>
       <div class="hero-actions">
         <a href="https://www.youtube.com/@caiogare" target="_blank" rel="noopener" class="btn btn-primary">Assistir no YouTube</a>
-        <a href="media-kit.html" class="btn btn-ghost">Ver Media Kit</a>
       </div>
     </div>
-    <div class="hero-photo">foto de perfil<br>(substituir por imagem real)</div>
+    <div class="hero-photo">
+      <img src="assets/img/perfil.jpg" alt="Caio Garé" style="width:100%;height:100%;object-fit:cover;">
+    </div>
   </div>
 </section>
 
@@ -46,12 +47,12 @@
   <div class="container">
     <div class="grid grid-3">
       <div class="stat">
-        <div class="num">38,2 mil</div>
+        <div class="num" id="stat-inscritos"></div>
         <div class="label">inscritos no YouTube</div>
       </div>
       <div class="stat">
-        <div class="num">diárias</div>
-        <div class="label">lives de segunda a sábado</div>
+        <div class="num">lives</div>
+        <div class="label">segunda • quarta • sexta</div>
       </div>
       <div class="stat">
         <div class="num">2021</div>
@@ -80,20 +81,20 @@
       <div class="card">
         <div class="icon">₿</div>
         <h3>Ferramenta DCA</h3>
-        <p>Simule quanto você teria hoje se investisse mensalmente em Bitcoin desde uma data escolhida.</p>
+        <p>Simule quanto você teria hoje se investisse em Bitcoin ao longo do tempo.</p>
         <a href="dca.html" class="meta" style="color:var(--accent);">Simular agora →</a>
       </div>
       <div class="card">
         <div class="icon">◈</div>
-        <h3>Parceiros recomendados</h3>
+        <h3>Onde comprar Bitcoin</h3>
         <p>Corretoras, plataformas P2P e hardwallets que eu de fato uso e indico.</p>
-        <a href="parceiros.html" class="meta" style="color:var(--accent);">Ver parceiros →</a>
+        <a href="parceiros.html" class="meta" style="color:var(--accent);">Ver recomendações →</a>
       </div>
       <div class="card">
         <div class="icon">✎</div>
-        <h3>Cursos</h3>
-        <p>Conteúdo estruturado para quem quer ir além das lives diárias.</p>
-        <a href="cursos.html" class="meta" style="color:var(--accent);">Ver cursos →</a>
+        <h3>Anuncie comigo</h3>
+        <p>Formatos de parceria para marcas que querem falar com essa audiência.</p>
+        <a href="anuncie.html" class="meta" style="color:var(--accent);">Saiba mais →</a>
       </div>
     </div>
   </div>
@@ -105,14 +106,18 @@
 <script src="assets/js/analytics.js"></script>
 <script src="assets/js/nav.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  document.getElementById("stat-inscritos").textContent = SITE.inscritos;
+
   const wrap = document.getElementById("home-videos");
-  wrap.innerHTML = SITE.videos.slice(0,3).map(v => `
+  wrap.innerHTML = `<p style="color:var(--text-muted);">Carregando vídeos…</p>`;
+  const videos = await getLatestVideos(3);
+  wrap.innerHTML = videos.map(v => `
     <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
-      <div class="video-thumb">▶</div>
-      <span class="tag">${v.pilar}</span>
+      <div class="video-thumb">${v.thumb ? `<img src="${v.thumb}" alt="">` : "▶"}</div>
+      ${v.pilar ? `<span class="tag">${v.pilar}</span>` : ""}
       <div class="video-title">${v.titulo}</div>
-      <div class="video-meta">${v.views}</div>
+      ${v.views ? `<div class="video-meta">${v.views}</div>` : ""}
     </a>
   `).join("");
 });

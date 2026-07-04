@@ -14,15 +14,18 @@
   <div class="container">
     <p class="eyebrow">agenda</p>
     <h1>Lives e vídeos</h1>
-    <p class="lead" style="max-width:560px;">Todo conteúdo acontece no YouTube. Aqui você encontra os horários fixos e os vídeos mais recentes organizados por tema.</p>
+    <p class="lead" style="max-width:560px;">Todo conteúdo acontece no YouTube, com reprises disponíveis no Spotify. Aqui você encontra os dias fixos e os vídeos mais recentes.</p>
   </div>
 </section>
 
 <section class="section-border-top">
   <div class="container" style="max-width:640px;">
-    <h2>Horários fixos</h2>
+    <h2>Dias fixos</h2>
     <div id="agenda-list"></div>
-    <a href="https://www.youtube.com/@caiogare" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:24px;">Ir para o YouTube</a>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;">
+      <a href="https://www.youtube.com/@caiogare" target="_blank" rel="noopener" class="btn btn-primary">Ir para o YouTube</a>
+      <a href="https://open.spotify.com/show/3sBJa8iCt2POBsdVbHaIfO?si=Ii1vu6JfSEydfdBc-GJ5BQ" target="_blank" rel="noopener" class="btn btn-ghost">Ir para o Spotify</a>
+    </div>
   </div>
 </section>
 
@@ -38,7 +41,7 @@
 <script src="assets/js/analytics.js"></script>
 <script src="assets/js/nav.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("agenda-list").innerHTML = SITE.agenda.map(a => `
     <div class="schedule-row">
       <span class="day">${a.dia}</span>
@@ -47,12 +50,15 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   `).join("");
 
-  document.getElementById("agenda-videos").innerHTML = SITE.videos.map(v => `
+  const wrap = document.getElementById("agenda-videos");
+  wrap.innerHTML = `<p style="color:var(--text-muted);">Carregando vídeos…</p>`;
+  const videos = await getLatestVideos(6);
+  wrap.innerHTML = videos.map(v => `
     <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
-      <div class="video-thumb">▶</div>
-      <span class="tag">${v.pilar}</span>
+      <div class="video-thumb">${v.thumb ? `<img src="${v.thumb}" alt="">` : "▶"}</div>
+      ${v.pilar ? `<span class="tag">${v.pilar}</span>` : ""}
       <div class="video-title">${v.titulo}</div>
-      <div class="video-meta">${v.views}</div>
+      ${v.views ? `<div class="video-meta">${v.views}</div>` : ""}
     </a>
   `).join("");
 });

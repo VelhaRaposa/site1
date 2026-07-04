@@ -4,14 +4,6 @@
    Este é o único arquivo que você precisa mexer no dia a dia.
    Não é preciso saber programar: só trocar o texto entre aspas
    ou copiar/colar um bloco { ... } novo para adicionar item.
-
-   REGRAS SIMPLES:
-   - Tudo que está entre aspas " " pode ser editado livremente.
-   - Não apague as vírgulas "," no final das linhas.
-   - Para adicionar um vídeo/parceiro/curso novo, copie um bloco
-     inteiro entre { e }, cole logo abaixo, e edite os textos.
-   - Depois de editar, salve o arquivo e suba pro GitHub
-     (veja o passo a passo em README.md).
    ========================================================= */
 
 const SITE = {
@@ -22,43 +14,59 @@ const SITE = {
   youtubeUrl: "https://www.youtube.com/@caiogare",
   xUrl: "https://x.com/caiogare",
   instagramUrl: "https://www.instagram.com/caiogare",
-  emailContato: "contato@caiogare.com.br",
+  spotifyUrl: "https://open.spotify.com/show/3sBJa8iCt2POBsdVbHaIfO?si=Ii1vu6JfSEydfdBc-GJ5BQ",
+  emailContato: "caiogare.contato@gmail.com",
+
+  // ---------- AUTOMAÇÃO DE VÍDEOS (opcional, recomendado) ----------
+  // Preencha com o ID do seu canal (começa com "UC...") para o site
+  // buscar sozinho, todo dia, os vídeos mais recentes do YouTube —
+  // sem você precisar colar link nenhum.
+  // Como pegar: acesse youtube.com/account_advanced (logado na conta
+  // do canal) e copie o "ID do canal".
+  // Deixando em branco, o site usa a lista manual "videos" abaixo.
+  youtubeChannelId: "",
+
+  // ---------- CHAVE GRATUITA DA COINGECKO (recomendado) ----------
+  // A calculadora DCA precisa disso para funcionar de forma confiável.
+  // Como conseguir (grátis, sem cartão, 2 minutos):
+  // 1. Crie conta em https://www.coingecko.com/en/api/pricing → "Create Free Account" (Demo)
+  // 2. No painel, gere uma chave (Developer Dashboard → + Add New Key)
+  // 3. Cole a chave abaixo, entre as aspas
+  coingeckoApiKey: "",
+
+  // ---------- INDICADORES DO TICKER (atualize manualmente quando mudar) ----------
+  // BTC/USD e USD/BRL são buscados automaticamente. Só Selic e CDI
+  // são manuais, porque exigem uma fonte paga para atualizar sozinho.
+  selic: "14,25%",
+  cdi: "14,15%",
 
   // ---------- AGENDA DE LIVES ----------
   agenda: [
-    { dia: "Segunda a sexta", horario: "09h00", titulo: "Live diária — mercado e macro" },
-    { dia: "Sábado",          horario: "10h00", titulo: "Resumo semanal" },
+    { dia: "Segunda, quarta e sexta", horario: "14h", titulo: "Live — mercado e macro" },
   ],
 
-  // ---------- VÍDEOS EM DESTAQUE ----------
+  // ---------- VÍDEOS EM DESTAQUE (usado se youtubeChannelId estiver vazio) ----------
   // pilar: "Bitcoin" | "Macro" | "Geopolítica" | "Segurança"
   videos: [
     {
       titulo: "Bitcoin NÃO é o que te contaram",
       pilar: "Bitcoin",
-      views: "791 mil visualizações",
-      url: "https://www.youtube.com/@caiogare",
+      views: "",
+      url: "https://www.youtube.com/@caiogare/videos",
       thumb: "",
     },
     {
       titulo: "Banco Central quer travar as stablecoins",
       pilar: "Macro",
-      views: "277 visualizações",
-      url: "https://www.youtube.com/@caiogare",
+      views: "",
+      url: "https://www.youtube.com/@caiogare/videos",
       thumb: "",
     },
     {
       titulo: "PETRÓLEO EXPLODE: guerra trava o Fed",
       pilar: "Geopolítica",
-      views: "1,2 mil visualizações",
-      url: "https://www.youtube.com/@caiogare",
-      thumb: "",
-    },
-    {
-      titulo: "Ataque no JavaScript mira carteiras cripto",
-      pilar: "Segurança",
-      views: "364 visualizações",
-      url: "https://www.youtube.com/@caiogare",
+      views: "",
+      url: "https://www.youtube.com/@caiogare/videos",
       thumb: "",
     },
   ],
@@ -67,29 +75,29 @@ const SITE = {
   // tipo: "Corretora" | "P2P" | "Hardwallet"
   parceiros: [
     {
-      nome: "Nome da corretora",
+      nome: "Blofin",
       tipo: "Corretora",
-      descricao: "Compra e venda de Bitcoin com taxas reduzidas.",
-      url: "https://exemplo.com/?ref=caiogare",
-      idClique: "corretora-1",
+      descricao: "Abra sua conta com 10% de desconto nas taxas.",
+      url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_BLOFIN",
+      idClique: "blofin",
     },
     {
-      nome: "Nome da plataforma P2P",
+      nome: "Fort Exchange",
       tipo: "P2P",
-      descricao: "Compra direta com outros usuários, sem intermediário.",
-      url: "https://exemplo.com/?ref=caiogare",
-      idClique: "p2p-1",
+      descricao: "Aportes automáticos em Bitcoin.",
+      url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_FORT_EXCHANGE",
+      idClique: "fort-exchange",
     },
     {
-      nome: "Nome do hardwallet",
+      nome: "KriptoBR",
       tipo: "Hardwallet",
-      descricao: "Guarda seu Bitcoin offline, fora de corretoras.",
-      url: "https://exemplo.com/?ref=caiogare",
-      idClique: "hardwallet-1",
+      descricao: "Trezor, Ledger e SecuX — guarde seu Bitcoin offline, fora de corretoras.",
+      url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_KRIPTOBR",
+      idClique: "kriptobr",
     },
   ],
 
-  // ---------- CURSOS ----------
+  // ---------- CURSOS (página existe, mas não está no menu ainda) ----------
   cursos: [
     {
       titulo: "Nome do curso",
