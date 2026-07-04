@@ -80,7 +80,7 @@ async function renderTicker(){
     ]);
   } catch (e) {
     renderRow([
-      { label: "BTC/USD", value: "indisponível", dir: "flat" },
+      { label: "BTC/USD", value: "erro: " + e.message, dir: "flat" },
       { label: "USD/BRL", value: "indisponível", dir: "flat" },
       ...base,
     ]);

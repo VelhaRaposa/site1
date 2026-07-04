@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (chartPoints.length > 1) renderChart(chartPoints);
 
     } catch (err) {
-      errorEl.textContent = "Não foi possível calcular agora. Tente novamente em instantes.";
+      errorEl.textContent = "Não foi possível calcular agora. Detalhe técnico: " + err.message;
       resultEl.innerHTML = "";
     }
   });
