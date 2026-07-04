@@ -24,7 +24,6 @@ function renderHeader(){
       <a href="index.html" class="logo"><span>C</span>aio Garé</a>
       <ul class="nav-links" id="nav-links">${links}</ul>
       <div class="nav-cta">
-        <a href="anuncie.html" class="btn btn-ghost" style="padding:.6em 1.1em;font-size:.82rem;">Anuncie comigo</a>
         <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">☰</button>
       </div>
     </div>
@@ -43,7 +42,7 @@ function renderFooter(){
       <div class="footer-grid">
         <div>
           <a href="index.html" class="logo"><span>C</span>aio Garé</a>
-          <p style="max-width:280px;margin-top:10px;">Análises sobre Bitcoin, economia e mercados.</p>
+          <p style="max-width:280px;margin-top:10px;">Bitcoin explicado através da economia.</p>
         </div>
         <ul class="footer-links">
           <li><a href="${SITE.youtubeUrl}" target="_blank" rel="noopener">YouTube</a></li>
