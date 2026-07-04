@@ -43,14 +43,14 @@ function renderFooter(){
       <div class="footer-grid">
         <div>
           <a href="index.html" class="logo"><span>C</span>aio Garé</a>
-          <p style="max-width:280px;margin-top:10px;">Bitcoin, mercados e macro.<br>Análises no YouTube.</p>
+          <p style="max-width:280px;margin-top:10px;">Análises sobre Bitcoin, economia e mercados.</p>
         </div>
         <ul class="footer-links">
           <li><a href="${SITE.youtubeUrl}" target="_blank" rel="noopener">YouTube</a></li>
           <li><a href="${SITE.spotifyUrl}" target="_blank" rel="noopener">Spotify</a></li>
           <li><a href="${SITE.xUrl}" target="_blank" rel="noopener">X</a></li>
           <li><a href="${SITE.instagramUrl}" target="_blank" rel="noopener">Instagram</a></li>
-          <li><a href="media-kit.html">Media Kit</a></li>
+          <li><a href="contato.html">Contato</a></li>
           <li><a href="privacidade.html">Privacidade</a></li>
         </ul>
       </div>

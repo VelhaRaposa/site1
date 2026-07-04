@@ -145,7 +145,7 @@ p{margin:0 0 1em;color:var(--text-secondary);}
   position:absolute;inset:0;z-index:0;opacity:.35;
   pointer-events:none;
 }
-.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center;}
+.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.5fr .6fr;gap:48px;align-items:center;}
 .hero p.lead{font-size:1.05rem;max-width:480px;}
 .hero-actions{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
 .hero-photo{

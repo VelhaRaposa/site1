@@ -31,10 +31,11 @@
   <div class="container hero-inner">
     <div>
       <p class="eyebrow">bitcoin · mercados · macro</p>
-      <h1>Entendendo o Bitcoin através da macroeconomia</h1>
-      <p class="lead">Análises sobre inflação, juros, liquidez global e geopolítica — e o que isso significa, de fato, para o Bitcoin. Sem hype, com tese.</p>
+      <h1>Você não precisa adivinhar o próximo movimento.</h1>
+      <p class="lead">Entenda os fatores que influenciam o Bitcoin e os mercados para investir com mais confiança.</p>
       <div class="hero-actions">
-        <a href="https://www.youtube.com/@caiogare" target="_blank" rel="noopener" class="btn btn-primary">Assistir no YouTube</a>
+        <a href="dca.html" class="btn btn-primary">Quanto eu teria hoje?</a>
+        <a href="parceiros.html" class="btn btn-ghost">Onde comprar Bitcoin</a>
       </div>
     </div>
     <div class="hero-photo">
@@ -47,16 +48,35 @@
   <div class="container">
     <div class="grid grid-3">
       <div class="stat">
-        <div class="num" id="stat-inscritos"></div>
-        <div class="label">inscritos no YouTube</div>
+        <div class="num" id="stat-inscritos">38 mil</div>
+        <div class="label">inscritos</div>
       </div>
       <div class="stat">
-        <div class="num">lives</div>
-        <div class="label">segunda • quarta • sexta</div>
+        <div class="num">+1.600</div>
+        <div class="label">vídeos e lives</div>
       </div>
       <div class="stat">
         <div class="num">2021</div>
-        <div class="label">no ar desde então</div>
+        <div class="label">analisando Bitcoin desde então</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="icon">₿</div>
+        <h3>Quanto eu teria hoje?</h3>
+        <p>Descubra quanto seus aportes em Bitcoin poderiam valer atualmente.</p>
+        <a href="dca.html" class="meta" style="color:var(--accent);">Simular agora →</a>
+      </div>
+      <div class="card">
+        <div class="icon">⇄</div>
+        <h3>Onde comprar Bitcoin</h3>
+        <p>Corretoras e soluções que utilizo para comprar e armazenar Bitcoin.</p>
+        <a href="parceiros.html" class="meta" style="color:var(--accent);">Ver opções →</a>
       </div>
     </div>
   </div>
@@ -76,27 +96,10 @@
 </section>
 
 <section class="section-border-top">
-  <div class="container">
-    <div class="grid grid-3">
-      <div class="card">
-        <div class="icon">₿</div>
-        <h3>Ferramenta DCA</h3>
-        <p>Simule quanto você teria hoje se investisse em Bitcoin ao longo do tempo.</p>
-        <a href="dca.html" class="meta" style="color:var(--accent);">Simular agora →</a>
-      </div>
-      <div class="card">
-        <div class="icon">◈</div>
-        <h3>Onde comprar Bitcoin</h3>
-        <p>Corretoras, plataformas P2P e hardwallets que eu de fato uso e indico.</p>
-        <a href="parceiros.html" class="meta" style="color:var(--accent);">Ver recomendações →</a>
-      </div>
-      <div class="card">
-        <div class="icon">✎</div>
-        <h3>Anuncie comigo</h3>
-        <p>Formatos de parceria para marcas que querem falar com essa audiência.</p>
-        <a href="anuncie.html" class="meta" style="color:var(--accent);">Saiba mais →</a>
-      </div>
-    </div>
+  <div class="container" style="max-width:640px;">
+    <h3 style="margin-bottom:8px;">Sobre Caio Garé</h3>
+    <p style="font-size:.92rem;">Analista focado em Bitcoin, mercados e economia. Desde 2021 publica análises sobre os fatores que influenciam o Bitcoin e já produziu mais de 1.600 vídeos e lives sobre o tema.</p>
+    <a href="sobre.html" class="btn btn-ghost" style="padding:.6em 1.2em;font-size:.85rem;">Sobre</a>
   </div>
 </section>
 
@@ -107,8 +110,6 @@
 <script src="assets/js/nav.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-  document.getElementById("stat-inscritos").textContent = SITE.inscritos;
-
   const wrap = document.getElementById("home-videos");
   wrap.innerHTML = `<p style="color:var(--text-muted);">Carregando vídeos…</p>`;
   const videos = await getLatestVideos(3);
