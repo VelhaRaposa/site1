@@ -6,18 +6,19 @@
    o histórico diário de preço do Bitcoin em reais (BRL).
 
    COMO ATUALIZAR OS DADOS:
-   O arquivo btc-history.json tem uma data final (a mais recente
-   disponível). Para estender esse período no futuro, basta
-   adicionar novas linhas no mesmo formato ao final do arquivo:
-     { "date": "AAAA-MM-DD", "price": 000000.00 }
-   mantendo a ordem cronológica. Não precisa de chave de API nem
-   de conexão com a internet para o site funcionar — só precisa
-   do arquivo atualizado.
+   Isso agora acontece sozinho, uma vez por semana, através de um robô
+   do GitHub Actions (veja .github/workflows/update-btc-history.yml e o
+   script scripts/update_btc_history.py). Você só precisa ativar isso
+   uma vez — instruções no README.md, seção 7.
 
-   OBSERVAÇÃO IMPORTANTE: como o arquivo é local, ele para de
-   crescer sozinho. A "data final" máxima disponível para
-   simulação é sempre a última data presente no arquivo — o
-   próprio formulário ajusta isso automaticamente.
+   Se preferir atualizar manualmente, também dá: basta adicionar novas
+   linhas no mesmo formato ao final do arquivo, mantendo a ordem
+   cronológica:
+     { "date": "AAAA-MM-DD", "price": 000000.00 }
+
+   OBSERVAÇÃO IMPORTANTE: a "data final" máxima disponível para
+   simulação é sempre a última data presente no arquivo — o próprio
+   formulário ajusta isso automaticamente.
    ========================================================= */
 
 let currentMode = "dca";

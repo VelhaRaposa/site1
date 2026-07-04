@@ -71,3 +71,26 @@ um arquivo local que o navegador lê diretamente — sem chamadas de rede.
 O gráfico é feito com Chart.js, que também está salvo localmente em
 `assets/js/vendor/chart.umd.min.js` — não carrega de nenhum CDN.
 
+## 7. Atualização automática dos dados (GitHub Actions)
+
+Incluído nesta versão: um robô gratuito do GitHub (`.github/workflows/update-btc-history.yml`)
+que roda sozinho **toda segunda-feira** e adiciona os dias que faltam em
+`btc-history.json`. A calculadora continua 100% local — esse robô roda
+nos servidores do GitHub, nunca no navegador de quem visita o site.
+
+**Para ativar, duas coisas (uma vez só):**
+
+1. **Permissão de escrita para o robô:**
+   Vá em `Settings → Actions → General`, desça até "Workflow permissions",
+   selecione **"Read and write permissions"** e salve.
+
+2. **(Opcional, mas recomendado) Cole sua chave da CoinGecko como Secret:**
+   Vá em `Settings → Secrets and variables → Actions → New repository secret`.
+   Nome: `COINGECKO_API_KEY`. Valor: a chave que você já criou em coingecko.com.
+   Isso deixa a busca de dados mais estável — sem isso, ainda funciona,
+   só que com limites mais apertados de uso.
+
+Pronto — a partir daí, o arquivo se atualiza sozinho toda semana. Se quiser
+forçar uma atualização na hora, vá na aba **Actions** do repositório,
+clique em "Atualizar histórico do Bitcoin" → **"Run workflow"**.
+
