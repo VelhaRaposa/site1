@@ -1,0 +1,41 @@
+name: Atualizar histórico do Bitcoin
+
+# Roda automaticamente toda segunda-feira às 06:00 (horário de Brasília
+# é UTC-3, então 09:00 UTC), e também pode ser disparado manualmente
+# na aba "Actions" do GitHub, botão "Run workflow".
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch: {}
+
+# Necessário para o robô poder commitar a atualização de volta no repositório.
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Buscar e adicionar os dias novos
+        env:
+          # Opcional: crie um "Secret" chamado COINGECKO_API_KEY nas
+          # configurações do repositório (Settings → Secrets and
+          # variables → Actions) com sua chave gratuita da CoinGecko.
+          COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+        run: python3 scripts/update_btc_history.py
+
+      - name: Commitar alterações (se houver algo novo)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/data/btc-history.json
+          git diff --cached --quiet && echo "Nada novo para commitar." || git commit -m "Atualiza histórico do Bitcoin (automático)"
+          git push
