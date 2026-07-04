@@ -24,7 +24,7 @@ const SITE = {
   // Como pegar: acesse youtube.com/account_advanced (logado na conta
   // do canal) e copie o "ID do canal".
   // Deixando em branco, o site usa a lista manual "videos" abaixo.
-  youtubeChannelId: "",
+  youtubeChannelId: "UCxL_cyAp4LyN9a8dFsjuKuw",
 
   // ---------- CHAVE DA COINGECKO (não é mais usada) ----------
   // A calculadora DCA passou a usar outra fonte de dados (CryptoCompare),
