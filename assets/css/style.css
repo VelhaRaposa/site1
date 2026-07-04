@@ -134,21 +134,6 @@ p{margin:0 0 1em;color:var(--text-secondary);}
   .nav-cta .btn-ghost{display:none;}
 }
 
-/* ---------- ticker (elemento-assinatura) ---------- */
-.ticker{
-  background:var(--bg-card);
-  border-bottom:1px solid var(--border);
-  overflow-x:auto;
-  font-family:var(--font-mono);font-size:.76rem;color:var(--text-muted);
-}
-.ticker-track{
-  display:flex;gap:32px;padding:9px 24px;
-  justify-content:center;flex-wrap:wrap;
-}
-.ticker-track span{display:inline-flex;gap:8px;align-items:center;white-space:nowrap;}
-.ticker-track .up{color:var(--green);}
-.ticker-track .down{color:var(--red);}
-
 /* ---------- hero ---------- */
 .hero{
   position:relative;

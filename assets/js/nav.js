@@ -8,7 +8,7 @@ const NAV_LINKS = [
   { href: "index.html", label: "Home" },
   { href: "sobre.html", label: "Sobre" },
   { href: "agenda.html", label: "Agenda" },
-  { href: "dca.html", label: "Ferramenta DCA" },
+  { href: "dca.html", label: "Calculadora DCA Bitcoin" },
   { href: "parceiros.html", label: "Onde comprar" },
   { href: "contato.html", label: "Contato" },
 ];
@@ -28,63 +28,11 @@ function renderHeader(){
         <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">☰</button>
       </div>
     </div>
-    <div class="ticker">
-      <div class="ticker-track" id="ticker-track"></div>
-    </div>
   `;
 
   document.getElementById("nav-toggle").addEventListener("click", () => {
     document.getElementById("nav-links").classList.toggle("open");
   });
-
-  renderTicker();
-}
-
-async function renderTicker(){
-  const track = document.getElementById("ticker-track");
-
-  const renderRow = (items) => {
-    track.innerHTML = items.map(i =>
-      `<span><strong>${i.label}</strong> ${i.value} ${i.dir === 'up' ? '▲' : i.dir === 'down' ? '▼' : ''}</span>`
-    ).join("");
-  };
-
-  const base = [
-    { label: "SELIC", value: SITE.selic, dir: "flat" },
-    { label: "CDI", value: SITE.cdi, dir: "flat" },
-  ];
-
-  renderRow([
-    { label: "BTC/USD", value: "carregando…", dir: "flat" },
-    { label: "USD/BRL", value: "carregando…", dir: "flat" },
-    ...base,
-  ]);
-
-  try {
-    const res = await fetch("https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC&tsyms=USD,BRL");
-    const data = await res.json();
-    const raw = data.RAW.BTC;
-
-    const btcUsd = raw.USD.PRICE;
-    const btcChange = raw.USD.CHANGEPCT24HOUR;
-    const usdBrl = raw.BRL.PRICE / raw.USD.PRICE;
-
-    renderRow([
-      {
-        label: "BTC/USD",
-        value: "$" + btcUsd.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + (btcChange >= 0 ? "+" : "") + btcChange.toFixed(1) + "%)",
-        dir: btcChange >= 0 ? "up" : "down",
-      },
-      { label: "USD/BRL", value: "R$" + usdBrl.toFixed(2), dir: "flat" },
-      ...base,
-    ]);
-  } catch (e) {
-    renderRow([
-      { label: "BTC/USD", value: "erro: " + e.message, dir: "flat" },
-      { label: "USD/BRL", value: "indisponível", dir: "flat" },
-      ...base,
-    ]);
-  }
 }
 
 function renderFooter(){
