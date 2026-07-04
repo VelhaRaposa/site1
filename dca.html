@@ -42,7 +42,7 @@
     <form id="dca-form">
       <div id="campo-valor-dca">
         <label for="valor">Valor investido por período (R$)</label>
-        <input type="number" id="valor" min="1" step="10" value="200" required>
+        <input type="number" id="valor" min="0" step="10" value="200" required>
 
         <label for="frequencia">Frequência das compras</label>
         <select id="frequencia">
@@ -54,7 +54,7 @@
 
       <div id="campo-valor-lump" style="display:none;">
         <label for="valor-lump">Valor total investido de uma vez (R$)</label>
-        <input type="number" id="valor-lump" min="1" step="10" value="5000">
+        <input type="number" id="valor-lump" min="0" step="10" value="5000">
       </div>
 
       <div class="field-row">
@@ -67,10 +67,6 @@
           <input type="date" id="fim" required>
         </div>
       </div>
-
-      <p style="font-size:.78rem;color:var(--text-muted);margin-top:-10px;">
-        No plano gratuito, o período máximo é de 365 dias entre as datas.
-      </p>
 
       <button type="submit" class="btn btn-primary" style="width:100%;">Calcular</button>
     </form>

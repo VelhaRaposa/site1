@@ -61,21 +61,18 @@ async function renderTicker(){
   ]);
 
   try {
-    const [btcRes, fxRes] = await Promise.all([
-      fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true"),
-      fetch("https://api.frankfurter.app/latest?from=USD&to=BRL"),
-    ]);
-    const btcData = await btcRes.json();
-    const fxData = await fxRes.json();
+    const res = await fetch("https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC&tsyms=USD,BRL");
+    const data = await res.json();
+    const raw = data.RAW.BTC;
 
-    const btcPrice = btcData.bitcoin.usd;
-    const btcChange = btcData.bitcoin.usd_24h_change;
-    const usdBrl = fxData.rates.BRL;
+    const btcUsd = raw.USD.PRICE;
+    const btcChange = raw.USD.CHANGEPCT24HOUR;
+    const usdBrl = raw.BRL.PRICE / raw.USD.PRICE;
 
     renderRow([
       {
         label: "BTC/USD",
-        value: "$" + btcPrice.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + (btcChange >= 0 ? "+" : "") + btcChange.toFixed(1) + "%)",
+        value: "$" + btcUsd.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + (btcChange >= 0 ? "+" : "") + btcChange.toFixed(1) + "%)",
         dir: btcChange >= 0 ? "up" : "down",
       },
       { label: "USD/BRL", value: "R$" + usdBrl.toFixed(2), dir: "flat" },

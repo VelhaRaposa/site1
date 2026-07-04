@@ -16,18 +16,20 @@
     <h1>Fale comigo</h1>
     <p class="lead">Para propostas de parceria, dúvidas ou qualquer outro assunto, fale direto por um destes canais:</p>
 
-    <div class="grid grid-2" style="margin-top:32px;">
-      <a href="mailto:caiogare.contato@gmail.com" class="card" style="text-align:center;">
-        <div class="icon" style="margin:0 auto 12px;">✉</div>
-        <h3>E-mail</h3>
-        <p style="font-size:.85rem;">caiogare.contato@gmail.com</p>
-      </a>
-      <a href="https://www.instagram.com/caiogare" target="_blank" rel="noopener" class="card" style="text-align:center;">
-        <div class="icon" style="margin:0 auto 12px;">◈</div>
-        <h3>Instagram</h3>
-        <p style="font-size:.85rem;">@caiogare</p>
-      </a>
+    <div class="card" style="margin-top:32px;">
+      <h3 style="margin-bottom:10px;">E-mail</h3>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="email-contato" value="caiogare.contato@gmail.com" readonly
+          style="flex:1;min-width:200px;margin-bottom:0;font-family:var(--font-mono);font-size:.88rem;">
+        <button type="button" class="btn btn-ghost" id="btn-copiar-email">Copiar</button>
+        <a href="mailto:caiogare.contato@gmail.com" class="btn btn-primary">Abrir e-mail</a>
+      </div>
     </div>
+
+    <a href="https://www.instagram.com/caiogare" target="_blank" rel="noopener" class="card" style="display:block;margin-top:16px;">
+      <h3 style="margin-bottom:4px;">Instagram</h3>
+      <p style="margin-bottom:0;">@caiogare — clique para abrir</p>
+    </a>
   </div>
 </section>
 
@@ -35,5 +37,20 @@
 <script src="assets/js/content.js"></script>
 <script src="assets/js/analytics.js"></script>
 <script src="assets/js/nav.js"></script>
+<script>
+document.getElementById("btn-copiar-email").addEventListener("click", async () => {
+  const input = document.getElementById("email-contato");
+  input.select();
+  try {
+    await navigator.clipboard.writeText(input.value);
+    const btn = document.getElementById("btn-copiar-email");
+    const original = btn.textContent;
+    btn.textContent = "Copiado!";
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  } catch (e) {
+    document.execCommand("copy");
+  }
+});
+</script>
 </body>
 </html>

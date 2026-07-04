@@ -204,6 +204,14 @@ section{padding:64px 0;}
 .card p{font-size:.92rem;margin-bottom:0;}
 .card .meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);margin-top:14px;}
 
+/* cartão de parceiro: botão sempre alinhado embaixo, espaço pra logo */
+.partner-card{display:flex;flex-direction:column;}
+.partner-card p{flex-grow:1;}
+.partner-logo{
+  width:100%;height:56px;display:flex;align-items:center;margin-bottom:14px;
+}
+.partner-logo img{max-height:56px;max-width:140px;object-fit:contain;}
+
 /* vídeo card */
 .video-card{display:block;}
 .video-thumb{
@@ -231,12 +239,13 @@ section{padding:64px 0;}
 
 /* tabela / agenda */
 .schedule-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:16px 0;border-bottom:1px solid var(--border);
-  font-size:.92rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+  padding:24px;border:1px solid var(--border);border-radius:var(--radius-md);
+  background:var(--bg-card);
 }
-.schedule-row .day{font-family:var(--font-display);font-weight:600;width:110px;}
-.schedule-row .time{font-family:var(--font-mono);color:var(--accent);}
+.schedule-row .day{font-family:var(--font-display);font-weight:600;font-size:1.15rem;}
+.schedule-row .time{font-family:var(--font-mono);color:var(--accent);font-size:1.3rem;font-weight:600;}
+.schedule-row .title{font-size:.95rem;color:var(--text-secondary);}
 
 /* forms */
 label{display:block;font-size:.82rem;color:var(--text-secondary);margin-bottom:6px;}

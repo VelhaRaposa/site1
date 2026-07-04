@@ -32,7 +32,8 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("partners-list").innerHTML = SITE.parceiros.map(p => `
-    <div class="card">
+    <div class="card partner-card">
+      ${p.logo ? `<div class="partner-logo"><img src="${p.logo}" alt="${p.nome}"></div>` : ""}
       <span class="tag">${p.tipo}</span>
       <h3>${p.nome}</h3>
       <p>${p.descricao}</p>

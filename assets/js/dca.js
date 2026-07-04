@@ -1,8 +1,7 @@
 /* =========================================================
    DCA.JS — simulador de DCA e Lump Sum em Bitcoin
-   Usa a API da CoinGecko. Funciona melhor com uma chave gratuita
-   configurada em SITE.coingeckoApiKey (veja content.js).
-   Não precisa editar este arquivo.
+   Usa a API gratuita da CryptoCompare (sem chave, sem limite de
+   período). Não precisa editar este arquivo.
    ========================================================= */
 
 let currentMode = "dca";
@@ -31,31 +30,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  function buildUrl(path, params) {
-    const base = "https://api.coingecko.com/api/v3" + path;
-    const query = new URLSearchParams(params);
-    if (SITE.coingeckoApiKey) query.set("x_cg_demo_api_key", SITE.coingeckoApiKey);
-    return base + "?" + query.toString();
-  }
-
+  /* Busca preços diários históricos na CryptoCompare, paginando de
+     2000 em 2000 dias (limite por chamada) até cobrir o período
+     inteiro pedido. */
   async function fetchPrices(fromDate, toDate) {
-    const from = Math.floor(fromDate.getTime() / 1000);
-    const to = Math.floor(toDate.getTime() / 1000);
-    const url = buildUrl("/coins/bitcoin/market_chart/range", {
-      vs_currency: "brl",
-      from: from,
-      to: to,
-    });
-    const res = await fetch(url);
-    if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        throw new Error("chave");
+    let allPoints = [];
+    let toTs = Math.floor(toDate.getTime() / 1000);
+    const fromTs = Math.floor(fromDate.getTime() / 1000);
+    let safety = 0;
+
+    while (safety < 10) {
+      safety++;
+      const url = `https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=BRL&limit=2000&toTs=${toTs}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.Response !== "Success" || !data.Data || !data.Data.Data || data.Data.Data.length === 0) {
+        throw new Error("falha");
       }
-      throw new Error("falha");
+      const points = data.Data.Data.map(d => [d.time * 1000, d.close]).filter(p => p[1] > 0);
+      allPoints = points.concat(allPoints);
+
+      const earliest = points[0][0] / 1000;
+      if (earliest <= fromTs || points.length < 2) break;
+      toTs = earliest - 86400;
     }
-    const data = await res.json();
-    if (!data.prices || data.prices.length === 0) throw new Error("vazio");
-    return data.prices; // [ [timestamp_ms, preco], ... ]
+
+    const filtered = allPoints.filter(p => p[0] >= fromTs * 1000 - 86400000 && p[0] <= toTs * 1000 + 86400000 * 2000);
+    if (filtered.length === 0) throw new Error("vazio");
+    return filtered;
   }
 
   function closestPrice(prices, targetTs) {
@@ -69,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderChart(points) {
-    // points: [{ts, investido, valor}]
     const w = 640, h = 260, pad = 36;
     const maxY = Math.max(...points.map(p => Math.max(p.investido, p.valor))) * 1.08 || 1;
     const minTs = points[0].ts, maxTs = points[points.length - 1].ts;
@@ -87,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return `<line x1="${pad}" y1="${yy}" x2="${w - pad}" y2="${yy}" stroke="#1F2634" stroke-width="1"/>`;
     }).join("");
 
-    const svg = `
+    chartWrap.innerHTML = `
       <svg id="dca-chart" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
         ${gridLines}
         <path d="${linePath('investido')}" fill="none" stroke="#5B6478" stroke-width="1.5" stroke-dasharray="4 4"/>
@@ -98,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <span><span style="display:inline-block;width:10px;height:10px;background:#5B6478;border-radius:2px;margin-right:6px;"></span>Total investido</span>
       </div>
     `;
-    chartWrap.innerHTML = svg;
   }
 
   form.addEventListener("submit", async (e) => {
@@ -113,12 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (inicioDate >= fimDate) {
       errorEl.textContent = "A data inicial precisa ser antes da data final.";
-      resultEl.innerHTML = "";
-      return;
-    }
-    const diasPeriodo = (fimDate - inicioDate) / 86400000;
-    if (diasPeriodo > 365) {
-      errorEl.textContent = "No plano gratuito, o período entre as datas não pode passar de 365 dias. Escolha um intervalo menor.";
       resultEl.innerHTML = "";
       return;
     }
@@ -167,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
           chartPoints.push({ ts: p[0], investido: acumuladoInvestido, valor: acumuladoBTC * p[1] });
         });
 
-        // garante que todos os aportes já programados entraram (caso o último fique após o último preço)
         while (aporteIndex < aportesTs.length) {
           acumuladoBTC += valorPeriodo / precoAtual;
           acumuladoInvestido += valorPeriodo;
@@ -194,11 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (chartPoints.length > 1) renderChart(chartPoints);
 
     } catch (err) {
-      if (err.message === "chave") {
-        errorEl.innerHTML = `Não foi possível buscar os dados — provavelmente é preciso configurar a chave gratuita da CoinGecko (veja instruções no arquivo <code>content.js</code>).`;
-      } else {
-        errorEl.textContent = "Não foi possível calcular agora. Tente novamente em instantes ou escolha um período menor.";
-      }
+      errorEl.textContent = "Não foi possível calcular agora. Tente novamente em instantes.";
       resultEl.innerHTML = "";
     }
   });
