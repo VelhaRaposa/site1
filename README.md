@@ -51,3 +51,23 @@ placeholder `<div class="hero-photo">` no `index.html` por:
 <img src="assets/img/perfil.jpg" alt="Caio Garé" style="width:100%;height:100%;object-fit:cover;">
 ```
 dentro da `div class="hero-photo"`.
+
+## 6. Calculadora DCA — dados 100% locais
+
+A partir desta versão, a Ferramenta DCA não depende de nenhuma API externa.
+Os preços históricos do Bitcoin (em reais) ficam em `assets/data/btc-history.json`,
+um arquivo local que o navegador lê diretamente — sem chamadas de rede.
+
+**Isso significa duas coisas importantes:**
+
+1. A calculadora nunca mais vai quebrar por causa de bloqueador de anúncio,
+   chave de API vencida, ou mudança de política de terceiros.
+2. Os dados têm uma "data final" fixa (a mais recente no arquivo). Para
+   estender esse período no futuro, é preciso atualizar o arquivo — meça
+   isso a cada poucos meses, pedindo pra eu gerar uma versão mais recente,
+   ou seguindo o formato de uma linha por dia:
+   `{"date": "AAAA-MM-DD", "price": 000000.00}`
+
+O gráfico é feito com Chart.js, que também está salvo localmente em
+`assets/js/vendor/chart.umd.min.js` — não carrega de nenhum CDN.
+

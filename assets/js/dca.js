@@ -1,23 +1,101 @@
 /* =========================================================
    DCA.JS — simulador de DCA e Lump Sum em Bitcoin
-   Usa a API gratuita da CryptoCompare (sem chave, sem limite de
-   período). Não precisa editar este arquivo.
+   =========================================================
+   100% LOCAL — nenhuma chamada de rede, nenhuma API externa.
+   Os dados vêm de assets/data/btc-history.json, um arquivo com
+   o histórico diário de preço do Bitcoin em reais (BRL).
+
+   COMO ATUALIZAR OS DADOS:
+   O arquivo btc-history.json tem uma data final (a mais recente
+   disponível). Para estender esse período no futuro, basta
+   adicionar novas linhas no mesmo formato ao final do arquivo:
+     { "date": "AAAA-MM-DD", "price": 000000.00 }
+   mantendo a ordem cronológica. Não precisa de chave de API nem
+   de conexão com a internet para o site funcionar — só precisa
+   do arquivo atualizado.
+
+   OBSERVAÇÃO IMPORTANTE: como o arquivo é local, ele para de
+   crescer sozinho. A "data final" máxima disponível para
+   simulação é sempre a última data presente no arquivo — o
+   próprio formulário ajusta isso automaticamente.
    ========================================================= */
 
 let currentMode = "dca";
+let priceHistory = []; // [{date, price}], ordenado por data
+let chartInstance = null;
 
-document.addEventListener("DOMContentLoaded", () => {
+async function loadHistory() {
+  const res = await fetch("assets/data/btc-history.json");
+  if (!res.ok) throw new Error("Não foi possível carregar assets/data/btc-history.json");
+  return res.json();
+}
+
+function findPrice(dateStr) {
+  // busca exata primeiro
+  let lo = 0, hi = priceHistory.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (priceHistory[mid].date === dateStr) return priceHistory[mid].price;
+    if (priceHistory[mid].date < dateStr) lo = mid + 1;
+    else hi = mid - 1;
+  }
+  // não achou exato: pega o mais próximo (o índice "lo" é onde entraria)
+  const candidates = [priceHistory[lo - 1], priceHistory[lo]].filter(Boolean);
+  if (candidates.length === 0) return null;
+  candidates.sort((a, b) =>
+    Math.abs(new Date(a.date) - new Date(dateStr)) - Math.abs(new Date(b.date) - new Date(dateStr))
+  );
+  return candidates[0].price;
+}
+
+function addDays(dateStr, days) {
+  const d = new Date(dateStr + "T00:00:00");
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function fmtBRL(n) {
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+function fmtDateBR(dateStr) {
+  const [y, m, d] = dateStr.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
   const form = document.getElementById("dca-form");
   const resultEl = document.getElementById("dca-result");
   const errorEl = document.getElementById("dca-error");
-  const chartWrap = document.getElementById("dca-chart-wrap");
+  const chartWrap = document.getElementById("dca-chart-canvas-wrap");
+  const tableSection = document.getElementById("dca-table-section");
+  const tableBody = document.getElementById("dca-table-body");
+  const infoEl = document.getElementById("dca-data-info");
 
-  // datas padrão: últimos 6 meses
-  const fim = new Date();
-  const inicio = new Date();
-  inicio.setMonth(inicio.getMonth() - 6);
-  document.getElementById("fim").value = fim.toISOString().slice(0, 10);
-  document.getElementById("inicio").value = inicio.toISOString().slice(0, 10);
+  try {
+    priceHistory = await loadHistory();
+  } catch (e) {
+    errorEl.textContent = "Não foi possível carregar os dados históricos locais (" + e.message + "). Verifique se o arquivo assets/data/btc-history.json existe.";
+    form.querySelector("button[type=submit]").disabled = true;
+    return;
+  }
+
+  const minDate = priceHistory[0].date;
+  const maxDate = priceHistory[priceHistory.length - 1].date;
+
+  const inicioInput = document.getElementById("inicio");
+  const fimInput = document.getElementById("fim");
+  inicioInput.min = minDate;
+  inicioInput.max = maxDate;
+  fimInput.min = minDate;
+  fimInput.max = maxDate;
+
+  // datas padrão: últimos 6 meses disponíveis no arquivo local
+  fimInput.value = maxDate;
+  const seisMesesAntes = new Date(maxDate + "T00:00:00");
+  seisMesesAntes.setMonth(seisMesesAntes.getMonth() - 6);
+  inicioInput.value = seisMesesAntes.toISOString().slice(0, 10) < minDate ? minDate : seisMesesAntes.toISOString().slice(0, 10);
+
+  infoEl.textContent = `Dados disponíveis de ${fmtDateBR(minDate)} até ${fmtDateBR(maxDate)}.`;
 
   // alterna entre abas DCA / Lump Sum
   document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -30,165 +108,184 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  /* Busca preços diários históricos na CryptoCompare, paginando de
-     2000 em 2000 dias (limite por chamada) até cobrir o período
-     inteiro pedido. */
-  async function fetchPrices(fromDate, toDate) {
-    let allPoints = [];
-    let toTs = Math.floor(toDate.getTime() / 1000);
-    const fromTs = Math.floor(fromDate.getTime() / 1000);
-    let safety = 0;
+  function renderChart(labels, investidoSerie, valorSerie) {
+    chartWrap.style.display = "block";
+    const ctx = document.getElementById("dca-chart-canvas").getContext("2d");
+    if (chartInstance) chartInstance.destroy();
 
-    while (safety < 10) {
-      safety++;
-      const url = `https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=BRL&limit=2000&toTs=${toTs}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.Response !== "Success" || !data.Data || !data.Data.Data || data.Data.Data.length === 0) {
-        throw new Error("falha");
-      }
-      const points = data.Data.Data.map(d => [d.time * 1000, d.close]).filter(p => p[1] > 0);
-      allPoints = points.concat(allPoints);
-
-      const earliest = points[0][0] / 1000;
-      if (earliest <= fromTs || points.length < 2) break;
-      toTs = earliest - 86400;
-    }
-
-    const filtered = allPoints.filter(p => p[0] >= fromTs * 1000 - 86400000 && p[0] <= toTs * 1000 + 86400000 * 2000);
-    if (filtered.length === 0) throw new Error("vazio");
-    return filtered;
+    chartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Valor da carteira",
+            data: valorSerie,
+            borderColor: "#F7931A",
+            backgroundColor: "rgba(247,147,26,0.08)",
+            borderWidth: 2.5,
+            pointRadius: 0,
+            fill: true,
+            tension: 0.15,
+          },
+          {
+            label: "Total investido",
+            data: investidoSerie,
+            borderColor: "#5B6478",
+            borderDash: [4, 4],
+            borderWidth: 1.5,
+            pointRadius: 0,
+            fill: false,
+            tension: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        scales: {
+          x: {
+            grid: { color: "#1F2634" },
+            ticks: { color: "#8B93A7", maxTicksLimit: 8, font: { family: "JetBrains Mono", size: 10 } },
+          },
+          y: {
+            grid: { color: "#1F2634" },
+            ticks: {
+              color: "#8B93A7",
+              font: { family: "JetBrains Mono", size: 10 },
+              callback: (v) => "R$" + (v / 1000).toFixed(0) + "k",
+            },
+          },
+        },
+        plugins: {
+          legend: { labels: { color: "#F2F3F5", font: { family: "Inter", size: 12 } } },
+          tooltip: {
+            backgroundColor: "#10141F",
+            borderColor: "#2B3448",
+            borderWidth: 1,
+            titleColor: "#F2F3F5",
+            bodyColor: "#8B93A7",
+            callbacks: {
+              label: (item) => item.dataset.label + ": " + fmtBRL(item.raw),
+            },
+          },
+        },
+      },
+    });
   }
 
-  function closestPrice(prices, targetTs) {
-    let closest = prices[0];
-    let minDiff = Math.abs(prices[0][0] - targetTs);
-    for (const p of prices) {
-      const diff = Math.abs(p[0] - targetTs);
-      if (diff < minDiff) { minDiff = diff; closest = p; }
-    }
-    return closest[1];
+  function renderTable(rows) {
+    tableSection.style.display = "block";
+    tableBody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${fmtDateBR(r.date)}</td>
+        <td>${fmtBRL(r.preco)}</td>
+        <td>${fmtBRL(r.aportado)}</td>
+        <td>${r.btcComprado.toFixed(8)}</td>
+        <td>${r.btcAcumulado.toFixed(8)}</td>
+        <td>${fmtBRL(r.patrimonio)}</td>
+      </tr>
+    `).join("");
   }
 
-  function renderChart(points) {
-    const w = 640, h = 260, pad = 36;
-    const maxY = Math.max(...points.map(p => Math.max(p.investido, p.valor))) * 1.08 || 1;
-    const minTs = points[0].ts, maxTs = points[points.length - 1].ts;
-    const spanTs = (maxTs - minTs) || 1;
-
-    const x = (ts) => pad + ((ts - minTs) / spanTs) * (w - pad * 2);
-    const y = (v) => h - pad - (v / maxY) * (h - pad * 2);
-
-    const linePath = (key) => points.map((p, i) =>
-      (i === 0 ? "M" : "L") + x(p.ts).toFixed(1) + "," + y(p[key]).toFixed(1)
-    ).join(" ");
-
-    const gridLines = [0, 0.25, 0.5, 0.75, 1].map(f => {
-      const yy = h - pad - f * (h - pad * 2);
-      return `<line x1="${pad}" y1="${yy}" x2="${w - pad}" y2="${yy}" stroke="#1F2634" stroke-width="1"/>`;
-    }).join("");
-
-    chartWrap.innerHTML = `
-      <svg id="dca-chart" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-        ${gridLines}
-        <path d="${linePath('investido')}" fill="none" stroke="#5B6478" stroke-width="1.5" stroke-dasharray="4 4"/>
-        <path d="${linePath('valor')}" fill="none" stroke="#F7931A" stroke-width="2.5"/>
-      </svg>
-      <div style="display:flex;gap:20px;font-size:.78rem;color:var(--text-muted);margin-top:10px;">
-        <span><span style="display:inline-block;width:10px;height:10px;background:#F7931A;border-radius:2px;margin-right:6px;"></span>Valor da carteira</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#5B6478;border-radius:2px;margin-right:6px;"></span>Total investido</span>
-      </div>
-    `;
-  }
-
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
     errorEl.textContent = "";
-    resultEl.innerHTML = `<p style="color:var(--text-muted);">Calculando…</p>`;
-    chartWrap.innerHTML = "";
+    resultEl.innerHTML = "";
+    chartWrap.style.display = "none";
+    tableSection.style.display = "none";
 
-    const inicioDate = new Date(document.getElementById("inicio").value + "T00:00:00");
-    const fimDate = new Date(document.getElementById("fim").value + "T00:00:00");
-    const hoje = new Date();
+    const inicio = inicioInput.value;
+    const fim = fimInput.value;
 
-    if (inicioDate >= fimDate) {
+    if (!inicio || !fim || inicio >= fim) {
       errorEl.textContent = "A data inicial precisa ser antes da data final.";
-      resultEl.innerHTML = "";
       return;
     }
 
     try {
-      const prices = await fetchPrices(inicioDate, fimDate > hoje ? hoje : fimDate);
-      const fmt = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-      const precoAtual = prices[prices.length - 1][1];
+      const precoFinal = findPrice(fim);
+      const rows = [];
+      const chartLabels = [];
+      const chartInvestido = [];
+      const chartValor = [];
 
       let totalInvestido = 0;
       let totalBTC = 0;
-      const chartPoints = [];
 
       if (currentMode === "lump") {
         const valorTotal = parseFloat(document.getElementById("valor-lump").value);
-        const precoCompra = closestPrice(prices, inicioDate.getTime());
+        const precoCompra = findPrice(inicio);
         totalInvestido = valorTotal;
         totalBTC = valorTotal / precoCompra;
 
-        prices.forEach(p => {
-          chartPoints.push({ ts: p[0], investido: totalInvestido, valor: totalBTC * p[1] });
+        rows.push({
+          date: inicio, preco: precoCompra, aportado: valorTotal,
+          btcComprado: totalBTC, btcAcumulado: totalBTC, patrimonio: totalBTC * precoCompra,
         });
+
+        // snapshots mensais pra tabela e gráfico
+        let cursor = inicio;
+        while (cursor <= fim) {
+          const preco = findPrice(cursor);
+          chartLabels.push(fmtDateBR(cursor));
+          chartInvestido.push(totalInvestido);
+          chartValor.push(totalBTC * preco);
+          if (cursor !== inicio) {
+            rows.push({
+              date: cursor, preco, aportado: 0,
+              btcComprado: 0, btcAcumulado: totalBTC, patrimonio: totalBTC * preco,
+            });
+          }
+          cursor = addDays(cursor, 30);
+        }
 
       } else {
         const valorPeriodo = parseFloat(document.getElementById("valor").value);
         const freq = document.getElementById("frequencia").value;
         const stepDays = freq === "daily" ? 1 : freq === "weekly" ? 7 : 30;
 
-        let cursor = new Date(inicioDate);
-        const aportesTs = [];
-        while (cursor <= fimDate && cursor <= hoje) {
-          aportesTs.push(cursor.getTime());
-          cursor = new Date(cursor.getTime() + stepDays * 86400000);
+        let cursor = inicio;
+        while (cursor <= fim) {
+          const preco = findPrice(cursor);
+          const btcComprado = valorPeriodo / preco;
+          totalBTC += btcComprado;
+          totalInvestido += valorPeriodo;
+
+          rows.push({
+            date: cursor, preco, aportado: valorPeriodo,
+            btcComprado, btcAcumulado: totalBTC, patrimonio: totalBTC * preco,
+          });
+          chartLabels.push(fmtDateBR(cursor));
+          chartInvestido.push(totalInvestido);
+          chartValor.push(totalBTC * preco);
+
+          cursor = addDays(cursor, stepDays);
         }
-
-        let acumuladoBTC = 0;
-        let acumuladoInvestido = 0;
-        let aporteIndex = 0;
-
-        prices.forEach(p => {
-          while (aporteIndex < aportesTs.length && aportesTs[aporteIndex] <= p[0]) {
-            acumuladoBTC += valorPeriodo / closestPrice(prices, aportesTs[aporteIndex]);
-            acumuladoInvestido += valorPeriodo;
-            aporteIndex++;
-          }
-          chartPoints.push({ ts: p[0], investido: acumuladoInvestido, valor: acumuladoBTC * p[1] });
-        });
-
-        while (aporteIndex < aportesTs.length) {
-          acumuladoBTC += valorPeriodo / precoAtual;
-          acumuladoInvestido += valorPeriodo;
-          aporteIndex++;
-        }
-
-        totalBTC = acumuladoBTC;
-        totalInvestido = acumuladoInvestido;
       }
 
-      const valorAtual = totalBTC * precoAtual;
+      const valorAtual = totalBTC * precoFinal;
       const lucro = valorAtual - totalInvestido;
       const lucroPct = totalInvestido > 0 ? (lucro / totalInvestido) * 100 : 0;
+      const precoMedio = totalInvestido / (totalBTC || 1);
 
       resultEl.innerHTML = `
-        <div class="grid grid-2">
-          <div class="stat"><div class="num">${fmt(totalInvestido)}</div><div class="label">total investido</div></div>
+        <div class="grid grid-3">
+          <div class="stat"><div class="num">${fmtBRL(totalInvestido)}</div><div class="label">total investido</div></div>
           <div class="stat"><div class="num">${totalBTC.toFixed(6)}</div><div class="label">BTC acumulado</div></div>
-          <div class="stat"><div class="num">${fmt(totalInvestido / (totalBTC || 1))}</div><div class="label">preço médio de compra</div></div>
-          <div class="stat"><div class="num" style="color:${lucro >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(valorAtual)}</div><div class="label">valor hoje (${lucroPct >= 0 ? '+' : ''}${lucroPct.toFixed(1)}%)</div></div>
+          <div class="stat"><div class="num">${fmtBRL(precoMedio)}</div><div class="label">preço médio de compra</div></div>
+          <div class="stat"><div class="num" style="color:${lucro >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtBRL(valorAtual)}</div><div class="label">valor em ${fmtDateBR(fim)}</div></div>
+          <div class="stat"><div class="num" style="color:${lucroPct >= 0 ? 'var(--green)' : 'var(--red)'}">${lucroPct >= 0 ? '+' : ''}${lucroPct.toFixed(1)}%</div><div class="label">rentabilidade</div></div>
+          <div class="stat"><div class="num" style="color:${lucro >= 0 ? 'var(--green)' : 'var(--red)'}">${lucro >= 0 ? '+' : ''}${fmtBRL(lucro)}</div><div class="label">rentabilidade em R$</div></div>
         </div>
       `;
 
-      if (chartPoints.length > 1) renderChart(chartPoints);
+      renderChart(chartLabels, chartInvestido, chartValor);
+      renderTable(rows);
 
     } catch (err) {
-      errorEl.textContent = "Não foi possível calcular agora. Detalhe técnico: " + err.message;
-      resultEl.innerHTML = "";
+      errorEl.textContent = "Não foi possível calcular. Detalhe técnico: " + err.message;
     }
   });
 });
