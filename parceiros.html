@@ -33,7 +33,7 @@
     <div class="section-head">
       <h2>Guardar Bitcoin</h2>
     </div>
-    <div class="grid" id="secao-guardar" style="grid-template-columns:1fr;"></div>
+    <div class="grid grid-2" id="secao-guardar"></div>
   </div>
 </section>
 
@@ -55,9 +55,9 @@
   </div>
 </section>
 
-<section class="section-border-top" style="padding:24px 0;">
+<section style="padding:8px 0 20px;">
   <div class="container">
-    <div class="disclaimer-box" style="max-width:640px;">
+    <div class="disclaimer-box" style="max-width:640px;margin-top:0;">
       Alguns links desta página podem gerar comissão para o site sem custo adicional para você.
     </div>
   </div>
@@ -74,9 +74,11 @@ function cardFerramenta(item) {
     : "";
   return `
     <div class="card partner-card">
-      ${item.logo ? `<div class="partner-logo"><img src="${item.logo}" alt="${item.nome}"></div>` : ""}
       ${item.categoria ? `<span class="tag">${item.categoria}</span>` : ""}
-      <h3>${item.nome}</h3>
+      <div class="partner-header">
+        ${item.logo ? `<img src="${item.logo}" alt="${item.nome}" class="partner-logo-img">` : ""}
+        <h3 style="margin:0;">${item.nome}</h3>
+      </div>
       <p>${item.descricao}</p>
       ${item.selo ? `<span class="selo">${item.selo}</span>` : ""}
       <div style="display:flex;gap:10px;margin-top:14px;">
