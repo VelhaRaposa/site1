@@ -29,10 +29,37 @@ function renderHeader(){
     </div>
   `;
 
-  document.getElementById("nav-toggle").addEventListener("click", () => {
-    const navLinks = document.getElementById("nav-links");
-    navLinks.classList.toggle("open");
-    document.body.style.overflow = navLinks.classList.contains("open") ? "hidden" : "";
+  /* ---------- menu mobile ----------
+     Importante: este painel é anexado direto no <body>, fora do
+     #site-header. Isso é proposital: o #site-header usa
+     backdrop-filter, e qualquer elemento com backdrop-filter/filter/
+     transform vira uma "âncora" para os filhos position:fixed dentro
+     dele — nesse caso, o menu mobile deixava de se fixar na tela
+     inteira e ficava preso na altura de ~66px do cabeçalho, sobrando
+     espaço só pro primeiro item. Ficando fora do header, o menu se
+     fixa corretamente na tela inteira, como deveria. */
+  let mobileMenu = document.getElementById("mobile-menu");
+  if (!mobileMenu) {
+    mobileMenu = document.createElement("div");
+    mobileMenu.id = "mobile-menu";
+    document.body.appendChild(mobileMenu);
+  }
+  mobileMenu.innerHTML = `<nav class="mobile-menu-links">${links}</nav>`;
+
+  const navToggle = document.getElementById("nav-toggle");
+  navToggle.addEventListener("click", () => {
+    const isOpen = mobileMenu.classList.toggle("open");
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    navToggle.textContent = isOpen ? "✕" : "☰";
+  });
+
+  // fecha o menu automaticamente se a pessoa girar a tela pra desktop
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 860 && mobileMenu.classList.contains("open")) {
+      mobileMenu.classList.remove("open");
+      document.body.style.overflow = "";
+      navToggle.textContent = "☰";
+    }
   });
 }
 

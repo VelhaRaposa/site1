@@ -89,8 +89,9 @@ const SITE = {
   // declarar, usar), não como lista de afiliados.
   // Campos por item:
   //   nome, categoria, descricao, url, idClique (usado no rastreio de clique)
-  //   logo: caminho opcional pra imagem (assets/img/logos/arquivo.png).
-  //   Se ficar em branco, o card mostra só o nome, sem quebrar o layout.
+  //   logo: null (sem logo, comportamento atual) ou o caminho do arquivo,
+  //   ex: "assets/img/logos/blofin.png". Se existir, aparece acima do
+  //   nome no card. Se for null, o card mostra só o nome — nada quebra.
   //   urlSecundaria + textoSecundario: opcional, pra um segundo botão (ex: "Ver tutorial")
   //   selo: opcional, texto pequeno tipo "491 usuários cadastrados pela comunidade"
   // Campos com "COLE_AQUI..." precisam do link real antes de publicar.
@@ -105,7 +106,7 @@ const SITE = {
             descricao: "Corretora internacional com 10% de cashback nas taxas.",
             url: "https://partner.blofin.com/d/caio",
             idClique: "blofin",
-            logo: "",
+            logo: null,
           },
           {
             nome: "Fort Exchange",
@@ -115,17 +116,7 @@ const SITE = {
             idClique: "fort-exchange",
             urlSecundaria: "https://youtu.be/OMFKbnnL9Mw",
             textoSecundario: "Ver tutorial",
-            logo: "",
-          },
-          {
-            nome: "Binance",
-            categoria: "Corretora",
-            descricao: "Maior corretora de criptomoedas do mundo com 10% de cashback nas taxas.",
-            url: "https://www.binance.com/register?ref=CAIOGARE",
-            idClique: "binance",
-            urlSecundaria: "https://youtu.be/nnlsfQtThzc",
-            textoSecundario: "Ver tutorial",
-            logo: "",
+            logo: null,
           },
         ],
       },
@@ -138,7 +129,7 @@ const SITE = {
             descricao: "Revenda oficial de Trezor, Ledger e SecuX no Brasil. Utilizo Trezor para armazenar meu Bitcoin.",
             url: "https://kriptobr.com/caiogare/",
             idClique: "kriptobr",
-            logo: "",
+            logo: null,
           },
         ],
       },
@@ -151,7 +142,7 @@ const SITE = {
             descricao: "Ferramenta para organizar operações e auxiliar na declaração de criptomoedas.",
             url: "https://declarecripto.com.br/parceiro/caiogare",
             idClique: "declare-cripto",
-            logo: "",
+            logo: null,
           },
           {
             nome: "RedotPay",
@@ -159,13 +150,31 @@ const SITE = {
             descricao: "Cartão para utilizar criptomoedas em pagamentos do dia a dia.",
             url: "https://url.hk/i/pt/wcp3x",
             idClique: "redotpay",
-            logo: "",
+            logo: null,
           },
         ],
       },
       {
         titulo: "Outras plataformas",
         itens: [
+          {
+            nome: "Binance",
+            categoria: "Corretora",
+            descricao: "Maior corretora de criptomoedas do mundo com 10% de cashback nas taxas.",
+            url: "https://www.binance.com/register?ref=CAIOGARE",
+            idClique: "binance",
+            urlSecundaria: "https://youtu.be/nnlsfQtThzc",
+            textoSecundario: "Ver tutorial",
+            logo: null,
+          },
+          {
+            nome: "Bybit",
+            categoria: "",
+            descricao: "Corretora popular entre traders, com saque PIX e boa experiência de uso.",
+            url: "https://www.bybit.com/invite?ref=ZRKDDR&medium=referral&utm_campaign=evergreen&share_to=link",
+            idClique: "bybit",
+            logo: null,
+          },
           {
             nome: "CoinEx",
             categoria: "",
@@ -175,7 +184,7 @@ const SITE = {
             urlSecundaria: "https://youtu.be/t6A5AZ9uzoc",
             textoSecundario: "Ver tutorial",
             selo: `${CONTADORES.coinex} usuários cadastrados pela comunidade`,
-            logo: "",
+            logo: null,
           },
           {
             nome: "Bitget",
@@ -186,15 +195,7 @@ const SITE = {
             urlSecundaria: "https://youtu.be/VV0c85oxxcs",
             textoSecundario: "Ver tutorial",
             selo: `${CONTADORES.bitget} usuários cadastrados pela comunidade`,
-            logo: "",
-          },
-          {
-            nome: "Bybit",
-            categoria: "",
-            descricao: "Corretora popular entre traders, com saque PIX e boa experiência de uso.",
-            url: "https://www.bybit.com/invite?ref=ZRKDDR&medium=referral&utm_campaign=evergreen&share_to=link",
-            idClique: "bybit",
-            logo: "",
+            logo: null,
           },
         ],
       },
