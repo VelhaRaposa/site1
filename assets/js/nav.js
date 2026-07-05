@@ -30,7 +30,9 @@ function renderHeader(){
   `;
 
   document.getElementById("nav-toggle").addEventListener("click", () => {
-    document.getElementById("nav-links").classList.toggle("open");
+    const navLinks = document.getElementById("nav-links");
+    navLinks.classList.toggle("open");
+    document.body.style.overflow = navLinks.classList.contains("open") ? "hidden" : "";
   });
 }
 

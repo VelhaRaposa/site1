@@ -6,6 +6,21 @@
    ou copiar/colar um bloco { ... } novo para adicionar item.
    ========================================================= */
 
+/* =========================================================
+   CONTADORES DA COMUNIDADE — edite só aqui
+   =========================================================
+   Esses números aparecem como selo discreto nos cards da página
+   "Ferramentas para Bitcoin". Pra atualizar, troque só o número
+   abaixo — o texto do site se atualiza sozinho em todo lugar que
+   usa esse contador.
+   Exemplo: pra CoinEx passar de 491 para 520 usuários, troque
+   "coinex: 491" por "coinex: 520" logo abaixo.
+   ========================================================= */
+const CONTADORES = {
+  coinex: 491,
+  bitget: 376,
+};
+
 const SITE = {
 
   // ---------- DADOS GERAIS ----------
@@ -74,7 +89,8 @@ const SITE = {
   // declarar, usar), não como lista de afiliados.
   // Campos por item:
   //   nome, categoria, descricao, url, idClique (usado no rastreio de clique)
-  //   logo: caminho opcional pra imagem (assets/img/parceiros/arquivo.png)
+  //   logo: caminho opcional pra imagem (assets/img/logos/arquivo.png).
+  //   Se ficar em branco, o card mostra só o nome, sem quebrar o layout.
   //   urlSecundaria + textoSecundario: opcional, pra um segundo botão (ex: "Ver tutorial")
   //   selo: opcional, texto pequeno tipo "491 usuários cadastrados pela comunidade"
   // Campos com "COLE_AQUI..." precisam do link real antes de publicar.
@@ -86,7 +102,7 @@ const SITE = {
           {
             nome: "Blofin",
             categoria: "Corretora",
-            descricao: "Minha principal recomendação para quem deseja comprar Bitcoin através de uma corretora internacional.",
+            descricao: "Corretora internacional com 10% de cashback nas taxas.",
             url: "https://partner.blofin.com/d/caio",
             idClique: "blofin",
             logo: "",
@@ -94,19 +110,21 @@ const SITE = {
           {
             nome: "Fort Exchange",
             categoria: "Acumulação automática",
-            descricao: "Compras automáticas diárias de Bitcoin com envio automático para sua carteira.",
+            descricao: "Compras automáticas diárias de Bitcoin com saque automático semanal para sua carteira.",
             url: "https://painel.fort.exchange/nova-conta?codigo_parceiro=caiogare",
             idClique: "fort-exchange",
-            urlSecundaria: "COLE_AQUI_O_LINK_DO_TUTORIAL",
+            urlSecundaria: "https://youtu.be/OMFKbnnL9Mw",
             textoSecundario: "Ver tutorial",
             logo: "",
           },
           {
             nome: "Binance",
             categoria: "Corretora",
-            descricao: "Alternativa para quem prefere utilizar a maior corretora de criptomoedas do mundo.",
-            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_BINANCE",
+            descricao: "Maior corretora de criptomoedas do mundo com 10% de cashback nas taxas.",
+            url: "https://www.binance.com/register?ref=CAIOGARE",
             idClique: "binance",
+            urlSecundaria: "https://youtu.be/nnlsfQtThzc",
+            textoSecundario: "Ver tutorial",
             logo: "",
           },
         ],
@@ -117,7 +135,7 @@ const SITE = {
           {
             nome: "KriptoBR",
             categoria: "Hardware Wallet",
-            descricao: "Revenda oficial de Trezor, Ledger e SecuX no Brasil.",
+            descricao: "Revenda oficial de Trezor, Ledger e SecuX no Brasil. Utilizo Trezor para armazenar meu Bitcoin.",
             url: "https://kriptobr.com/caiogare/",
             idClique: "kriptobr",
             logo: "",
@@ -131,7 +149,7 @@ const SITE = {
             nome: "Declare Cripto",
             categoria: "Imposto de Renda",
             descricao: "Ferramenta para organizar operações e auxiliar na declaração de criptomoedas.",
-            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_DECLARE_CRIPTO",
+            url: "https://declarecripto.com.br/parceiro/caiogare",
             idClique: "declare-cripto",
             logo: "",
           },
@@ -139,7 +157,7 @@ const SITE = {
             nome: "RedotPay",
             categoria: "Cartão",
             descricao: "Cartão para utilizar criptomoedas em pagamentos do dia a dia.",
-            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_REDOTPAY",
+            url: "https://url.hk/i/pt/wcp3x",
             idClique: "redotpay",
             logo: "",
           },
@@ -151,19 +169,31 @@ const SITE = {
           {
             nome: "CoinEx",
             categoria: "",
-            descricao: "Plataforma utilizada por parte da comunidade. Atualmente destaca produtos de rendimento em USDT.",
-            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_COINEX",
+            descricao: "Corretora utilizada pela comunidade. Destaque atual para rendimentos em USDT com 10% de cashback nas taxas.",
+            url: "https://www.coinex.com/pt/land?code=TFCYAP&refer_code=e5dgn",
             idClique: "coinex",
-            selo: "491 usuários cadastrados pela comunidade",
+            urlSecundaria: "https://youtu.be/t6A5AZ9uzoc",
+            textoSecundario: "Ver tutorial",
+            selo: `${CONTADORES.coinex} usuários cadastrados pela comunidade`,
             logo: "",
           },
           {
             nome: "Bitget",
             categoria: "",
-            descricao: "Plataforma conhecida pelo recurso de copy trade.",
-            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_BITGET",
+            descricao: "Plataforma conhecida pelo copy trade com 10% de cashback nas taxas.",
+            url: "https://partner.bitget.com/bg/73A4S6",
             idClique: "bitget",
-            selo: "376 usuários cadastrados pela comunidade",
+            urlSecundaria: "https://youtu.be/VV0c85oxxcs",
+            textoSecundario: "Ver tutorial",
+            selo: `${CONTADORES.bitget} usuários cadastrados pela comunidade`,
+            logo: "",
+          },
+          {
+            nome: "Bybit",
+            categoria: "",
+            descricao: "Corretora popular entre traders, com saque PIX e boa experiência de uso.",
+            url: "https://www.bybit.com/invite?ref=ZRKDDR&medium=referral&utm_campaign=evergreen&share_to=link",
+            idClique: "bybit",
             logo: "",
           },
         ],
