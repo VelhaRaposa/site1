@@ -197,6 +197,12 @@ section{padding:64px 0;}
 }
 .partner-logo img{max-height:56px;max-width:140px;object-fit:contain;}
 
+/* selo discreto (ex: contagem de usuários da comunidade) */
+.selo{
+  display:inline-block;font-family:var(--font-mono);font-size:.7rem;
+  color:var(--text-muted);margin-top:12px;
+}
+
 /* vídeo card */
 .video-card{display:block;}
 .video-thumb{

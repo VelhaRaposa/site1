@@ -69,37 +69,107 @@ const SITE = {
     },
   ],
 
-  // ---------- PARCEIROS RECOMENDADOS ----------
-  // tipo: "Corretora" | "P2P" | "Hardwallet"
-  // logo: caminho para o arquivo de imagem (opcional). Coloque o arquivo
-  // dentro de assets/img/parceiros/ e escreva o caminho aqui, por exemplo:
-  // "assets/img/parceiros/blofin.png". Deixe em branco pra não mostrar logo.
-  parceiros: [
-    {
-      nome: "Blofin",
-      tipo: "Corretora",
-      descricao: "Abra sua conta com 10% de desconto nas taxas.",
-      url: "https://partner.blofin.com/d/caio",
-      idClique: "blofin",
-      logo: "",
-    },
-    {
-      nome: "Fort Exchange",
-      tipo: "P2P",
-      descricao: "Aportes automáticos em Bitcoin.",
-      url: "https://painel.fort.exchange/nova-conta?codigo_parceiro=caiogare",
-      idClique: "fort-exchange",
-      logo: "",
-    },
-    {
-      nome: "KriptoBR",
-      tipo: "Hardwallet",
-      descricao: "Trezor, Ledger e SecuX — guarde seu Bitcoin offline, fora de corretoras.",
-      url: "https://kriptobr.com/caiogare/",
-      idClique: "kriptobr",
-      logo: "",
-    },
-  ],
+  // ---------- FERRAMENTAS PARA BITCOIN ----------
+  // Organizado por necessidade do usuário (comprar, acumular, guardar,
+  // declarar, usar), não como lista de afiliados.
+  // Campos por item:
+  //   nome, categoria, descricao, url, idClique (usado no rastreio de clique)
+  //   logo: caminho opcional pra imagem (assets/img/parceiros/arquivo.png)
+  //   urlSecundaria + textoSecundario: opcional, pra um segundo botão (ex: "Ver tutorial")
+  //   selo: opcional, texto pequeno tipo "491 usuários cadastrados pela comunidade"
+  // Campos com "COLE_AQUI..." precisam do link real antes de publicar.
+  ferramentas: {
+    secoes: [
+      {
+        titulo: "Começando agora",
+        itens: [
+          {
+            nome: "Blofin",
+            categoria: "Corretora",
+            descricao: "Minha principal recomendação para quem deseja comprar Bitcoin através de uma corretora internacional.",
+            url: "https://partner.blofin.com/d/caio",
+            idClique: "blofin",
+            logo: "",
+          },
+          {
+            nome: "Fort Exchange",
+            categoria: "Acumulação automática",
+            descricao: "Compras automáticas diárias de Bitcoin com envio automático para sua carteira.",
+            url: "https://painel.fort.exchange/nova-conta?codigo_parceiro=caiogare",
+            idClique: "fort-exchange",
+            urlSecundaria: "COLE_AQUI_O_LINK_DO_TUTORIAL",
+            textoSecundario: "Ver tutorial",
+            logo: "",
+          },
+          {
+            nome: "Binance",
+            categoria: "Corretora",
+            descricao: "Alternativa para quem prefere utilizar a maior corretora de criptomoedas do mundo.",
+            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_BINANCE",
+            idClique: "binance",
+            logo: "",
+          },
+        ],
+      },
+      {
+        titulo: "Guardar Bitcoin",
+        itens: [
+          {
+            nome: "KriptoBR",
+            categoria: "Hardware Wallet",
+            descricao: "Revenda oficial de Trezor, Ledger e SecuX no Brasil.",
+            url: "https://kriptobr.com/caiogare/",
+            idClique: "kriptobr",
+            logo: "",
+          },
+        ],
+      },
+      {
+        titulo: "Serviços complementares",
+        itens: [
+          {
+            nome: "Declare Cripto",
+            categoria: "Imposto de Renda",
+            descricao: "Ferramenta para organizar operações e auxiliar na declaração de criptomoedas.",
+            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_DECLARE_CRIPTO",
+            idClique: "declare-cripto",
+            logo: "",
+          },
+          {
+            nome: "RedotPay",
+            categoria: "Cartão",
+            descricao: "Cartão para utilizar criptomoedas em pagamentos do dia a dia.",
+            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_REDOTPAY",
+            idClique: "redotpay",
+            logo: "",
+          },
+        ],
+      },
+      {
+        titulo: "Outras plataformas",
+        itens: [
+          {
+            nome: "CoinEx",
+            categoria: "",
+            descricao: "Plataforma utilizada por parte da comunidade. Atualmente destaca produtos de rendimento em USDT.",
+            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_COINEX",
+            idClique: "coinex",
+            selo: "491 usuários cadastrados pela comunidade",
+            logo: "",
+          },
+          {
+            nome: "Bitget",
+            categoria: "",
+            descricao: "Plataforma conhecida pelo recurso de copy trade.",
+            url: "COLE_AQUI_SEU_LINK_DE_AFILIADO_BITGET",
+            idClique: "bitget",
+            selo: "376 usuários cadastrados pela comunidade",
+            logo: "",
+          },
+        ],
+      },
+    ],
+  },
 
   // ---------- CURSOS (página existe, mas não está no menu ainda) ----------
   cursos: [
