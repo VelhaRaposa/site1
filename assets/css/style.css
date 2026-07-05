@@ -206,13 +206,15 @@ section{padding:64px 0;}
 .card p{font-size:.92rem;margin-bottom:0;}
 .card .meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);margin-top:14px;}
 
-/* cartão de parceiro: botão sempre alinhado embaixo, espaço pra logo */
+/* cartão de parceiro: botão sempre alinhado embaixo, logo ao lado do nome */
 .partner-card{display:flex;flex-direction:column;}
 .partner-card p{flex-grow:1;}
-.partner-logo{
-  width:100%;height:56px;display:flex;align-items:center;margin-bottom:14px;
+.partner-header{
+  display:flex;align-items:center;gap:10px;margin:10px 0 12px;
 }
-.partner-logo img{max-height:56px;max-width:140px;object-fit:contain;}
+.partner-logo-img{
+  height:28px;width:auto;max-width:90px;object-fit:contain;flex-shrink:0;
+}
 
 /* selo discreto (ex: contagem de usuários da comunidade) */
 .selo{
