@@ -42,7 +42,7 @@ function renderFooter(){
       <div class="footer-grid">
         <div>
           <a href="index.html" class="logo"><span>C</span>aio Garé</a>
-          <p style="max-width:280px;margin-top:10px;">Bitcoin explicado através da economia.</p>
+          <p style="max-width:280px;margin-top:10px;">Bitcoin, economia e mercados.</p>
         </div>
         <ul class="footer-links">
           <li><a href="${SITE.youtubeUrl}" target="_blank" rel="noopener">YouTube</a></li>
