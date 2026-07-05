@@ -102,7 +102,7 @@ const SITE = {
         itens: [
           {
             nome: "Blofin",
-            categoria: "Corretora",
+            categoria: "Exchange",
             descricao: "Corretora internacional com 10% de cashback nas taxas.",
             url: "https://partner.blofin.com/d/caio",
             idClique: "blofin",
@@ -159,7 +159,7 @@ const SITE = {
         itens: [
           {
             nome: "Binance",
-            categoria: "Corretora",
+            categoria: "Exchange",
             descricao: "Maior corretora de criptomoedas do mundo com 10% de cashback nas taxas.",
             url: "https://www.binance.com/register?ref=CAIOGARE",
             idClique: "binance",
