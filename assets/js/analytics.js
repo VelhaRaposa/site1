@@ -11,7 +11,7 @@
    vai gerar relatório de cliques por parceiro no painel do Google.
    ========================================================= */
 
-const GA_MEASUREMENT_ID = "G-XXXXXXXXXX";
+const GA_MEASUREMENT_ID = "G-FRT7NB8LFS";
 
 (function(){
   if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === "G-XXXXXXXXXX") return;
