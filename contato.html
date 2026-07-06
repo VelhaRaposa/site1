@@ -2,63 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contato — Caio Garé</title>
-<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-<link rel="stylesheet" href="assets/css/style.css">
+<meta http-equiv="refresh" content="0; url=/contato/">
+<link rel="canonical" href="https://www.caiogare.com.br/contato/">
+<title>Caio Garé</title>
+<script>location.replace("/contato/");</script>
 </head>
 <body>
-<header id="site-header"></header>
-
-<section style="padding-top:60px;">
-  <div class="container" style="max-width:560px;">
-    <p class="eyebrow">contato</p>
-    <h1>Fale comigo</h1>
-    <p class="lead">Para propostas comerciais, parcerias, entrevistas ou outros assuntos, entre em contato por e-mail.</p>
-
-    <div class="card" style="text-align:center;margin-top:32px;padding:40px 32px;">
-      <div class="icon" style="margin:0 auto 12px;">✉</div>
-      <h3>E-mail</h3>
-      <p style="font-family:var(--font-mono);font-size:.95rem;white-space:nowrap;">caiogare.contato@gmail.com</p>
-      <button type="button" class="btn btn-ghost" id="btn-copiar-email" style="width:100%;max-width:280px;">Copiar e-mail</button>
-    </div>
-
-    <div class="card" style="text-align:center;margin-top:20px;">
-<p style="font-size:1.15rem;font-weight:600;margin-bottom:8px;">
-  Representa uma marca ou empresa?
-</p>
-
-<p style="color:var(--text-secondary);margin-bottom:20px;">
-  Conheça formatos de divulgação, alcance e dados da audiência.
-</p>
-      <a href="media-kit.html" class="btn btn-primary">Ver Media Kit</a>
-    </div>
-  </div>
-</section>
-
-<footer id="site-footer"></footer>
-<script src="assets/js/content.js"></script>
-<script src="assets/js/analytics.js"></script>
-<script src="assets/js/nav.js"></script>
-<script>
-document.getElementById("btn-copiar-email").addEventListener("click", async (e) => {
-  const email = "caiogare.contato@gmail.com";
-  try {
-    await navigator.clipboard.writeText(email);
-  } catch (err) {
-    // fallback pra navegadores mais antigos
-    const temp = document.createElement("textarea");
-    temp.value = email;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand("copy");
-    document.body.removeChild(temp);
-  }
-  const btn = e.target;
-  const original = btn.textContent;
-  btn.textContent = "Copiado!";
-  setTimeout(() => { btn.textContent = original; }, 1500);
-});
-</script>
+<p>Esta página mudou de endereço. Se você não for redirecionado automaticamente, <a href="/contato/">clique aqui</a>.</p>
 </body>
 </html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferramentas para Bitcoin — Caio Garé</title>
+<meta name="description" content="Corretoras, carteiras e serviços que Caio Garé utiliza ou recomenda para comprar, guardar, declarar e usar Bitcoin no dia a dia.">
+<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<section style="padding-top:60px;">
+  <div class="container" style="max-width:640px;">
+    <p class="eyebrow">recursos</p>
+    <h1>Ferramentas para Bitcoin</h1>
+    <p class="lead">Corretoras, carteiras e serviços que utilizo ou recomendo para comprar, guardar e administrar Bitcoin.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="section-head">
+      <h2>Começando agora</h2>
+    </div>
+    <div class="grid grid-2" id="secao-comecando"></div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="section-head">
+      <h2>Guardar Bitcoin</h2>
+    </div>
+    <div class="grid grid-2" id="secao-guardar"></div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="section-head">
+      <h2>Serviços complementares</h2>
+    </div>
+    <div class="grid grid-2" id="secao-servicos"></div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="section-head">
+      <h2>Outras plataformas</h2>
+    </div>
+    <div class="grid grid-2" id="secao-outras"></div>
+  </div>
+</section>
+
+<section style="padding:8px 0 20px;">
+  <div class="container">
+    <div class="disclaimer-box" style="max-width:640px;margin-top:0;">
+      Alguns links desta página podem gerar comissão para o site sem custo adicional para você.
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="/assets/js/content.js"></script>
+<script src="/assets/js/analytics.js"></script>
+<script src="/assets/js/nav.js"></script>
+<script>
+function cardFerramenta(item) {
+  const botaoSecundario = item.urlSecundaria
+    ? `<button class="btn btn-ghost" style="flex:1;" onclick="trackPartnerClick('${item.idClique}-tutorial', '${item.urlSecundaria}')">${item.textoSecundario}</button>`
+    : "";
+  return `
+    <div class="card partner-card">
+      ${item.categoria ? `<span class="tag">${item.categoria}</span>` : ""}
+      <div class="partner-header">
+        ${item.logo ? `<img src="${item.logo}" alt="${item.nome}" class="partner-logo-img">` : ""}
+        <h3 style="margin:0;">${item.nome}</h3>
+      </div>
+      <p>${item.descricao}</p>
+      ${item.selo ? `<span class="selo">${item.selo}</span>` : ""}
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="trackPartnerClick('${item.idClique}', '${item.url}')">Acessar</button>
+        ${botaoSecundario}
+      </div>
+    </div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const secoes = SITE.ferramentas.secoes;
+  const mapa = {
+    "Começando agora": "secao-comecando",
+    "Guardar Bitcoin": "secao-guardar",
+    "Serviços complementares": "secao-servicos",
+    "Outras plataformas": "secao-outras",
+  };
+  secoes.forEach(secao => {
+    const elId = mapa[secao.titulo];
+    const el = document.getElementById(elId);
+    if (el) el.innerHTML = secao.itens.map(cardFerramenta).join("");
+  });
+});
+</script>
+</body>
+</html>

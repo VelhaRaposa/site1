@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora DCA Bitcoin e Lump Sum | Caio Garé</title>
+<meta name="description" content="Simule investimentos em Bitcoin com DCA e Lump Sum usando preços históricos reais. Compare aportes recorrentes e aporte único em uma calculadora gratuita.">
+<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/style.css">
+<style>
+  .tabs{display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--border);}
+  .tab-btn{
+    background:none;border:none;color:var(--text-muted);font-family:var(--font-body);
+    font-weight:600;font-size:.92rem;padding:10px 4px;cursor:pointer;
+    border-bottom:2px solid transparent;
+  }
+  .tab-btn.active{color:var(--accent);border-color:var(--accent);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:600px){.field-row{grid-template-columns:1fr;}}
+  #dca-chart-canvas-wrap{position:relative;height:320px;margin-top:8px;}
+  .dca-table-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--border);border-radius:var(--radius-md);}
+  table.dca-table{width:100%;border-collapse:collapse;font-size:.82rem;white-space:nowrap;}
+  table.dca-table th{
+    text-align:left;padding:10px 14px;background:var(--bg-raised);
+    color:var(--text-secondary);font-family:var(--font-mono);font-weight:500;font-size:.72rem;
+    text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;
+  }
+  table.dca-table td{padding:9px 14px;border-top:1px solid var(--border);color:var(--text-primary);}
+  table.dca-table tbody tr:nth-child(even){background:var(--bg-card);}
+  .seo-block h2{margin-top:0;}
+  .seo-block{max-width:760px;}
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+
+<section style="padding-top:60px;">
+  <div class="container" style="max-width:760px;">
+    <p class="eyebrow">ferramenta</p>
+    <h1>Simulador de Bitcoin — DCA e Lump Sum</h1>
+    <p class="lead">Compare comprar aos poucos (DCA) ou de uma vez (Lump Sum), com preços históricos reais do Bitcoin, calculado direto no seu navegador — sem depender de nenhum serviço externo.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container" style="max-width:760px;">
+
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-mode="dca">DCA (aportes recorrentes)</button>
+      <button type="button" class="tab-btn" data-mode="lump">Lump Sum (aporte único)</button>
+    </div>
+
+    <form id="dca-form">
+      <div id="campo-valor-dca">
+        <label for="valor">Valor do aporte (R$)</label>
+        <input type="number" id="valor" min="0" step="10" value="200" required>
+
+        <label for="frequencia">Frequência</label>
+        <select id="frequencia">
+          <option value="daily">Diária</option>
+          <option value="weekly" selected>Semanal</option>
+          <option value="monthly">Mensal</option>
+        </select>
+      </div>
+
+      <div id="campo-valor-lump" style="display:none;">
+        <label for="valor-lump">Valor investido (R$)</label>
+        <input type="number" id="valor-lump" min="0" step="10" value="5000">
+      </div>
+
+      <div class="field-row">
+        <div>
+          <label for="inicio">Data inicial</label>
+          <input type="date" id="inicio" required>
+        </div>
+        <div>
+          <label for="fim" id="label-fim">Data final</label>
+          <input type="date" id="fim" required>
+        </div>
+      </div>
+
+      <p id="dca-data-info" style="font-size:.78rem;color:var(--text-muted);margin-top:-10px;"></p>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;">Calcular</button>
+    </form>
+
+    <div id="dca-result" style="margin-top:32px;"></div>
+    <div id="dca-error" style="margin-top:20px;color:var(--red);font-size:.9rem;"></div>
+
+    <div id="dca-chart-canvas-wrap" style="display:none;">
+      <canvas id="dca-chart-canvas"></canvas>
+    </div>
+
+    <div id="dca-table-section" style="display:none;margin-top:28px;">
+      <h3 style="font-size:1rem;">Detalhamento</h3>
+      <div class="dca-table-wrap">
+        <table class="dca-table" id="dca-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Preço do BTC</th>
+              <th>Valor aportado</th>
+              <th>BTC comprado</th>
+              <th>BTC acumulado</th>
+              <th>Patrimônio</th>
+            </tr>
+          </thead>
+          <tbody id="dca-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="disclaimer-box">
+      <strong>Sobre esta simulação:</strong> cálculo histórico local, sem taxas de corretora e sem considerar imposto de renda. Rentabilidade passada não é garantia de resultado futuro. Isto não é recomendação de investimento.
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container seo-block">
+    <h2>O que é DCA (Dollar-Cost Averaging)?</h2>
+    <p>DCA é a estratégia de comprar Bitcoin em valores fixos e intervalos regulares — diários, semanais ou mensais — independentemente do preço do momento. Em vez de tentar acertar o "melhor" momento para comprar, quem usa DCA distribui o risco ao longo do tempo: compra um pouco mais de Bitcoin quando o preço está baixo e um pouco menos quando está alto, o que tende a suavizar o preço médio de compra ao longo de ciclos de alta e baixa.</p>
+
+    <h2>DCA x Lump Sum: qual a diferença?</h2>
+    <p>Lump Sum é o oposto do DCA: em vez de dividir o investimento em várias compras, todo o capital é aplicado de uma só vez, em uma data específica. Estatisticamente, comprar tudo de uma vez tende a performar melhor durante mercados em tendência de alta constante, já que o dinheiro fica exposto ao ativo por mais tempo. Já o DCA tende a proteger melhor o investidor em mercados voláteis ou incertos, reduzindo o impacto psicológico e financeiro de comprar justamente num topo de preço.</p>
+
+    <h2>Vantagens e limitações de cada estratégia</h2>
+    <p><strong>DCA:</strong> exige menos timing e disciplina emocional, reduz o arrependimento de comprar no topo, e se encaixa melhor em quem investe com renda recorrente (salário mensal, por exemplo). Por outro lado, em mercados de alta constante, o DCA pode gerar um preço médio maior do que uma compra única feita no início do período.</p>
+    <p><strong>Lump Sum:</strong> maximiza o tempo de exposição ao ativo e historicamente supera o DCA em boa parte dos períodos de alta prolongada do Bitcoin. A limitação é o risco de concentração: comprar tudo de uma vez logo antes de uma queda forte pode gerar perdas maiores no curto prazo, o que exige mais tolerância a volatilidade.</p>
+    <p>Na prática, muitos investidores combinam as duas abordagens: fazem um aporte inicial maior (Lump Sum) e complementam com aportes recorrentes (DCA) ao longo do tempo.</p>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="/assets/js/vendor/chart.umd.min.js"></script>
+<script src="/assets/js/content.js"></script>
+<script src="/assets/js/analytics.js"></script>
+<script src="/assets/js/nav.js"></script>
+<script src="/assets/js/dca.js"></script>
+</body>
+</html>

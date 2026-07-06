@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contato — Caio Garé</title>
+<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<section style="padding-top:60px;">
+  <div class="container" style="max-width:560px;">
+    <p class="eyebrow">contato</p>
+    <h1>Fale comigo</h1>
+    <p class="lead">Para propostas de parceria, dúvidas ou qualquer outro assunto, fale direto por um destes canais:</p>
+
+    <div class="card" style="text-align:center;margin-top:32px;padding:40px 32px;">
+      <div class="icon" style="margin:0 auto 12px;">✉</div>
+      <h3>E-mail</h3>
+      <p style="font-family:var(--font-mono);font-size:.95rem;white-space:nowrap;">caiogare.contato@gmail.com</p>
+      <button type="button" class="btn btn-ghost" id="btn-copiar-email" style="width:100%;max-width:280px;">Copiar e-mail</button>
+    </div>
+
+    <div class="card" style="text-align:center;margin-top:20px;">
+      <p style="margin-bottom:16px;">Representa uma marca ou empresa?</p>
+      <a href="/media-kit/" class="btn btn-primary">Ver Media Kit</a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="/assets/js/content.js"></script>
+<script src="/assets/js/analytics.js"></script>
+<script src="/assets/js/nav.js"></script>
+<script>
+document.getElementById("btn-copiar-email").addEventListener("click", async (e) => {
+  const email = "caiogare.contato@gmail.com";
+  try {
+    await navigator.clipboard.writeText(email);
+  } catch (err) {
+    // fallback pra navegadores mais antigos
+    const temp = document.createElement("textarea");
+    temp.value = email;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    document.body.removeChild(temp);
+  }
+  const btn = e.target;
+  const original = btn.textContent;
+  btn.textContent = "Copiado!";
+  setTimeout(() => { btn.textContent = original; }, 1500);
+});
+</script>
+</body>
+</html>

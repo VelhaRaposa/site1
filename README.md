@@ -2,7 +2,7 @@
 
 ## Como o site é organizado
 
-- Cada página é um arquivo `.html` (index.html = Home, sobre.html, agenda.html, etc.)
+- Cada página vive numa pasta com `index.html` dentro (ex: `agenda/index.html`), exceto a Home (`index.html` na raiz) — isso gera URLs limpas como `/agenda/`, sem `.html`.
 - `assets/js/content.js` → **único arquivo que você mexe no dia a dia**: vídeos, agenda, parceiros, cursos.
 - `assets/js/analytics.js` → onde você cola seu ID do Google Analytics.
 - `assets/css/style.css` → cores e estilo visual (só mexer se quiser mudar o design).

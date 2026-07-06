@@ -26,7 +26,7 @@ let priceHistory = []; // [{date, price}], ordenado por data
 let chartInstance = null;
 
 async function loadHistory() {
-  const res = await fetch("assets/data/btc-history.json");
+  const res = await fetch("/assets/data/btc-history.json");
   if (!res.ok) throw new Error("Não foi possível carregar assets/data/btc-history.json");
   return res.json();
 }
