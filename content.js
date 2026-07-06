@@ -55,7 +55,7 @@ const SITE = {
 
   // ---------- AGENDA DE LIVES ----------
   agenda: [
-    { dia: "Segunda, quarta e sexta", horario: "14h", titulo: "Live — mercado e macro" },
+    { dia: "Segunda, quarta e sexta", horario: "14h", titulo: "Bitcoin, macroeconomia e mercados" },
   ],
 
   // ---------- VÍDEOS EM DESTAQUE (usado se youtubeChannelId estiver vazio) ----------
