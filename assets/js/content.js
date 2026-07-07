@@ -106,8 +106,7 @@ const SITE = {
             descricao: "Exchange global com PIX, compra de Bitcoin, futuros e Earn.",
             url: "https://bingxdao.com/partner/caiogare1/",
             idClique: "bingx",
-            textoBotao: "Abrir conta",
-            logo: null, // TODO: trocar por "/assets/img/logos/bingx.png" quando o arquivo for adicionado
+            logo: "/assets/img/logos/bingx.png",
           },
           {
             nome: "Fort Exchange",

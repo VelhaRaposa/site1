@@ -92,7 +92,7 @@ function cardFerramenta(item) {
       <p>${item.descricao}</p>
       ${item.selo ? `<span class="selo">${item.selo}</span>` : ""}
       <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="trackPartnerClick('${item.idClique}', '${item.url}')">${item.textoBotao || "Acessar"}</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="trackPartnerClick('${item.idClique}', '${item.url}')">Acessar</button>
         ${botaoSecundario}
       </div>
     </div>
