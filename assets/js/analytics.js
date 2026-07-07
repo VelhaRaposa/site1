@@ -27,3 +27,13 @@ const GA_MEASUREMENT_ID = "G-FRT7NB8LFS";
   gtag("js", new Date());
   gtag("config", GA_MEASUREMENT_ID);
 })();
+window.trackPartnerClick = function(partner, url) {
+
+  if (typeof window.gtag === 'function') {
+    gtag('event', 'partner_click', {
+      partner_name: partner
+    });
+  }
+
+  window.open(url, '_blank');
+};
