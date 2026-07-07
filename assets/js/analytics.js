@@ -2,7 +2,7 @@
    ANALYTICS — Google Analytics 4 (gratuito)
    =========================================================
    1. Crie uma conta gratuita em https://analytics.google.com
-   2. Crie uma "propriedade" para www.caiogare.com.br
+   2. Crie uma "propriedade" para caiogare.com.br
    3. Copie o ID que começa com "G-" e cole abaixo, no lugar
       de "G-XXXXXXXXXX"
    4. Salve o arquivo e suba pro GitHub.
