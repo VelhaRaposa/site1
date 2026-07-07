@@ -98,15 +98,16 @@ const SITE = {
   ferramentas: {
     secoes: [
       {
-        titulo: "Começando agora",
+        titulo: "Para começar",
         itens: [
           {
-            nome: "Blofin",
+            nome: "BingX",
             categoria: "Exchange",
-            descricao: "Corretora internacional com 10% de cashback nas taxas.",
-            url: "https://partner.blofin.com/d/caio",
-            idClique: "blofin",
-            logo: "/assets/img/logos/blofin.png",
+            descricao: "Exchange global com PIX, compra de Bitcoin, futuros e Earn.",
+            url: "https://bingxdao.com/partner/caiogare1/",
+            idClique: "bingx",
+            textoBotao: "Abrir conta",
+            logo: null, // TODO: trocar por "/assets/img/logos/bingx.png" quando o arquivo for adicionado
           },
           {
             nome: "Fort Exchange",
@@ -157,6 +158,14 @@ const SITE = {
       {
         titulo: "Outras plataformas",
         itens: [
+          {
+            nome: "Blofin",
+            categoria: "Exchange",
+            descricao: "Corretora internacional com 10% de cashback nas taxas.",
+            url: "https://partner.blofin.com/d/caio",
+            idClique: "blofin",
+            logo: "/assets/img/logos/blofin.png",
+          },
           {
             nome: "Binance",
             categoria: "Exchange",
