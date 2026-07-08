@@ -94,6 +94,9 @@ const SITE = {
   //   nome no card. Se for null, o card mostra só o nome — nada quebra.
   //   urlSecundaria + textoSecundario: opcional, pra um segundo botão (ex: "Ver tutorial")
   //   selo: opcional, texto pequeno tipo "491 usuários cadastrados pela comunidade"
+  //   destaque: true (opcional) — dá uma borda de acento discreta no card,
+  //   pra sinalizar a parceira principal do momento sem selo/rótulo.
+  //   Use em no máximo um item por vez.
   // Campos com "COLE_AQUI..." precisam do link real antes de publicar.
   ferramentas: {
     secoes: [
@@ -107,6 +110,7 @@ const SITE = {
             url: "https://bingxdao.com/partner/caiogare1/",
             idClique: "bingx",
             logo: "/assets/img/logos/bingx.png",
+            destaque: true,
           },
           {
             nome: "Fort Exchange",

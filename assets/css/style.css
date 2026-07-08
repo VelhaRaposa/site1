@@ -216,6 +216,11 @@ section{padding:64px 0;}
   height:28px;width:auto;max-width:90px;object-fit:contain;flex-shrink:0;
 }
 
+/* parceiro em destaque: mesma borda de acento usada no CTA da calculadora,
+   sem selo/rótulo — só hierarquia visual discreta */
+.partner-card--destaque{border-color:var(--accent);}
+.partner-card--destaque:hover{border-color:var(--accent);}
+
 /* selo discreto (ex: contagem de usuários da comunidade) */
 .selo{
   display:inline-block;font-family:var(--font-mono);font-size:.7rem;
