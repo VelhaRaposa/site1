@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const tableSection = document.getElementById("dca-table-section");
   const tableBody = document.getElementById("dca-table-body");
   const infoEl = document.getElementById("dca-data-info");
+  const ctaBingx = document.getElementById("dca-cta-bingx");
 
   try {
     priceHistory = await loadHistory();
@@ -196,6 +197,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     resultEl.innerHTML = "";
     chartWrap.style.display = "none";
     tableSection.style.display = "none";
+    ctaBingx.style.display = "none";
 
     const inicio = inicioInput.value;
     const fim = fimInput.value;
@@ -281,6 +283,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="stat"><div class="num" style="color:${lucro >= 0 ? 'var(--green)' : 'var(--red)'}">${lucro >= 0 ? '+' : ''}${fmtBRL(lucro)}</div><div class="label">rentabilidade em R$</div></div>
         </div>
       `;
+      ctaBingx.style.display = "block";
 
       renderChart(chartLabels, chartInvestido, chartValor);
       renderTable(rows);
