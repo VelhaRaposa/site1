@@ -103,7 +103,7 @@ const SITE = {
           {
             nome: "BingX",
             categoria: "Exchange",
-            descricao: "Exchange global com PIX, compra de Bitcoin, futuros e Earn.",
+            descricao: "Exchange com PIX, compra de Bitcoin e 10% de desconto nas taxas.",
             url: "https://bingxdao.com/partner/caiogare1/",
             idClique: "bingx",
             logo: "/assets/img/logos/bingx.png",
