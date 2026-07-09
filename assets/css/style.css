@@ -15,7 +15,7 @@
   --border-strong: #2B3448;
 
   --text-primary:   #F2F3F5;
-  --text-secondary: #8B93A7;
+  --text-secondary: #96A0B3; /* leve ganho de luminância sobre o #8B93A7 original — 6.3:1 → 7.3:1 de contraste, ainda claramente secundário em relação ao texto primário */
   --text-muted:     #5B6478;
 
   --accent:      #F7931A; /* laranja bitcoin */
@@ -64,8 +64,15 @@ h1,h2,h3,h4{
 }
 h1{font-size:clamp(2.5rem,5.5vw,4.25rem);text-wrap:balance;}
 h2{font-size:clamp(1.875rem,3.6vw,2.75rem);text-wrap:balance;}
-h3{font-size:1.15rem;}
-p{margin:0 0 1em;color:var(--text-secondary);}
+h3{font-size:1.2rem;}
+p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7;}
+/* descrição de abertura de página/seção — Título grande → esta linha → CTA.
+   sem max-width de propósito: o h1 acima também não tem largura própria,
+   então título e subtítulo dividem exatamente a mesma coluna disponível
+   (a do .hero-inner na home, a do .container em cada página) em vez do
+   subtítulo ficar preso numa medida de leitura de artigo mais estreita
+   que o título — era isso que criava o vazio à direita da descrição. */
+.lead{font-size:1.25rem;line-height:1.55;color:var(--text-secondary);}
 .container{max-width:var(--max-w);margin:0 auto;padding:0 24px;}
 .container-wide{max-width:var(--max-w-wide);margin:0 auto;padding:0 24px;}
 .eyebrow{
@@ -86,11 +93,11 @@ p{margin:0 0 1em;color:var(--text-secondary);}
   display:inline-flex;
   align-items:center;
   gap:.5em;
-  padding:.85em 1.5em;
+  padding:.95em 1.65em;
   border-radius:var(--radius-sm);
   font-family:var(--font-body);
   font-weight:600;
-  font-size:.92rem;
+  font-size:.95rem;
   cursor:pointer;
   border:1px solid transparent;
   transition:transform .15s ease, background .15s ease, border-color .15s ease;
@@ -161,7 +168,7 @@ p{margin:0 0 1em;color:var(--text-secondary);}
 /* ---------- hero ---------- */
 .hero{
   position:relative;
-  padding:88px 0 70px;
+  padding:76px 0 64px;
   overflow:hidden;
   border-bottom:1px solid var(--border);
 }
@@ -170,8 +177,7 @@ p{margin:0 0 1em;color:var(--text-secondary);}
   pointer-events:none;
 }
 .hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.5fr .6fr;gap:48px;align-items:center;}
-.hero p.lead{font-size:1.05rem;max-width:480px;}
-.hero-actions{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
+.hero-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;}
 .hero-photo{
   border-radius:var(--radius-lg);
   overflow:hidden;border:1px solid var(--border-strong);
@@ -185,8 +191,12 @@ p{margin:0 0 1em;color:var(--text-secondary);}
 }
 
 /* ---------- sections ---------- */
-section{padding:64px 0;}
-.section-head{max-width:560px;margin-bottom:40px;}
+/* espaçamento vertical reduzido (64→56px): parte da densidade "produto" vem
+   de dar menos ar estrutural às seções agora que o texto dentro delas
+   cresceu — as duas coisas juntas é que tiram a sensação de artigo, só
+   aumentar fonte com o mesmo respiro de antes ainda pareceria solto. */
+section{padding:56px 0;}
+.section-head{max-width:560px;margin-bottom:32px;}
 .section-border-top{border-top:1px solid var(--border);}
 
 /* ---------- cards / grid ---------- */
@@ -199,7 +209,7 @@ section{padding:64px 0;}
   background:var(--bg-card);
   border:1px solid var(--border);
   border-radius:var(--radius-md);
-  padding:24px;
+  padding:28px;
   transition:border-color .15s ease, transform .15s ease;
 }
 .card:hover{border-color:var(--border-strong);}
@@ -209,8 +219,8 @@ section{padding:64px 0;}
   display:flex;align-items:center;justify-content:center;
   font-size:1.1rem;margin-bottom:16px;
 }
-.card h3{margin-bottom:.4em;}
-.card p{font-size:.92rem;margin-bottom:0;}
+.card h3{margin-bottom:.45em;font-size:1.2rem;}
+.card p{font-size:.97rem;line-height:1.55;margin-bottom:0;}
 .card .meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);margin-top:14px;}
 
 /* cartão de parceiro: botão sempre alinhado embaixo, logo ao lado do nome */
