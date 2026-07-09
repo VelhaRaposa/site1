@@ -74,7 +74,7 @@ function renderFooter(){
   const el = document.getElementById("site-footer");
   if(!el) return;
   el.innerHTML = `
-    <div class="container">
+    <div class="container container-wide">
       <div class="footer-grid">
         <div>
           <a href="/" class="logo"><span>C</span>aio Garé</a>
