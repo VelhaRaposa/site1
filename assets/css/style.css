@@ -34,7 +34,13 @@
   --radius-md: 10px;
   --radius-lg: 16px;
 
-  --max-w: 1100px;
+  --max-w:         1100px; /* leitura padrão: header, footer, formulários, texto curto */
+  --max-w-wide:     1440px; /* páginas de ferramenta e grids: hero, calculadoras, listagens de card */
+  --max-w-article:   720px; /* blocos de texto longo (ex: explicações SEO na calculadora) */
+
+  --num-sm: 1.75rem;
+  --num-md: 2.5rem;
+  --num-lg: 3.5rem;
 }
 
 *{box-sizing:border-box;}
@@ -56,11 +62,12 @@ h1,h2,h3,h4{
   margin:0 0 .6em;
   letter-spacing:-0.01em;
 }
-h1{font-size:clamp(2.1rem,4.5vw,3.4rem);}
-h2{font-size:clamp(1.5rem,3vw,2.1rem);}
+h1{font-size:clamp(2.5rem,5.5vw,4.25rem);text-wrap:balance;}
+h2{font-size:clamp(1.875rem,3.6vw,2.75rem);text-wrap:balance;}
 h3{font-size:1.15rem;}
 p{margin:0 0 1em;color:var(--text-secondary);}
 .container{max-width:var(--max-w);margin:0 auto;padding:0 24px;}
+.container-wide{max-width:var(--max-w-wide);margin:0 auto;padding:0 24px;}
 .eyebrow{
   font-family:var(--font-mono);
   font-size:.75rem;
@@ -248,9 +255,49 @@ section{padding:64px 0;}
 }
 
 /* stat */
-.stat{padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);}
-.stat .num{font-family:var(--font-display);font-size:1.9rem;color:var(--accent);}
+.stat{padding:20px;min-width:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);}
+.stat .num{
+  font-family:var(--font-display);font-size:var(--num-md);color:var(--accent);
+  font-variant-numeric:tabular-nums;overflow-wrap:break-word;
+}
 .stat .label{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
+.stat--sm .num{font-size:var(--num-sm);}
+.stat--lg .num{font-size:var(--num-lg);}
+.stat--lg .label{font-size:.95rem;margin-top:6px;}
+
+/* linha de resultados reutilizável — cresce em colunas conforme o espaço
+   disponível em vez de ficar travada em N colunas fixas. Usada tanto por
+   template.stat-row quanto pelo grid que o dca.js já gera em runtime
+   (ver #dca-result .grid-3 abaixo — mesma regra, sem tocar no JS).
+   minmax fica em 200px (não 170px) e a fonte cai para --num-sm aqui:
+   linhas de resultado tendem a mostrar valores em R$ compridos
+   ("R$ 378.365,76"), diferente dos 1-2 números grandes de um card
+   isolado (esses continuam usando --num-md/--num-lg via .stat--lg). */
+.stat-row,
+#dca-result .grid-3{
+  display:grid;gap:20px;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+}
+.stat-row .num,
+#dca-result .grid-3 .num{font-size:var(--num-sm);}
+
+/* ---------- template de página de ferramenta ----------
+   layout de duas colunas: formulário fixo à esquerda, resultado/gráfico
+   ocupando o espaço restante à direita. toda calculadora nova deve usar
+   esta estrutura em vez de resolver o layout com estilos inline. */
+.tool-layout{
+  display:grid;grid-template-columns:380px 1fr;gap:40px;align-items:start;
+}
+/* sem isso, o item de grid da coluna de resultado herda min-width:auto
+   e é "inflado" pelo min-content da grade aninhada (.stat-row) lá dentro —
+   invisível em telas largas (sobra espaço de sobra), mas força overflow
+   horizontal assim que a coluna vira largura cheia no mobile. */
+.tool-layout > *{min-width:0;}
+.tool-form-panel{position:sticky;top:90px;}
+@media (max-width:960px){
+  .tool-layout{grid-template-columns:1fr;}
+  .tool-form-panel{position:static;}
+}
 
 /* tabela / agenda */
 .schedule-row{
