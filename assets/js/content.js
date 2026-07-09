@@ -163,15 +163,6 @@ const SITE = {
         titulo: "Outras plataformas",
         itens: [
           {
-            nome: "Blofin",
-            categoria: "Exchange",
-            descricao: "Corretora internacional com 10% de cashback nas taxas.",
-            desconto: "10%",
-            url: "https://partner.blofin.com/d/caio",
-            idClique: "blofin",
-            logo: "/assets/img/logos/blofin.png",
-          },
-          {
             nome: "Binance",
             categoria: "Exchange",
             descricao: "Maior corretora de criptomoedas do mundo com 10% de cashback nas taxas.",
@@ -181,6 +172,15 @@ const SITE = {
             urlSecundaria: "https://youtu.be/nnlsfQtThzc",
             textoSecundario: "Ver tutorial",
             logo: "/assets/img/logos/binance.png",
+          },
+          {
+            nome: "Blofin",
+            categoria: "Exchange",
+            descricao: "Corretora internacional com 10% de cashback nas taxas.",
+            desconto: "10%",
+            url: "https://partner.blofin.com/d/caio",
+            idClique: "blofin",
+            logo: "/assets/img/logos/blofin.png",
           },
           {
             nome: "Bybit",
