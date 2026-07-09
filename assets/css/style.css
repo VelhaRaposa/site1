@@ -325,6 +325,14 @@ table.compare .acoes-cell{display:flex;gap:8px;flex-wrap:wrap;}
 }
 .stat-row .num,
 #dca-result .grid-3 .num{font-size:var(--num-sm);}
+/* os 6 resultados da DCA, em auto-fit, viram 4+2 em telas largas (a coluna
+   de resultado tem espaço pra 4 de 200px, sobrando 2 na linha de baixo).
+   a partir de 1200px sobra espaço de sobra pra travar em 3 colunas fixas
+   sem risco de cortar valor comprido tipo "R$ 378.365,76" — abaixo disso
+   o auto-fit contínua cuidando do caso apertado (2 colunas). */
+@media (min-width:1200px){
+  #dca-result .grid-3{grid-template-columns:repeat(3,1fr);}
+}
 
 /* ---------- template de página de ferramenta ----------
    layout de duas colunas: formulário fixo à esquerda, resultado/gráfico
