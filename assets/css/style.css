@@ -15,7 +15,7 @@
   --border-strong: #2B3448;
 
   --text-primary:   #F2F3F5;
-  --text-secondary: #8B93A7;
+  --text-secondary: #96A0B3; /* leve ganho de luminância sobre o #8B93A7 original — 6.3:1 → 7.3:1 de contraste, ainda claramente secundário em relação ao texto primário */
   --text-muted:     #5B6478;
 
   --accent:      #F7931A; /* laranja bitcoin */
@@ -34,7 +34,13 @@
   --radius-md: 10px;
   --radius-lg: 16px;
 
-  --max-w: 1100px;
+  --max-w:         1100px; /* leitura padrão: header, footer, formulários, texto curto */
+  --max-w-wide:     1440px; /* páginas de ferramenta e grids: hero, calculadoras, listagens de card */
+  --max-w-article:   720px; /* blocos de texto longo (ex: explicações SEO na calculadora) */
+
+  --num-sm: 1.75rem;
+  --num-md: 2.5rem;
+  --num-lg: 3.5rem;
 }
 
 *{box-sizing:border-box;}
@@ -56,11 +62,19 @@ h1,h2,h3,h4{
   margin:0 0 .6em;
   letter-spacing:-0.01em;
 }
-h1{font-size:clamp(2.1rem,4.5vw,3.4rem);}
-h2{font-size:clamp(1.5rem,3vw,2.1rem);}
-h3{font-size:1.15rem;}
-p{margin:0 0 1em;color:var(--text-secondary);}
+h1{font-size:clamp(2.5rem,5.5vw,4.25rem);text-wrap:balance;}
+h2{font-size:clamp(1.875rem,3.6vw,2.75rem);text-wrap:balance;}
+h3{font-size:1.2rem;}
+p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7;}
+/* descrição de abertura de página/seção — Título grande → esta linha → CTA.
+   sem max-width de propósito: o h1 acima também não tem largura própria,
+   então título e subtítulo dividem exatamente a mesma coluna disponível
+   (a do .hero-inner na home, a do .container em cada página) em vez do
+   subtítulo ficar preso numa medida de leitura de artigo mais estreita
+   que o título — era isso que criava o vazio à direita da descrição. */
+.lead{font-size:1.25rem;line-height:1.55;color:var(--text-secondary);}
 .container{max-width:var(--max-w);margin:0 auto;padding:0 24px;}
+.container-wide{max-width:var(--max-w-wide);margin:0 auto;padding:0 24px;}
 .eyebrow{
   font-family:var(--font-mono);
   font-size:.75rem;
@@ -79,11 +93,11 @@ p{margin:0 0 1em;color:var(--text-secondary);}
   display:inline-flex;
   align-items:center;
   gap:.5em;
-  padding:.85em 1.5em;
+  padding:.95em 1.65em;
   border-radius:var(--radius-sm);
   font-family:var(--font-body);
   font-weight:600;
-  font-size:.92rem;
+  font-size:.95rem;
   cursor:pointer;
   border:1px solid transparent;
   transition:transform .15s ease, background .15s ease, border-color .15s ease;
@@ -154,7 +168,7 @@ p{margin:0 0 1em;color:var(--text-secondary);}
 /* ---------- hero ---------- */
 .hero{
   position:relative;
-  padding:88px 0 70px;
+  padding:76px 0 64px;
   overflow:hidden;
   border-bottom:1px solid var(--border);
 }
@@ -163,8 +177,7 @@ p{margin:0 0 1em;color:var(--text-secondary);}
   pointer-events:none;
 }
 .hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.5fr .6fr;gap:48px;align-items:center;}
-.hero p.lead{font-size:1.05rem;max-width:480px;}
-.hero-actions{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
+.hero-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;}
 .hero-photo{
   border-radius:var(--radius-lg);
   overflow:hidden;border:1px solid var(--border-strong);
@@ -178,8 +191,12 @@ p{margin:0 0 1em;color:var(--text-secondary);}
 }
 
 /* ---------- sections ---------- */
-section{padding:64px 0;}
-.section-head{max-width:560px;margin-bottom:40px;}
+/* espaçamento vertical reduzido (64→56px): parte da densidade "produto" vem
+   de dar menos ar estrutural às seções agora que o texto dentro delas
+   cresceu — as duas coisas juntas é que tiram a sensação de artigo, só
+   aumentar fonte com o mesmo respiro de antes ainda pareceria solto. */
+section{padding:56px 0;}
+.section-head{max-width:560px;margin-bottom:32px;}
 .section-border-top{border-top:1px solid var(--border);}
 
 /* ---------- cards / grid ---------- */
@@ -192,7 +209,7 @@ section{padding:64px 0;}
   background:var(--bg-card);
   border:1px solid var(--border);
   border-radius:var(--radius-md);
-  padding:24px;
+  padding:28px;
   transition:border-color .15s ease, transform .15s ease;
 }
 .card:hover{border-color:var(--border-strong);}
@@ -202,8 +219,8 @@ section{padding:64px 0;}
   display:flex;align-items:center;justify-content:center;
   font-size:1.1rem;margin-bottom:16px;
 }
-.card h3{margin-bottom:.4em;}
-.card p{font-size:.92rem;margin-bottom:0;}
+.card h3{margin-bottom:.45em;font-size:1.2rem;}
+.card p{font-size:.97rem;line-height:1.55;margin-bottom:0;}
 .card .meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);margin-top:14px;}
 
 /* cartão de parceiro: botão sempre alinhado embaixo, logo ao lado do nome */
@@ -227,6 +244,41 @@ section{padding:64px 0;}
   color:var(--text-muted);margin-top:12px;
 }
 
+/* ---------- tabela de comparação ----------
+   substitui grade de cards uniformes onde os itens são diretamente
+   comparáveis (ex: corretoras) — deixa o leitor julgar pelo dado em vez
+   de só confiar num botão "Acessar" repetido. */
+.compare-wrap{
+  overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-md);
+  background:var(--bg-card);
+}
+table.compare{width:100%;border-collapse:collapse;}
+table.compare th{
+  text-align:left;padding:13px 16px;background:var(--bg-raised);
+  color:var(--text-secondary);font-family:var(--font-mono);font-weight:500;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
+}
+table.compare td{
+  padding:16px;border-top:1px solid var(--border);vertical-align:middle;font-size:.94rem;
+}
+table.compare tr.linha-destaque td{background:var(--accent-soft);}
+table.compare .nome-cell{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+table.compare .logo-img{height:24px;width:auto;max-width:76px;object-fit:contain;flex-shrink:0;}
+table.compare .nome-txt{font-weight:600;color:var(--text-primary);white-space:nowrap;}
+table.compare .desc-cell{color:var(--text-secondary);font-size:.9rem;line-height:1.55;min-width:240px;}
+table.compare .desconto-cell{font-family:var(--font-mono);color:var(--accent);font-weight:600;white-space:nowrap;}
+table.compare .selo-cell{font-family:var(--font-mono);font-size:.76rem;color:var(--text-muted);white-space:nowrap;}
+table.compare .acoes-cell{display:flex;gap:8px;flex-wrap:wrap;}
+.badge-recomendada{
+  display:inline-block;font-size:.64rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;background:var(--accent);color:#241300;
+}
+.btn-sm{padding:.55em 1.1em;font-size:.84rem;}
+@media (max-width:640px){
+  table.compare td, table.compare th{padding:12px;}
+  table.compare .desc-cell{min-width:180px;}
+}
+
 /* vídeo card */
 .video-card{display:block;}
 .video-thumb{
@@ -248,9 +300,49 @@ section{padding:64px 0;}
 }
 
 /* stat */
-.stat{padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);}
-.stat .num{font-family:var(--font-display);font-size:1.9rem;color:var(--accent);}
+.stat{padding:20px;min-width:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);}
+.stat .num{
+  font-family:var(--font-display);font-size:var(--num-md);color:var(--accent);
+  font-variant-numeric:tabular-nums;overflow-wrap:break-word;
+}
 .stat .label{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
+.stat--sm .num{font-size:var(--num-sm);}
+.stat--lg .num{font-size:var(--num-lg);}
+.stat--lg .label{font-size:.95rem;margin-top:6px;}
+
+/* linha de resultados reutilizável — cresce em colunas conforme o espaço
+   disponível em vez de ficar travada em N colunas fixas. Usada tanto por
+   template.stat-row quanto pelo grid que o dca.js já gera em runtime
+   (ver #dca-result .grid-3 abaixo — mesma regra, sem tocar no JS).
+   minmax fica em 200px (não 170px) e a fonte cai para --num-sm aqui:
+   linhas de resultado tendem a mostrar valores em R$ compridos
+   ("R$ 378.365,76"), diferente dos 1-2 números grandes de um card
+   isolado (esses continuam usando --num-md/--num-lg via .stat--lg). */
+.stat-row,
+#dca-result .grid-3{
+  display:grid;gap:20px;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+}
+.stat-row .num,
+#dca-result .grid-3 .num{font-size:var(--num-sm);}
+
+/* ---------- template de página de ferramenta ----------
+   layout de duas colunas: formulário fixo à esquerda, resultado/gráfico
+   ocupando o espaço restante à direita. toda calculadora nova deve usar
+   esta estrutura em vez de resolver o layout com estilos inline. */
+.tool-layout{
+  display:grid;grid-template-columns:380px 1fr;gap:40px;align-items:start;
+}
+/* sem isso, o item de grid da coluna de resultado herda min-width:auto
+   e é "inflado" pelo min-content da grade aninhada (.stat-row) lá dentro —
+   invisível em telas largas (sobra espaço de sobra), mas força overflow
+   horizontal assim que a coluna vira largura cheia no mobile. */
+.tool-layout > *{min-width:0;}
+.tool-form-panel{position:sticky;top:90px;}
+@media (max-width:960px){
+  .tool-layout{grid-template-columns:1fr;}
+  .tool-form-panel{position:static;}
+}
 
 /* tabela / agenda */
 .schedule-row{
