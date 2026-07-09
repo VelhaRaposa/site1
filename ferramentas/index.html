@@ -48,6 +48,18 @@
 <section class="section-border-top">
   <div class="container container-wide">
     <div class="section-head">
+      <h2>Comparar exchanges</h2>
+      <p>Todas as corretoras que uso ou recomendo, lado a lado — desconto, comunidade e onde acessar cada uma.</p>
+    </div>
+    <div class="compare-wrap">
+      <table class="compare" id="tabela-corretoras"></table>
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container container-wide">
+    <div class="section-head">
       <h2>Guardar Bitcoin</h2>
     </div>
     <div class="grid grid-2" id="secao-guardar"></div>
@@ -60,15 +72,6 @@
       <h2>Serviços complementares</h2>
     </div>
     <div class="grid grid-2" id="secao-servicos"></div>
-  </div>
-</section>
-
-<section class="section-border-top">
-  <div class="container container-wide">
-    <div class="section-head">
-      <h2>Outras plataformas</h2>
-    </div>
-    <div class="grid grid-2" id="secao-outras"></div>
   </div>
 </section>
 
@@ -106,19 +109,78 @@ function cardFerramenta(item) {
   `;
 }
 
+// linha de tabela — só pra itens diretamente comparáveis (corretoras).
+// "Para começar" cobre a pergunta "por onde eu começo" (recomendação);
+// esta tabela cobre "quero comparar alternativas" (comparação). BingX
+// aparece nas duas — funções diferentes, não substitutas uma da outra.
+function linhaCorretora(item) {
+  const botaoSecundario = item.urlSecundaria
+    ? `<button class="btn btn-ghost btn-sm" onclick="trackPartnerClick('${item.idClique}-tutorial', '${item.urlSecundaria}')">${item.textoSecundario}</button>`
+    : "";
+  return `
+    <tr class="${item.destaque ? "linha-destaque" : ""}">
+      <td>
+        <div class="nome-cell">
+          ${item.logo ? `<img src="${item.logo}" alt="" class="logo-img">` : ""}
+          <span class="nome-txt">${item.nome}</span>
+          ${item.destaque ? `<span class="badge-recomendada">recomendada</span>` : ""}
+        </div>
+      </td>
+      <td class="desc-cell">${item.descricao}</td>
+      <td class="desconto-cell">${item.desconto || "—"}</td>
+      <td class="selo-cell">${item.selo || ""}</td>
+      <td>
+        <div class="acoes-cell">
+          <button class="btn btn-primary btn-sm" onclick="trackPartnerClick('${item.idClique}', '${item.url}')">Acessar</button>
+          ${botaoSecundario}
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const secoes = SITE.ferramentas.secoes;
+  const porTitulo = titulo => secoes.find(s => s.titulo === titulo);
+
+  // "Para começar" continua exatamente como sempre foi: as duas
+  // recomendações principais, lado a lado, como cards.
   const mapa = {
     "Para começar": "secao-comecando",
     "Guardar Bitcoin": "secao-guardar",
     "Serviços complementares": "secao-servicos",
-    "Outras plataformas": "secao-outras",
   };
   secoes.forEach(secao => {
     const elId = mapa[secao.titulo];
     const el = document.getElementById(elId);
     if (el) el.innerHTML = secao.itens.map(cardFerramenta).join("");
   });
+
+  // tabela de comparação: todas as corretoras (categoria "Exchange") de
+  // "Para começar" + "Outras plataformas" reunidas, BingX incluída e
+  // marcada como recomendada — a tabela existe pra comparar, não pra
+  // substituir a recomendação que já apareceu acima.
+  const itensComecando = porTitulo("Para começar") ? porTitulo("Para começar").itens : [];
+  const itensOutras = porTitulo("Outras plataformas") ? porTitulo("Outras plataformas").itens : [];
+  const corretoras = [...itensComecando, ...itensOutras]
+    .filter(i => i.categoria === "Exchange")
+    .sort((a, b) => (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0));
+
+  const tabela = document.getElementById("tabela-corretoras");
+  if (tabela && corretoras.length) {
+    tabela.innerHTML = `
+      <thead>
+        <tr>
+          <th>Corretora</th>
+          <th>Descrição</th>
+          <th>Desconto</th>
+          <th>Comunidade</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${corretoras.map(linhaCorretora).join("")}</tbody>
+    `;
+  }
 });
 </script>
 </body>
