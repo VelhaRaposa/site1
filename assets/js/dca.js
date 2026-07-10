@@ -25,6 +25,8 @@ let currentMode = "dca";
 let priceHistory = []; // [{date, price}], ordenado por data
 let chartInstance = null;
 
+const APORTES_LIMITE_INICIAL = 20; // evita listas com centenas de linhas abertas por padrão
+
 async function loadHistory() {
   const res = await fetch("/assets/data/btc-history.json");
   if (!res.ok) throw new Error("Não foi possível carregar assets/data/btc-history.json");
@@ -70,6 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const chartWrap = document.getElementById("dca-chart-canvas-wrap");
   const tableSection = document.getElementById("dca-table-section");
   const tableBody = document.getElementById("dca-table-body");
+  const btnMostrarTodos = document.getElementById("dca-table-show-all");
   const infoEl = document.getElementById("dca-data-info");
   const ctaBingx = document.getElementById("dca-cta-bingx");
 
@@ -177,9 +180,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  function renderTable(rows) {
-    tableSection.style.display = "block";
-    tableBody.innerHTML = rows.map(r => `
+  function linhaTabela(r) {
+    return `
       <tr>
         <td>${fmtDateBR(r.date)}</td>
         <td>${fmtBRL(r.preco)}</td>
@@ -188,7 +190,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${r.btcAcumulado.toFixed(8)}</td>
         <td>${fmtBRL(r.patrimonio)}</td>
       </tr>
-    `).join("");
+    `;
+  }
+
+  function renderTable(rows) {
+    tableSection.style.display = "block";
+    const temExcedente = rows.length > APORTES_LIMITE_INICIAL;
+    const linhasIniciais = temExcedente ? rows.slice(0, APORTES_LIMITE_INICIAL) : rows;
+    tableBody.innerHTML = linhasIniciais.map(linhaTabela).join("");
+
+    if (temExcedente) {
+      btnMostrarTodos.style.display = "inline-flex";
+      btnMostrarTodos.textContent = `Mostrar todos (${rows.length})`;
+      btnMostrarTodos.onclick = () => {
+        tableBody.innerHTML = rows.map(linhaTabela).join("");
+        btnMostrarTodos.style.display = "none";
+      };
+    } else {
+      btnMostrarTodos.style.display = "none";
+    }
   }
 
   form.addEventListener("submit", (e) => {
