@@ -1,0 +1,57 @@
+name: Atualizar dados de mercado (comparador)
+
+# Roda automaticamente toda segunda-feira às 06:20 (horário de Brasília
+# é UTC-3, então 09:20 UTC — 20 minutos depois do robô do Bitcoin, para
+# não disputar o mesmo commit), e também pode ser disparado manualmente
+# na aba "Actions" do GitHub, botão "Run workflow".
+#
+# Na primeira vez que rodar, os arquivos assets/data/*-history.json
+# começam vazios: os scripts detectam isso e buscam o histórico
+# completo desde 2015 (backfill), não só os dias que faltam.
+on:
+  schedule:
+    - cron: "20 9 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Ordem importa: câmbio e CDI primeiro (fonte oficial do Bacen,
+      # baixo risco), depois Ibovespa, e por último S&P 500 e Ouro —
+      # os dois últimos dependem do arquivo de câmbio já atualizado.
+      - name: Câmbio USD/BRL (Bacen)
+        run: python3 scripts/update_usdbrl_history.py
+
+      - name: CDI (Bacen)
+        run: python3 scripts/update_cdi_history.py
+
+      - name: Ibovespa
+        run: python3 scripts/update_ibovespa_history.py
+
+      - name: S&P 500 (retorno total, convertido em BRL)
+        run: python3 scripts/update_sp500_history.py
+
+      - name: Ouro (convertido em BRL/grama)
+        run: python3 scripts/update_gold_history.py
+
+      - name: Commitar alterações (se houver algo novo)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/data/cdi-history.json assets/data/usdbrl-history.json \
+                   assets/data/ibovespa-history.json assets/data/sp500-history.json \
+                   assets/data/gold-history.json
+          git diff --cached --quiet && echo "Nada novo para commitar." || git commit -m "Atualiza dados de mercado do comparador (automático)"
+          git push

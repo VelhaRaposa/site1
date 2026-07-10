@@ -94,3 +94,53 @@ Pronto — a partir daí, o arquivo se atualiza sozinho toda semana. Se quiser
 forçar uma atualização na hora, vá na aba **Actions** do repositório,
 clique em "Atualizar histórico do Bitcoin" → **"Run workflow"**.
 
+## 8. Comparador de Investimentos — Bitcoin, CDI, Ibovespa, S&P 500 e Ouro
+
+A ferramenta em `/comparador/` responde "onde seu dinheiro teria rendido
+mais?", comparando o mesmo valor investido, no mesmo período, nos cinco
+ativos. Segue o mesmo princípio 100% local da Calculadora DCA: os dados
+ficam em cinco arquivos dentro de `assets/data/`:
+
+- `btc-history.json` — já existia, reaproveitado sem mudança.
+- `cdi-history.json` — índice acumulado do CDI (Banco Central).
+- `ibovespa-history.json` — fechamento diário do Ibovespa.
+- `sp500-history.json` — S&P 500, já convertido para reais.
+- `gold-history.json` — ouro, já convertido para reais por grama.
+- `usdbrl-history.json` — cotação do dólar (Banco Central). Este é
+  auxiliar: só é usado internamente pelos scripts do S&P 500 e do
+  Ouro para converter de dólar para real — a calculadora no navegador
+  nunca lê esse arquivo.
+
+**IMPORTANTE — ativação na primeira vez:** diferente do Bitcoin, esses
+cinco arquivos começam vazios neste repositório. Depois de publicar o
+site, vá em **Actions → "Atualizar dados de mercado (comparador)" →
+Run workflow** uma vez, manualmente. Os scripts detectam que os
+arquivos estão vazios e buscam o histórico completo desde 2015
+automaticamente (isso pode levar alguns minutos, dependendo da
+quantidade de dias). Depois dessa primeira vez, o robô semanal
+(`.github/workflows/update-market-history.yml`, toda segunda-feira)
+cuida sozinho de manter tudo atualizado, buscando só os dias novos —
+mesmo modelo de "Permissão de escrita para o robô" descrito na seção 7
+acima, que também precisa estar ativa para este workflow.
+
+**Fontes de dado usadas por cada script** (todos em `scripts/`):
+
+| Ativo | Script | Fonte |
+|---|---|---|
+| Câmbio USD/BRL (auxiliar) | `update_usdbrl_history.py` | Banco Central — SGS, série 1 (oficial) |
+| CDI | `update_cdi_history.py` | Banco Central — SGS, série 12 (oficial) |
+| Ibovespa | `update_ibovespa_history.py` | Yahoo Finance (não-oficial), ticker `^BVSP` |
+| S&P 500 | `update_sp500_history.py` | Yahoo Finance (não-oficial), ticker `^SP500TR`, com fallback para `^GSPC` |
+| Ouro | `update_gold_history.py` | Yahoo Finance (não-oficial), ticker `GC=F` |
+
+As duas fontes do Banco Central são oficiais e de baixo risco de
+manutenção. As três via Yahoo Finance usam uma API não documentada
+(mesma categoria de risco já aceita para o Bitcoin via CoinGecko) — se
+algum desses três scripts começar a falhar no log do Actions, é o
+primeiro lugar a checar. Esses scripts substituíram um plano inicial
+de usar B3 (Ibovespa) e LBMA (Ouro) diretamente: não foi possível
+confirmar os endpoints exatos dessas duas fontes durante o
+desenvolvimento, então optou-se por um único mecanismo (Yahoo Finance)
+reaproveitado três vezes, mais simples de manter do que três
+integrações diferentes.
+
