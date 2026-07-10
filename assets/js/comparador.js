@@ -17,6 +17,16 @@
    aporte, todo aporte acontece na mesma data de calendário para os
    cinco ativos — nos dias sem pregão de um ativo específico, usa-se o
    último preço conhecido dele (forward-fill).
+
+   ARQUITETURA V4:
+   Gráfico + pódio (top 3, altura fixa) dividem a mesma linha de tela;
+   o ranking completo dos 5 ativos fica atrás de um botão, sempre
+   abaixo do bloco gráfico+pódio — nunca cresce às custas do gráfico.
+   Período é a interação principal (abas). Valor/aporte ficam
+   colapsados numa frase, editável sob demanda. Ativos se ligam/
+   desligam pela legenda do gráfico, não por uma checklist no
+   formulário. Cálculo é automático (debounce nos campos de texto,
+   imediato nos controles de clique único).
    ========================================================= */
 
 const ATIVOS = [
@@ -28,10 +38,22 @@ const ATIVOS = [
 ];
 
 const FREQ_DIAS = { mensal: 30, semanal: 7, diaria: 1 };
+const FREQ_LABEL = { mensal: "mês", semanal: "semana", diaria: "dia" };
 
 let historicos = {}; // id -> [{date, price}] ordenado por data
 let chartInstance = null;
-let ultimoResultado = null; // guardado para os botões de compartilhar
+let ultimoResultado = null; // guardado para o menu de compartilhar
+let intervalo = null; // {min, max} — calculado uma vez a partir dos ativos com dado
+
+const state = {
+  valorInicial: 1000,
+  aporte: 200,
+  frequencia: "mensal",
+  inicio: null,
+  fim: null,
+  periodoAnos: 5, // 1 | 5 | 10 | 0 (máximo) | null (modo "datas exatas")
+  ativosAtivos: new Set(ATIVOS.map(a => a.id)),
+};
 
 function fmtBRL(n) {
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -44,6 +66,10 @@ function addDays(dateStr, days) {
   const d = new Date(dateStr + "T00:00:00");
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
+}
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
 }
 
 async function loadHistorico(url) {
@@ -71,7 +97,7 @@ function findPriceOnOrBefore(dateStr, hist) {
     if (hist[mid].date <= dateStr) { ans = mid; lo = mid + 1; }
     else hi = mid - 1;
   }
-  if (ans === -1) return null; // dateStr é anterior a todo o histórico
+  if (ans === -1) return null;
   return hist[ans].price;
 }
 
@@ -79,10 +105,8 @@ function ativosComDados() {
   return ATIVOS.filter(a => historicos[a.id] && historicos[a.id].length > 0);
 }
 
-// intervalo de datas em que TODOS os ativos selecionados têm dado —
-// evita comparar um ativo fora do período em que ele existe.
-function intervaloUtilizavel(idsSelecionados) {
-  const hists = idsSelecionados.map(id => historicos[id]).filter(h => h && h.length > 0);
+function intervaloUtilizavel(ids) {
+  const hists = ids.map(id => historicos[id]).filter(h => h && h.length > 0);
   if (hists.length === 0) return null;
   const min = hists.map(h => h[0].date).reduce((a, b) => (a > b ? a : b));
   const max = hists.map(h => h[h.length - 1].date).reduce((a, b) => (a < b ? a : b));
@@ -96,11 +120,14 @@ function rankBadge(i) {
   return `${i + 1}º`;
 }
 
+function ativosAtivosOrdenados() {
+  return ATIVOS.filter(a => state.ativosAtivos.has(a.id)).map(a => a.id);
+}
+
 /* ---------- simulação ---------- */
 function simular({ valorInicial, aporte, frequencia, inicio, fim, idsSelecionados }) {
   const stepDias = FREQ_DIAS[frequencia];
 
-  // datas de aporte idênticas para todos os ativos
   const datas = [];
   let cursor = inicio;
   while (cursor <= fim) {
@@ -112,7 +139,7 @@ function simular({ valorInicial, aporte, frequencia, inicio, fim, idsSelecionado
   const totalInvestido = valorInicial + aporte * (datas.length - 1);
 
   const resultadosPorAtivo = {};
-  const seriePorAtivo = {}; // id -> [{date, valor}]
+  const seriePorAtivo = {};
 
   idsSelecionados.forEach(id => {
     const hist = historicos[id];
@@ -150,47 +177,78 @@ function lerEstadoDaURL() {
     frequencia: p.get("freq") || "mensal",
     inicio: p.get("inicio"),
     fim: p.get("fim"),
-    idsSelecionados: (p.get("ativos") || ATIVOS.map(a => a.id).join(",")).split(","),
+    ativosAtivos: new Set((p.get("ativos") || ATIVOS.map(a => a.id).join(",")).split(",")),
   };
 }
 
-function escreverEstadoNaURL(inputs) {
+function escreverEstadoNaURL() {
   const p = new URLSearchParams();
-  p.set("valor", inputs.valorInicial);
-  p.set("aporte", inputs.aporte);
-  p.set("freq", inputs.frequencia);
-  p.set("inicio", inputs.inicio);
-  p.set("fim", inputs.fim);
-  p.set("ativos", inputs.idsSelecionados.join(","));
+  p.set("valor", state.valorInicial);
+  p.set("aporte", state.aporte);
+  p.set("freq", state.frequencia);
+  p.set("inicio", state.inicio);
+  p.set("fim", state.fim);
+  p.set("ativos", ativosAtivosOrdenados().join(","));
   history.replaceState(null, "", "?" + p.toString());
 }
 
 /* ---------- render ---------- */
-function renderRanking(el, resultadosPorAtivo, idsSelecionados) {
-  const ordenado = idsSelecionados
+function ordenarResultados(resultadosPorAtivo, ids) {
+  return ids
     .map(id => ({ ...resultadosPorAtivo[id], ativo: ATIVOS.find(a => a.id === id) }))
     .sort((a, b) => b.valorFinal - a.valorFinal);
+}
 
-  el.innerHTML = ordenado.map((r, i) => `
-    <div class="ranking-row">
-      <span class="ranking-badge">${rankBadge(i)}</span>
-      <span class="ranking-nome" style="border-color:${r.ativo.cor}">${r.ativo.nome}</span>
-      <span class="ranking-valor">${fmtBRL(r.valorFinal)}</span>
-      <span class="ranking-pct" style="color:${r.lucroPct >= 0 ? 'var(--green)' : 'var(--red)'}">${r.lucroPct >= 0 ? '+' : ''}${r.lucroPct.toFixed(1)}%</span>
-      <span class="ranking-lucro" style="color:${r.lucro >= 0 ? 'var(--green)' : 'var(--red)'}">${r.lucro >= 0 ? '+' : ''}${fmtBRL(r.lucro)}</span>
+function dotHtml(cor) {
+  return `<span class="legenda-dot" style="background:${cor}"></span>`;
+}
+
+function renderPodio(el, ordenado) {
+  const top = ordenado.slice(0, 3);
+  el.innerHTML = top.map((r, i) => `
+    <div class="podio-item ${i === 0 ? 'podio-item--primeiro' : ''}">
+      <div class="medalha">${rankBadge(i)}</div>
+      <div class="nome">${dotHtml(r.ativo.cor)}${r.ativo.nome}</div>
+      <div class="pct" style="color:${r.lucroPct >= 0 ? 'var(--green)' : 'var(--red)'}">${r.lucroPct >= 0 ? '+' : ''}${r.lucroPct.toFixed(1)}%</div>
+      <div class="valor">${fmtBRL(r.valorFinal)}</div>
     </div>
   `).join("");
+}
 
-  return ordenado;
+function renderRankingCompleto(el, ordenado) {
+  el.innerHTML = `
+    <table class="ranking-completo">
+      <thead><tr><th></th><th>Ativo</th><th>Quanto virou</th><th>Retorno</th></tr></thead>
+      <tbody>
+        ${ordenado.map((r, i) => `
+          <tr>
+            <td>${rankBadge(i)}</td>
+            <td>${dotHtml(r.ativo.cor)}${r.ativo.nome}</td>
+            <td>${fmtBRL(r.valorFinal)}</td>
+            <td style="color:${r.lucroPct >= 0 ? 'var(--green)' : 'var(--red)'}">${r.lucroPct >= 0 ? '+' : ''}${r.lucroPct.toFixed(1)}%</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderLegenda(el, onToggle) {
+  const disponiveis = ATIVOS.filter(a => historicos[a.id] && historicos[a.id].length > 0);
+  el.innerHTML = disponiveis.map(a => `
+    <span class="legenda-item ${state.ativosAtivos.has(a.id) ? '' : 'inativo'}" data-id="${a.id}" role="button" tabindex="0">
+      ${dotHtml(a.cor)}${a.nome}
+    </span>
+  `).join("");
+  el.querySelectorAll(".legenda-item").forEach(item => {
+    item.addEventListener("click", () => onToggle(item.dataset.id));
+  });
 }
 
 function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInvestidoSerie) {
   const ctx = canvasEl.getContext("2d");
   if (chartInstance) chartInstance.destroy();
 
-  // downsample: se houver muitos pontos (aporte diário em período longo),
-  // mostra no máximo ~400 no gráfico — o cálculo em si continua exato,
-  // só a linha desenhada é mais leve.
   const passo = Math.max(1, Math.ceil(datas.length / 400));
   const idx = [];
   for (let i = 0; i < datas.length; i += passo) idx.push(i);
@@ -244,7 +302,7 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
         },
       },
       plugins: {
-        legend: { labels: { color: "#F2F3F5", font: { family: "Inter", size: 12 } } },
+        legend: { display: false }, // legenda própria (clicável) fica fora do canvas
         tooltip: {
           backgroundColor: "#10141F",
           borderColor: "#2B3448",
@@ -258,155 +316,215 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
   });
 }
 
-function fraseCompartilhamento(ordenado, inputs) {
-  const partes = ordenado.map(r => `${fmtBRL(r.valorFinal)} em ${r.ativo.nome}`);
-  const total = fmtBRL(inputs.valorInicial + inputs.aporte);
-  return `Se eu tivesse investido de ${fmtDateBR(inputs.inicio)} a ${fmtDateBR(inputs.fim)}, meu dinheiro teria virado: ${partes.join(", ")}.`;
+function fraseCompartilhamento(ordenado) {
+  const medalhas = ["🥇", "🥈", "🥉"];
+  const linhas = ordenado.slice(0, 3).map((r, i) =>
+    `${medalhas[i]} ${r.ativo.nome} ${r.lucroPct >= 0 ? '+' : ''}${r.lucroPct.toFixed(0)}%`
+  );
+  return `Entre ${fmtDateBR(state.inicio)} e ${fmtDateBR(state.fim)}, com ${fmtBRL(state.valorInicial)} iniciais e ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}:\n\n${linhas.join("\n")}\n\nSimule o seu período: ${location.href}`;
 }
 
-async function copiarTexto(texto, botao, textoOriginal) {
+async function copiarTexto(texto, feedbackEl, textoOriginal) {
   try {
     await navigator.clipboard.writeText(texto);
-    botao.textContent = "Copiado!";
+    feedbackEl.textContent = "Copiado!";
   } catch (e) {
-    botao.textContent = "Não foi possível copiar";
+    feedbackEl.textContent = "Não foi possível copiar";
   }
-  setTimeout(() => { botao.textContent = textoOriginal; }, 1800);
+  setTimeout(() => { feedbackEl.textContent = textoOriginal; }, 1800);
 }
 
 /* ---------- boot ---------- */
 document.addEventListener("DOMContentLoaded", async () => {
-  const form = document.getElementById("comparador-form");
   const errorEl = document.getElementById("comparador-error");
-  const rankingEl = document.getElementById("comparador-ranking");
-  const notaEl = document.getElementById("comparador-nota");
+  const podioEl = document.getElementById("comparador-podio");
+  const legendaEl = document.getElementById("legenda-ativos");
   const notaCambioEl = document.getElementById("comparador-nota-cambio");
-  const chartWrap = document.getElementById("comparador-chart-wrap");
+  const chartWrap = document.getElementById("comparador-chart-canvas-wrap");
   const canvasEl = document.getElementById("comparador-chart-canvas");
   const shareBlock = document.getElementById("comparador-share");
   const infoEl = document.getElementById("comparador-data-info");
+  const rankingToggleBtn = document.getElementById("btn-ranking-completo");
+  const rankingPainel = document.getElementById("ranking-completo-painel");
+  const rankingCorpo = document.getElementById("ranking-completo-corpo");
 
+  const premissasTexto = document.getElementById("premissas-texto");
+  const premissasEditar = document.getElementById("premissas-editar");
+  const btnEditarPremissas = document.getElementById("btn-editar-premissas");
   const valorInicialInput = document.getElementById("valorInicial");
   const aporteInput = document.getElementById("aporte");
+
+  const datasExatasPainel = document.getElementById("datas-exatas");
+  const btnDatasExatas = document.getElementById("btn-datas-exatas");
   const inicioInput = document.getElementById("inicio");
   const fimInput = document.getElementById("fim");
-  const ativoCheckboxes = () => Array.from(document.querySelectorAll(".ativo-checkbox"));
+
+  const shareMenuWrap = document.getElementById("share-menu-wrap");
+  const shareMenu = document.getElementById("share-menu");
+  const btnCompartilhar = document.getElementById("btn-compartilhar");
 
   await loadTodosHistoricos();
 
   const disponiveis = ativosComDados();
   if (disponiveis.length < 2) {
     errorEl.innerHTML = "Os dados históricos do comparador ainda estão sendo carregados pela primeira vez — volte em alguns dias. (O Bitcoin já está disponível na <a href=\"/calculadora/\">calculadora dedicada</a> enquanto isso.)";
-    form.querySelector("button[type=submit]").disabled = true;
+    document.querySelectorAll(".periodo-tab").forEach(b => b.disabled = true);
     return;
   }
 
-  // desmarca e desabilita ativos sem dado ainda
-  ativoCheckboxes().forEach(cb => {
-    if (!historicos[cb.value] || historicos[cb.value].length === 0) {
-      cb.checked = false;
-      cb.disabled = true;
-      cb.closest("label").title = "Dados ainda não disponíveis para este ativo.";
-    }
-  });
-
-  const idsIniciais = disponiveis.map(a => a.id);
-  const intervalo = intervaloUtilizavel(idsIniciais);
+  state.ativosAtivos = new Set(disponiveis.map(a => a.id));
+  intervalo = intervaloUtilizavel(disponiveis.map(a => a.id));
   inicioInput.min = intervalo.min;
   inicioInput.max = intervalo.max;
   fimInput.min = intervalo.min;
   fimInput.max = intervalo.max;
   infoEl.textContent = `Dados disponíveis de ${fmtDateBR(intervalo.min)} até ${fmtDateBR(intervalo.max)}.`;
 
-  // atalhos de período
-  document.querySelectorAll(".periodo-atalho").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const anos = parseInt(btn.dataset.anos, 10);
-      fimInput.value = intervalo.max;
-      if (anos === 0) {
-        inicioInput.value = intervalo.min; // "máximo"
-      } else {
-        const d = new Date(intervalo.max + "T00:00:00");
-        d.setFullYear(d.getFullYear() - anos);
-        const alvo = d.toISOString().slice(0, 10);
-        inicioInput.value = alvo < intervalo.min ? intervalo.min : alvo;
-      }
-      form.requestSubmit();
-    });
-  });
+  function atualizarPremissasTexto() {
+    premissasTexto.textContent = `Simulando ${fmtBRL(state.valorInicial)} iniciais + ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}`;
+  }
 
-  function calcular(inputsForcados) {
+  function aplicarPeriodoRelativo(anos) {
+    state.periodoAnos = anos;
+    state.fim = intervalo.max;
+    if (anos === 0) {
+      state.inicio = intervalo.min;
+    } else {
+      const d = new Date(intervalo.max + "T00:00:00");
+      d.setFullYear(d.getFullYear() - anos);
+      const alvo = d.toISOString().slice(0, 10);
+      state.inicio = alvo < intervalo.min ? intervalo.min : alvo;
+    }
+    document.querySelectorAll(".periodo-tab").forEach(b => b.classList.toggle("active", parseInt(b.dataset.anos, 10) === anos));
+    inicioInput.value = state.inicio;
+    fimInput.value = state.fim;
+  }
+
+  function calcular() {
     errorEl.textContent = "";
+    const idsSelecionados = ativosAtivosOrdenados();
 
-    const idsSelecionados = inputsForcados
-      ? inputsForcados.idsSelecionados
-      : ativoCheckboxes().filter(cb => cb.checked).map(cb => cb.value);
-
-    if (idsSelecionados.length < 2) {
-      errorEl.textContent = "Selecione pelo menos 2 ativos para comparar.";
+    if (idsSelecionados.length < 2 || !state.inicio || !state.fim || state.inicio >= state.fim) {
       return;
     }
-
-    const inputs = inputsForcados || {
-      valorInicial: parseFloat(valorInicialInput.value) || 0,
-      aporte: parseFloat(aporteInput.value) || 0,
-      frequencia: document.querySelector('input[name="frequencia"]:checked').value,
-      inicio: inicioInput.value,
-      fim: fimInput.value,
-      idsSelecionados,
-    };
-
-    if (!inputs.inicio || !inputs.fim || inputs.inicio >= inputs.fim) {
-      errorEl.textContent = "A data inicial precisa ser antes da data final.";
-      return;
-    }
-
-    // aplica de volta nos campos, caso tenha vindo da URL
-    valorInicialInput.value = inputs.valorInicial;
-    aporteInput.value = inputs.aporte;
-    inicioInput.value = inputs.inicio;
-    fimInput.value = inputs.fim;
-    document.querySelector(`input[name="frequencia"][value="${inputs.frequencia}"]`).checked = true;
-    ativoCheckboxes().forEach(cb => { cb.checked = inputs.idsSelecionados.includes(cb.value); });
 
     try {
-      const { datas, totalInvestido, resultadosPorAtivo, seriePorAtivo } = simular(inputs);
+      const { datas, totalInvestido, resultadosPorAtivo, seriePorAtivo } = simular({
+        valorInicial: state.valorInicial,
+        aporte: state.aporte,
+        frequencia: state.frequencia,
+        inicio: state.inicio,
+        fim: state.fim,
+        idsSelecionados,
+      });
       const totalInvestidoSerie = datas.map((_, i) =>
-        i === 0 ? inputs.valorInicial + inputs.aporte : inputs.valorInicial + inputs.aporte * (i + 1)
+        i === 0 ? state.valorInicial + state.aporte : state.valorInicial + state.aporte * (i + 1)
       );
 
-      const ordenado = renderRanking(rankingEl, resultadosPorAtivo, inputs.idsSelecionados);
+      const ordenado = ordenarResultados(resultadosPorAtivo, idsSelecionados);
 
-      const vencedor = ordenado[0];
-      const perdedor = ordenado[ordenado.length - 1];
-      notaEl.textContent = `No período selecionado, ${vencedor.ativo.nome} teve o maior valor final (${fmtBRL(vencedor.valorFinal)}) e ${perdedor.ativo.nome} o menor (${fmtBRL(perdedor.valorFinal)}). Total investido: ${fmtBRL(totalInvestido)}.`;
+      renderPodio(podioEl, ordenado);
+      renderRankingCompleto(rankingCorpo, ordenado);
+      rankingToggleBtn.textContent = `Ver ranking completo (${idsSelecionados.length} ativos) ${rankingPainel.style.display === "block" ? "▴" : "▾"}`;
 
-      const temCambio = inputs.idsSelecionados.includes("sp500") || inputs.idsSelecionados.includes("ouro");
+      const temCambio = idsSelecionados.includes("sp500") || idsSelecionados.includes("ouro");
       notaCambioEl.style.display = temCambio ? "block" : "none";
 
-      renderChart(canvasEl, datas, seriePorAtivo, inputs.idsSelecionados, totalInvestidoSerie);
+      renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInvestidoSerie);
       chartWrap.style.display = "block";
-      shareBlock.style.display = "flex";
+      shareBlock.style.display = "block";
 
-      ultimoResultado = { ordenado, inputs };
-      escreverEstadoNaURL(inputs);
+      ultimoResultado = { ordenado, totalInvestido };
+      escreverEstadoNaURL();
     } catch (err) {
       errorEl.textContent = "Não foi possível calcular. Detalhe técnico: " + err.message;
     }
   }
+  const calcularDebounced = debounce(calcular, 400);
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+  // ---------- abas de período ----------
+  document.querySelectorAll(".periodo-tab:not(.periodo-tab--secundario)").forEach(btn => {
+    btn.addEventListener("click", () => {
+      datasExatasPainel.style.display = "none";
+      aplicarPeriodoRelativo(parseInt(btn.dataset.anos, 10));
+      calcular();
+    });
+  });
+
+  // ---------- datas exatas ----------
+  btnDatasExatas.addEventListener("click", () => {
+    inicioInput.value = state.inicio;
+    fimInput.value = state.fim;
+    datasExatasPainel.style.display = datasExatasPainel.style.display === "block" ? "none" : "block";
+  });
+  [inicioInput, fimInput].forEach(inp => {
+    inp.addEventListener("change", () => {
+      if (!inicioInput.value || !fimInput.value || inicioInput.value >= fimInput.value) return;
+      state.periodoAnos = null;
+      state.inicio = inicioInput.value;
+      state.fim = fimInput.value;
+      document.querySelectorAll(".periodo-tab").forEach(b => b.classList.remove("active"));
+      calcular();
+    });
+  });
+
+  // ---------- premissas (valor/aporte/frequência), colapsadas por padrão ----------
+  btnEditarPremissas.addEventListener("click", () => {
+    premissasEditar.style.display = premissasEditar.style.display === "block" ? "none" : "block";
+  });
+  valorInicialInput.addEventListener("input", () => {
+    state.valorInicial = parseFloat(valorInicialInput.value) || 0;
+    atualizarPremissasTexto();
+    calcularDebounced();
+  });
+  aporteInput.addEventListener("input", () => {
+    state.aporte = parseFloat(aporteInput.value) || 0;
+    atualizarPremissasTexto();
+    calcularDebounced();
+  });
+  document.querySelectorAll('input[name="frequencia"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+      state.frequencia = radio.value;
+      atualizarPremissasTexto();
+      calcular();
+    });
+  });
+
+  // ---------- legenda clicável (liga/desliga ativos) ----------
+  function onToggleAtivo(id) {
+    if (state.ativosAtivos.has(id)) {
+      if (state.ativosAtivos.size <= 2) return; // nunca menos de 2 ativos comparados
+      state.ativosAtivos.delete(id);
+    } else {
+      state.ativosAtivos.add(id);
+    }
+    renderLegenda(legendaEl, onToggleAtivo);
     calcular();
+  }
+  renderLegenda(legendaEl, onToggleAtivo);
+
+  // ---------- ranking completo ----------
+  rankingToggleBtn.addEventListener("click", () => {
+    const abrindo = rankingPainel.style.display !== "block";
+    rankingPainel.style.display = abrindo ? "block" : "none";
+    const n = ativosAtivosOrdenados().length;
+    rankingToggleBtn.textContent = `Ver ranking completo (${n} ativos) ${abrindo ? "▴" : "▾"}`;
   });
 
-  document.getElementById("btn-copiar-link").addEventListener("click", (e) => {
-    copiarTexto(location.href, e.target, "Copiar link desta simulação");
+  // ---------- menu de compartilhar ----------
+  btnCompartilhar.addEventListener("click", (e) => {
+    e.stopPropagation();
+    shareMenu.style.display = shareMenu.style.display === "block" ? "none" : "block";
   });
-  document.getElementById("btn-copiar-frase").addEventListener("click", (e) => {
+  document.addEventListener("click", (e) => {
+    if (!shareMenuWrap.contains(e.target)) shareMenu.style.display = "none";
+  });
+  document.getElementById("btn-copiar-historia").addEventListener("click", (e) => {
     if (!ultimoResultado) return;
-    const frase = fraseCompartilhamento(ultimoResultado.ordenado, ultimoResultado.inputs);
-    copiarTexto(frase, e.target, "Copiar frase pronta");
+    copiarTexto(fraseCompartilhamento(ultimoResultado.ordenado), e.target, "Copiar resultado pronto");
+  });
+  document.getElementById("btn-copiar-link").addEventListener("click", (e) => {
+    copiarTexto(location.href, e.target, "Copiar link");
   });
   document.getElementById("btn-baixar-grafico").addEventListener("click", () => {
     if (!chartInstance) return;
@@ -416,16 +534,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     a.click();
   });
 
-  // estado inicial: vem da URL (compartilhada) ou padrão de 5 anos
+  // ---------- estado inicial: URL compartilhada ou padrão de 5 anos ----------
   const estadoURL = lerEstadoDaURL();
   if (estadoURL) {
-    calcular(estadoURL);
+    state.valorInicial = estadoURL.valorInicial;
+    state.aporte = estadoURL.aporte;
+    state.frequencia = estadoURL.frequencia;
+    state.inicio = estadoURL.inicio;
+    state.fim = estadoURL.fim;
+    state.periodoAnos = null;
+    state.ativosAtivos = new Set([...estadoURL.ativosAtivos].filter(id => historicos[id] && historicos[id].length > 0));
+    if (state.ativosAtivos.size < 2) state.ativosAtivos = new Set(disponiveis.map(a => a.id));
+    valorInicialInput.value = state.valorInicial;
+    aporteInput.value = state.aporte;
+    document.querySelector(`input[name="frequencia"][value="${state.frequencia}"]`).checked = true;
+    inicioInput.value = state.inicio;
+    fimInput.value = state.fim;
+    renderLegenda(legendaEl, onToggleAtivo);
   } else {
-    const d = new Date(intervalo.max + "T00:00:00");
-    d.setFullYear(d.getFullYear() - 5);
-    const cincoAnos = d.toISOString().slice(0, 10);
-    inicioInput.value = cincoAnos < intervalo.min ? intervalo.min : cincoAnos;
-    fimInput.value = intervalo.max;
-    calcular();
+    aplicarPeriodoRelativo(5);
   }
+  atualizarPremissasTexto();
+  calcular();
 });
