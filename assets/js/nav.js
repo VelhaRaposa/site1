@@ -7,6 +7,7 @@
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/agenda/", label: "Agenda" },
+  { href: "/comparador/", label: "Comparador de Investimentos" },
   { href: "/calculadora/", label: "Calculadora DCA Bitcoin" },
   { href: "/ferramentas/", label: "Ferramentas" },
   { href: "/contato/", label: "Contato" },

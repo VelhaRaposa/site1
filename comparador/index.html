@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparador de Investimentos: Bitcoin, CDI, Ibovespa, S&amp;P 500 e Ouro | Caio Garé</title>
+<!-- Favicons — Caio Garé -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0B2138">
+<meta name="description" content="Compare o mesmo valor investido, no mesmo período, em Bitcoin, CDI, Ibovespa, S&P 500 e Ouro — com dados históricos reais. Onde seu dinheiro teria rendido mais?">
+<link rel="canonical" href="https://caiogare.com.br/comparador/">
+<meta property="og:title" content="Onde seu dinheiro teria rendido mais? | Comparador de Investimentos — Caio Garé">
+<meta property="og:description" content="Compare o mesmo valor investido, no mesmo período, em Bitcoin, CDI, Ibovespa, S&P 500 e Ouro — com dados históricos reais.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://caiogare.com.br/comparador/">
+<meta property="og:image" content="https://caiogare.com.br/assets/img/perfil.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Onde seu dinheiro teria rendido mais? | Comparador de Investimentos — Caio Garé">
+<meta name="twitter:description" content="Compare o mesmo valor investido, no mesmo período, em Bitcoin, CDI, Ibovespa, S&P 500 e Ouro — com dados históricos reais.">
+<meta name="twitter:image" content="https://caiogare.com.br/assets/img/perfil.jpg">
+<link rel="stylesheet" href="/assets/css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Qual investimento rendeu mais: Bitcoin, CDI, Ibovespa, S&P 500 ou Ouro?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Depende do período escolhido — é exatamente isso que esta ferramenta responde, com dados históricos reais. Escolha uma data inicial e final e compare os cinco ativos lado a lado, com o mesmo valor investido nas mesmas datas."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Bitcoin rende mais que o CDI no longo prazo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Em boa parte dos períodos históricos de longo prazo o Bitcoin teve valorização maior que o CDI, mas também com volatilidade muito mais alta — períodos de queda acentuada aconteceram várias vezes. O comparador mostra o resultado exato para o período que você escolher, sem generalizações."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Como comparar o retorno do Ibovespa com o do S&P 500 em reais?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "O S&P 500 é cotado em dólar, então o retorno em reais para um investidor brasileiro inclui dois efeitos: a valorização do índice em si e a variação do dólar frente ao real no período. Este comparador já faz essa conversão automaticamente, usando a cotação histórica do dólar do Banco Central, para mostrar o resultado final em reais."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "O que essa simulação não considera?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A simulação usa preços de fechamento históricos e não considera impostos (Imposto de Renda), taxas de corretagem ou custódia, nem o spread de compra e venda de cada ativo. O resultado mostrado é bruto, antes desses custos."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Rentabilidade passada garante rentabilidade futura?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não. O comparador usa exclusivamente dados históricos reais para mostrar o que já aconteceu no passado — isso não é uma previsão nem uma recomendação de investimento para o futuro."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  /* seletor de frequência — controle segmentado de 3 opções, uma linha */
+  .segmented{display:flex;border:1px solid var(--border-strong);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:18px;}
+  .segmented input{position:absolute;opacity:0;pointer-events:none;width:0;height:0;margin:0;}
+  .segmented label{
+    flex:1;text-align:center;padding:9px 6px;margin:0;font-size:.85rem;
+    color:var(--text-secondary);cursor:pointer;user-select:none;
+    border-right:1px solid var(--border-strong);transition:background .15s ease,color .15s ease;
+  }
+  .segmented label:last-child{border-right:none;}
+  .segmented input:checked + label{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+
+  /* atalhos de período */
+  .periodo-atalhos{display:flex;gap:8px;flex-wrap:wrap;margin:-8px 0 18px;}
+  .periodo-atalho{
+    font-family:var(--font-mono);font-size:.72rem;padding:5px 11px;
+    border:1px solid var(--border-strong);border-radius:20px;background:transparent;
+    color:var(--text-secondary);cursor:pointer;
+  }
+  .periodo-atalho:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* checklist de ativos */
+  .ativos-checklist{display:flex;flex-direction:column;gap:2px;margin-bottom:18px;}
+  .ativos-checklist label{
+    display:flex;align-items:center;gap:10px;font-size:.92rem;color:var(--text-primary);
+    padding:8px 2px;cursor:pointer;margin-bottom:0;
+  }
+  .ativos-checklist input{width:auto;margin:0;flex-shrink:0;}
+  .ativo-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+  /* ranking */
+  .ranking{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+  .ranking-row{
+    display:grid;grid-template-columns:28px 1fr auto auto auto;gap:14px;align-items:center;
+    padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+  }
+  .ranking-badge{font-size:1.1rem;font-family:var(--font-mono);color:var(--text-muted);text-align:center;}
+  .ranking-nome{font-weight:600;border-left:3px solid;padding-left:10px;}
+  .ranking-valor{font-family:var(--font-display);font-variant-numeric:tabular-nums;font-size:1.05rem;white-space:nowrap;}
+  .ranking-pct{font-family:var(--font-mono);font-size:.82rem;white-space:nowrap;}
+  .ranking-lucro{font-family:var(--font-mono);font-size:.78rem;color:var(--text-muted);white-space:nowrap;display:none;}
+  @media (min-width:640px){.ranking-lucro{display:block;}}
+  @media (max-width:520px){
+    .ranking-row{grid-template-columns:24px 1fr auto;row-gap:4px;}
+    .ranking-pct{grid-column:3;}
+  }
+
+  #comparador-nota{font-size:.92rem;color:var(--text-secondary);margin:18px 0 4px;}
+  #comparador-nota-cambio{
+    display:none;font-size:.8rem;color:var(--text-muted);background:var(--bg-card);
+    border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px;
+  }
+  #comparador-chart-canvas-wrap{position:relative;height:320px;margin-top:24px;}
+
+  .share-row{display:none;gap:10px;flex-wrap:wrap;margin-top:22px;}
+  .share-row .btn{font-size:.85rem;padding:.75em 1.2em;}
+
+  .seo-block{max-width:var(--max-w-article);}
+  .seo-block h2{margin-top:0;}
+  .ativos-glossario{display:flex;flex-direction:column;gap:16px;margin:20px 0;}
+  .ativos-glossario dt{font-weight:600;color:var(--text-primary);}
+  .ativos-glossario dd{margin:2px 0 0;color:var(--text-secondary);font-size:.95rem;}
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+
+<section style="padding-top:40px;">
+  <div class="container container-wide">
+    <p class="eyebrow">ferramenta</p>
+    <h1>Onde seu dinheiro teria rendido mais?</h1>
+    <p class="lead">Compare o mesmo valor investido, no mesmo período, em Bitcoin, CDI, Ibovespa, S&amp;P 500 e Ouro — com preços históricos reais, calculado direto no seu navegador.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container container-wide tool-layout">
+
+    <div class="tool-form-panel">
+      <form id="comparador-form">
+        <label for="valorInicial">Valor inicial (R$)</label>
+        <input type="number" id="valorInicial" min="0" step="50" value="1000" required>
+
+        <label for="aporte">Aporte recorrente (R$)</label>
+        <input type="number" id="aporte" min="0" step="50" value="200" required>
+
+        <label>Frequência do aporte</label>
+        <div class="segmented">
+          <input type="radio" name="frequencia" id="freq-mensal" value="mensal" checked>
+          <label for="freq-mensal">Mensal</label>
+          <input type="radio" name="frequencia" id="freq-semanal" value="semanal">
+          <label for="freq-semanal">Semanal</label>
+          <input type="radio" name="frequencia" id="freq-diaria" value="diaria">
+          <label for="freq-diaria">Diária</label>
+        </div>
+
+        <div class="field-row" style="display:grid;grid-template-columns:1fr;gap:16px;">
+          <div>
+            <label for="inicio">Data inicial</label>
+            <input type="date" id="inicio" required>
+          </div>
+          <div>
+            <label for="fim">Data final</label>
+            <input type="date" id="fim" required>
+          </div>
+        </div>
+        <div class="periodo-atalhos">
+          <button type="button" class="periodo-atalho" data-anos="1">1 ano</button>
+          <button type="button" class="periodo-atalho" data-anos="5">5 anos</button>
+          <button type="button" class="periodo-atalho" data-anos="10">10 anos</button>
+          <button type="button" class="periodo-atalho" data-anos="0">Máximo</button>
+        </div>
+        <p id="comparador-data-info" style="font-size:.78rem;color:var(--text-muted);margin-top:-10px;"></p>
+
+        <label>Ativos para comparar</label>
+        <div class="ativos-checklist">
+          <label><input type="checkbox" class="ativo-checkbox" value="btc" checked><span class="ativo-dot" style="background:#F2A93B"></span>Bitcoin</label>
+          <label><input type="checkbox" class="ativo-checkbox" value="cdi" checked><span class="ativo-dot" style="background:#7C879C"></span>CDI</label>
+          <label><input type="checkbox" class="ativo-checkbox" value="ibovespa" checked><span class="ativo-dot" style="background:#4CAF7D"></span>Ibovespa</label>
+          <label><input type="checkbox" class="ativo-checkbox" value="ouro" checked><span class="ativo-dot" style="background:#C9A227"></span>Ouro</label>
+          <label><input type="checkbox" class="ativo-checkbox" value="sp500" checked><span class="ativo-dot" style="background:#5B8DEF"></span>S&amp;P 500</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">Calcular</button>
+      </form>
+
+      <div class="disclaimer-box">
+        <strong>Sobre esta simulação:</strong> cálculo histórico local, com preços de fechamento, sem taxas de corretora e sem considerar imposto de renda. Rentabilidade passada não é garantia de resultado futuro. Isto não é recomendação de investimento.
+      </div>
+    </div>
+
+    <div>
+      <div id="comparador-error" style="margin-bottom:16px;color:var(--red);font-size:.9rem;"></div>
+
+      <div class="ranking" id="comparador-ranking"></div>
+      <p id="comparador-nota"></p>
+      <div id="comparador-nota-cambio">O resultado do S&amp;P 500 e/ou do Ouro em reais inclui a variação do dólar no período, além da valorização do próprio ativo — parte do retorno mostrado vem do câmbio, não só do ativo.</div>
+
+      <div id="comparador-chart-wrap" style="display:none;">
+        <h3 style="font-size:1rem;margin-top:28px;">Evolução no período</h3>
+        <div id="comparador-chart-canvas-wrap">
+          <canvas id="comparador-chart-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="share-row" id="comparador-share">
+        <button type="button" class="btn btn-ghost" id="btn-copiar-link">Copiar link desta simulação</button>
+        <button type="button" class="btn btn-ghost" id="btn-copiar-frase">Copiar frase pronta</button>
+        <button type="button" class="btn btn-ghost" id="btn-baixar-grafico">Baixar gráfico</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container seo-block">
+    <h2>Como funciona o cálculo</h2>
+    <p>Para cada ativo selecionado, o comparador aplica o valor inicial e os aportes recorrentes nas mesmas datas de calendário, usando o preço de fechamento histórico de cada ativo naquele dia. Em dias sem pregão de um ativo específico (fins de semana e feriados de cada mercado), usa-se o último preço conhecido — assim, o valor total investido é sempre idêntico entre os ativos comparados, em qualquer período ou frequência escolhida.</p>
+
+    <h2>O que é cada ativo</h2>
+    <dl class="ativos-glossario">
+      <div><dt>Bitcoin</dt><dd>Ativo digital descentralizado, negociado todos os dias do ano, inclusive fins de semana. Preço em reais via preços de mercado.</dd></div>
+      <div><dt>CDI</dt><dd>Certificado de Depósito Interbancário — referência de rentabilidade da renda fixa brasileira, próxima da taxa Selic. Usado aqui como um índice acumulado, calculado a partir da taxa diária divulgada pelo Banco Central.</dd></div>
+      <div><dt>Ibovespa</dt><dd>Principal índice de ações da bolsa brasileira (B3), reúne as empresas mais negociadas do mercado.</dd></div>
+      <div><dt>Ouro</dt><dd>Metal precioso usado historicamente como reserva de valor, cotado internacionalmente em dólar por onça-troy e convertido aqui para reais por grama.</dd></div>
+      <div><dt>S&amp;P 500</dt><dd>Principal índice de ações dos Estados Unidos, reúne 500 das maiores empresas listadas em bolsa americana. Cotado em dólar e convertido aqui para reais.</dd></div>
+    </dl>
+
+    <h2>O que essa simulação não considera</h2>
+    <p>Impostos (Imposto de Renda), taxas de corretagem ou custódia, e o spread de compra e venda de cada ativo. O resultado mostrado é bruto, antes desses custos, e usa preços de fechamento — não o preço exato que você conseguiria numa compra ou venda real. Rentabilidade passada não garante rentabilidade futura.</p>
+
+    <h2>FAQ</h2>
+    <p><strong>Bitcoin rende mais que o CDI no longo prazo?</strong> Em boa parte dos períodos históricos de longo prazo o Bitcoin teve valorização maior que o CDI, mas também com volatilidade muito mais alta. Teste o período que te interessa acima para ver o resultado exato.</p>
+    <p><strong>Como comparar o retorno do Ibovespa com o do S&amp;P 500 em reais?</strong> O S&amp;P 500 é cotado em dólar, então o retorno em reais inclui a valorização do índice e a variação cambial no período — o comparador já faz essa conversão automaticamente.</p>
+    <p><strong>Rentabilidade passada garante rentabilidade futura?</strong> Não. Esta ferramenta usa exclusivamente dados históricos reais para mostrar o que já aconteceu — não é uma previsão nem uma recomendação de investimento.</p>
+
+    <p style="margin-top:32px;">Quer simular só Bitcoin, comparando DCA (aportes recorrentes) com Lump Sum (aporte único)? Veja a <a href="/calculadora/">calculadora dedicada</a>. Para corretoras e carteiras, veja o <a href="/ferramentas/">guia de ferramentas</a>.</p>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="/assets/js/vendor/chart.umd.min.js"></script>
+<script src="/assets/js/content.js"></script>
+<script src="/assets/js/analytics.js"></script>
+<script src="/assets/js/nav.js"></script>
+<script src="/assets/js/comparador.js"></script>
+</body>
+</html>
