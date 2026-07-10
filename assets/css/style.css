@@ -44,7 +44,7 @@
 }
 
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;scrollbar-gutter:stable;}
 body{
   margin:0;
   background:var(--bg);
@@ -181,7 +181,7 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
 .hero-photo{
   border-radius:var(--radius-lg);
   overflow:hidden;border:1px solid var(--border-strong);
-  aspect-ratio:4/5;background:var(--bg-card);
+  aspect-ratio:4/5;max-height:320px;background:var(--bg-card);
   display:flex;align-items:center;justify-content:center;
   color:var(--text-muted);font-family:var(--font-mono);font-size:.8rem;text-align:center;
 }
