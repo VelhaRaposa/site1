@@ -162,10 +162,19 @@
 
   .cross-links{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px;}
   @media (max-width:640px){.cross-links{grid-template-columns:1fr;}}
-  .cross-link-card{display:block;padding:16px 18px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);}
-  .cross-link-card:hover{border-color:var(--accent);}
+  .cross-link-card{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    height:100%;padding:18px 20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+    cursor:pointer;transition:border-color .15s ease, background .15s ease;
+  }
+  .cross-link-card:hover{border-color:var(--accent);background:var(--bg-card-hover);}
   .cross-link-card .tit{font-weight:600;margin-bottom:2px;color:var(--text-primary);}
-  .cross-link-card .sub{font-size:.8rem;color:var(--text-muted);}
+  .cross-link-card .sub{font-size:.8rem;color:var(--text-secondary);}
+  .cross-link-card .arrow{
+    flex-shrink:0;color:var(--accent);font-size:1.2rem;line-height:1;
+    transition:transform .15s ease;
+  }
+  .cross-link-card:hover .arrow{transform:translateX(3px);}
 
   .seo-block{max-width:var(--max-w-article);}
   .seo-block h2{margin-top:0;}
@@ -257,12 +266,18 @@
 
     <div class="cross-links">
       <a href="/calculadora/" class="cross-link-card">
-        <div class="tit">Calculadora DCA Bitcoin</div>
-        <div class="sub">Compare aportes recorrentes com aporte único, só em Bitcoin</div>
+        <div>
+          <div class="tit">Calculadora DCA Bitcoin</div>
+          <div class="sub">Compare aportes recorrentes com aporte único, só em Bitcoin</div>
+        </div>
+        <span class="arrow" aria-hidden="true">→</span>
       </a>
       <a href="/ferramentas/" class="cross-link-card">
-        <div class="tit">Ferramentas</div>
-        <div class="sub">Corretoras, carteiras e serviços que uso ou recomendo</div>
+        <div>
+          <div class="tit">Ferramentas</div>
+          <div class="sub">Corretoras, carteiras e serviços que uso ou recomendo</div>
+        </div>
+        <span class="arrow" aria-hidden="true">→</span>
       </a>
     </div>
 

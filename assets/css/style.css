@@ -16,7 +16,7 @@
 
   --text-primary:   #F2F3F5;
   --text-secondary: #96A0B3; /* leve ganho de luminância sobre o #8B93A7 original — 6.3:1 → 7.3:1 de contraste, ainda claramente secundário em relação ao texto primário */
-  --text-muted:     #5B6478;
+  --text-muted:     #828B9E; /* hierarquia construída a partir do branco, não do cinza escuro — o #5B6478 original caía a 3.25:1 (abaixo do mínimo de 4.5:1 do WCAG AA) em labels, legendas e texto de rodapé; este tom mantém a mesma família de cor mas sobe para ~5.1–5.6:1 em qualquer fundo do site */
 
   --accent:      #F7931A; /* laranja bitcoin */
   --accent-dark: #C97314;
