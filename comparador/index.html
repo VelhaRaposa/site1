@@ -92,9 +92,18 @@
   .pill.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
 
   .datas-exatas{display:none;margin-top:12px;}
-  .datas-exatas .field-row{display:grid;grid-template-columns:1fr;gap:12px;}
+  /* datas empilhadas mas com respiro mínimo entre si — devem ler como um
+     único grupo (data inicial + data final), não duas seções separadas */
+  .datas-exatas .field-row{display:grid;grid-template-columns:1fr;gap:2px;}
+  .datas-exatas .field-row input[type="date"]{margin-bottom:8px;}
+  .datas-exatas .field-row > div:last-child input[type="date"]{margin-bottom:0;}
+  /* ícone nativo do seletor de data é preto por padrão e some no tema
+     escuro — inverte pra ficar na mesma família de cinza-claro do texto */
+  .datas-exatas input[type="date"]::-webkit-calendar-picker-indicator{
+    filter:invert(70%);cursor:pointer;
+  }
 
-  .data-info{font-size:.74rem;color:var(--text-muted);margin-top:-8px;}
+  .data-info{font-size:.74rem;color:var(--text-muted);margin:8px 0 0;}
   #comparador-error{color:var(--red);font-size:.9rem;margin-bottom:16px;}
 
   .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:.8rem;}
@@ -202,8 +211,8 @@
               <div><label for="inicio">Data inicial</label><input type="date" id="inicio"></div>
               <div><label for="fim">Data final</label><input type="date" id="fim"></div>
             </div>
+            <p id="comparador-data-info" class="data-info"></p>
           </div>
-          <p id="comparador-data-info" class="data-info"></p>
         </div>
 
         <div class="controle-grupo">

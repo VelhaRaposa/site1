@@ -40,6 +40,7 @@ const ATIVOS = [
 
 const FREQ_DIAS = { mensal: 30, semanal: 7, diaria: 1 };
 const FREQ_LABEL = { mensal: "mês", semanal: "semana", diaria: "dia" };
+const COR_TOTAL_INVESTIDO = "#8B93A7";
 
 let historicos = {};
 let chartInstance = null;
@@ -184,11 +185,23 @@ function dotHtml(cor) {
   return `<span class="legenda-dot" style="background:${cor}"></span>`;
 }
 
-function renderCards(el, ordenado) {
-  el.innerHTML = ordenado.map(r => `
+// insere "Total Investido" (retorno sempre 0%) na mesma ordenação dos ativos —
+// responde de cara "ganhei dinheiro ou teria sido igual só guardar o valor?"
+function comTotalInvestido(ordenado, totalInvestido) {
+  const entradaTotal = {
+    ativo: { id: "total", nome: "Total Investido", cor: COR_TOTAL_INVESTIDO },
+    valorFinal: totalInvestido,
+    lucro: 0,
+    lucroPct: 0,
+  };
+  return [...ordenado, entradaTotal].sort((a, b) => b.valorFinal - a.valorFinal);
+}
+
+function renderCards(el, ordenadoComTotal) {
+  el.innerHTML = ordenadoComTotal.map(r => `
     <div class="card-ativo">
       <div class="nome">${dotHtml(r.ativo.cor)}${r.ativo.nome}</div>
-      <div class="pct" style="color:${r.lucroPct >= 0 ? 'var(--green)' : 'var(--red)'}">${r.lucroPct >= 0 ? '+' : ''}${r.lucroPct.toFixed(1)}%</div>
+      <div class="pct" style="color:${r.lucroPct >= 0 ? 'var(--green)' : 'var(--red)'}">${r.lucroPct > 0 ? '+' : ''}${r.lucroPct.toFixed(1)}%</div>
       <div class="valor">${fmtBRL(r.valorFinal)}</div>
     </div>
   `).join("");
@@ -222,9 +235,10 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
       label: ativo.nome,
       data: idx.map(i => seriePorAtivo[id][i].valor),
       borderColor: ativo.cor,
-      backgroundColor: "transparent",
+      backgroundColor: ativo.cor, // sólido — usado pelo marcador (círculo preenchido) do tooltip, não pela área do gráfico (fill:false)
       borderWidth: 2.2,
       pointRadius: 0,
+      pointBackgroundColor: ativo.cor,
       tension: 0.12,
     };
   });
@@ -232,6 +246,8 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
     label: "Total investido",
     data: idx.map(i => totalInvestidoSerie[i]),
     borderColor: "rgba(139,147,167,0.35)",
+    backgroundColor: COR_TOTAL_INVESTIDO,
+    pointBackgroundColor: COR_TOTAL_INVESTIDO,
     borderDash: [4, 4],
     borderWidth: 1,
     pointRadius: 0,
@@ -263,6 +279,10 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
       plugins: {
         legend: { display: false }, // legenda própria (clicável) fica fora do canvas
         tooltip: {
+          usePointStyle: true,
+          pointStyle: "circle",
+          boxWidth: 8,
+          boxHeight: 8,
           backgroundColor: "#10141F",
           borderColor: "#2B3448",
           borderWidth: 1,
@@ -277,7 +297,7 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
 
 function fraseCompartilhamento(ordenado) {
   const top3 = ordenado.slice(0, 3).map(r =>
-    `${r.ativo.nome} ${r.lucroPct >= 0 ? '+' : ''}${r.lucroPct.toFixed(0)}% (${fmtBRL(r.valorFinal)})`
+    `${r.ativo.nome} ${r.lucroPct > 0 ? '+' : ''}${r.lucroPct.toFixed(0)}% (${fmtBRL(r.valorFinal)})`
   );
   return `Entre ${fmtDateBR(state.inicio)} e ${fmtDateBR(state.fim)}, com ${fmtBRL(state.valorInicial)} iniciais e ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}: ${top3.join(", ")}.\n\nSimule o seu período: ${location.href}`;
 }
@@ -369,7 +389,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
 
       const ordenado = ordenarResultados(resultadosPorAtivo, idsSelecionados);
-      renderCards(cardsEl, ordenado);
+      const ordenadoComTotal = comTotalInvestido(ordenado, totalInvestido);
+      renderCards(cardsEl, ordenadoComTotal);
 
       const temCambio = idsSelecionados.includes("sp500") || idsSelecionados.includes("ouro");
       notaCambioEl.style.display = temCambio ? "block" : "none";
@@ -378,7 +399,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       chartWrap.style.display = "block";
       shareBlock.style.display = "flex";
 
-      ultimoResultado = { ordenado, totalInvestido };
+      ultimoResultado = { ordenado: ordenadoComTotal, totalInvestido };
       escreverEstadoNaURL();
     } catch (err) {
       errorEl.textContent = "Não foi possível calcular. Detalhe técnico: " + err.message;
