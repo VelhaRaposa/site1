@@ -198,6 +198,10 @@ function comTotalInvestido(ordenado, totalInvestido) {
 }
 
 function renderCards(el, ordenadoComTotal) {
+  // número de colunas acompanha o número real de cards (3 a 6, conforme a
+  // legenda) — assim todos os cards sempre preenchem uma linha inteira,
+  // do mesmo tamanho, sem nenhum sobrando sozinho na linha de baixo.
+  el.style.setProperty("--n-cards", ordenadoComTotal.length);
   el.innerHTML = ordenadoComTotal.map(r => `
     <div class="card-ativo">
       <div class="nome">${dotHtml(r.ativo.cor)}${r.ativo.nome}</div>
@@ -295,11 +299,127 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
   });
 }
 
-function fraseCompartilhamento(ordenado) {
-  const top3 = ordenado.slice(0, 3).map(r =>
-    `${r.ativo.nome} ${r.lucroPct > 0 ? '+' : ''}${r.lucroPct.toFixed(0)}% (${fmtBRL(r.valorFinal)})`
-  );
-  return `Entre ${fmtDateBR(state.inicio)} e ${fmtDateBR(state.fim)}, com ${fmtBRL(state.valorInicial)} iniciais e ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}: ${top3.join(", ")}.\n\nSimule o seu período: ${location.href}`;
+/* ---------- texto de compartilhamento ----------
+   Um único formato, usado nos 3 canais (copiar, X, WhatsApp) — a
+   personalidade vem da posição do Bitcoin no resultado, não do canal.
+   Curto, com emoji fazendo o trabalho de estrutura, sem texto corrido. */
+function descricaoPeriodo() {
+  if (state.periodoAnos === 0) return `desde ${fmtDateBR(state.inicio)}`;
+  if (state.periodoAnos) return `nos últimos ${state.periodoAnos} ano${state.periodoAnos > 1 ? "s" : ""}`;
+  return `de ${fmtDateBR(state.inicio)} a ${fmtDateBR(state.fim)}`;
+}
+function linhaPct(r) {
+  return `${r.lucroPct > 0 ? "+" : ""}${r.lucroPct.toFixed(0)}%`;
+}
+function linhasPodio(ordenado, n) {
+  const medalhas = ["🥇", "🥈", "🥉"];
+  return ordenado.slice(0, n).map((r, i) => `${medalhas[i]} ${r.ativo.nome} ${linhaPct(r)}`);
+}
+
+function mensagemCompartilhamento(ordenado, totalInvestido) {
+  const idxBTC = ordenado.findIndex(r => r.ativo.id === "btc");
+  const top3 = linhasPodio(ordenado, 3);
+
+  let headline = "Onde meu dinheiro teria rendido mais?";
+  let linhaExtra = "";
+  if (idxBTC === 0) {
+    headline = "Achei que Bitcoin venceria.\n\nE eu tinha razão.";
+  } else if (idxBTC === ordenado.length - 1) {
+    headline = "Um dia a gente ganha.\n\nNo outro ganham da gente.";
+    linhaExtra = `\n📉 Bitcoin ${linhaPct(ordenado[idxBTC])}`;
+  } else if (idxBTC > 0) {
+    headline = "Pelo menos Bitcoin não ficou em último.";
+  }
+
+  return `${headline}\n\n${top3.join("\n")}${linhaExtra}\n\n💰 ${fmtBRL(totalInvestido)}\n📅 ${descricaoPeriodo()}\n\n🔗 ${location.href}`;
+}
+
+/* ---------- imagem para compartilhamento ----------
+   Gera um PNG 1200x675 client-side (título + o próprio gráfico da
+   simulação + pódio + total investido) reaproveitando o canvas já
+   renderizado pelo Chart.js — sem chamada de servidor, sem serviço
+   externo. Em navegadores com suporte a compartilhar arquivos (Web
+   Share API — a maioria dos celulares), abre direto o menu nativo do
+   X/WhatsApp/Telegram; nos demais (a maior parte dos desktops), baixa
+   o arquivo pra a pessoa anexar manualmente. */
+async function gerarImagemCompartilhamento(ordenado, totalInvestido) {
+  const W = 1200, H = 675;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#0A0E17";
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = "#F2F3F5";
+  ctx.textAlign = "center";
+  ctx.font = "700 38px -apple-system, 'Segoe UI', Roboto, sans-serif";
+  ctx.fillText("Onde seu dinheiro teria rendido mais?", W / 2, 62);
+
+  if (chartInstance) {
+    const chartImg = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.src = chartInstance.toBase64Image();
+    });
+    const chartW = 1080, chartH = 350;
+    ctx.drawImage(chartImg, (W - chartW) / 2, 82, chartW, chartH);
+  }
+
+  // rodapé — orçamento fixo de altura (H=675) pra nunca desenhar fora do
+  // canvas: divisória + 3 linhas de pódio + 1 linha de total investido,
+  // com folga suficiente até a borda inferior.
+  const rodapeY = 460;
+  ctx.strokeStyle = "#1F2634";
+  ctx.beginPath();
+  ctx.moveTo(80, rodapeY);
+  ctx.lineTo(W - 80, rodapeY);
+  ctx.stroke();
+
+  const medalhas = ["🥇", "🥈", "🥉"];
+  ctx.textAlign = "left";
+  ctx.font = "600 27px -apple-system, 'Segoe UI', Roboto, sans-serif";
+  let y = rodapeY + 38;
+  ordenado.slice(0, 3).forEach((r, i) => {
+    ctx.fillStyle = "#F2F3F5";
+    ctx.fillText(`${medalhas[i]} ${r.ativo.nome} ${linhaPct(r)}`, 80, y);
+    y += 36;
+  });
+  y += 22;
+
+  ctx.font = "500 22px -apple-system, 'Segoe UI', Roboto, sans-serif";
+  ctx.fillStyle = "#96A0B3";
+  ctx.fillText(`💰 ${fmtBRL(totalInvestido)}`, 80, y);
+
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#F7931A";
+  ctx.font = "600 22px -apple-system, 'Segoe UI', Roboto, sans-serif";
+  ctx.fillText("🌐 caiogare.com.br/comparador", W - 80, y);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
+async function compartilharOuBaixarImagem(ordenado, totalInvestido) {
+  const blob = await gerarImagemCompartilhamento(ordenado, totalInvestido);
+  const arquivo = new File([blob], "comparador-investimentos.png", { type: "image/png" });
+
+  if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+    try {
+      await navigator.share({ files: [arquivo] });
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // usuário cancelou o menu nativo
+      // qualquer outra falha cai no download abaixo
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "comparador-investimentos.png";
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 async function copiarTexto(texto, feedbackEl, textoOriginal) {
@@ -475,19 +595,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   document.getElementById("btn-copiar-resultado").addEventListener("click", (e) => {
     if (!ultimoResultado) return;
-    copiarTexto(fraseCompartilhamento(ultimoResultado.ordenado), e.target, "Copiar resultado");
+    copiarTexto(mensagemCompartilhamento(ultimoResultado.ordenado, ultimoResultado.totalInvestido), e.target, "Copiar resultado");
   });
   document.getElementById("btn-share-x").addEventListener("click", () => {
     if (!ultimoResultado) return;
-    const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(fraseCompartilhamento(ultimoResultado.ordenado));
+    const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(mensagemCompartilhamento(ultimoResultado.ordenado, ultimoResultado.totalInvestido));
     window.open(url, "_blank", "noopener");
     shareMenu.style.display = "none";
   });
   document.getElementById("btn-share-whatsapp").addEventListener("click", () => {
     if (!ultimoResultado) return;
-    const url = "https://wa.me/?text=" + encodeURIComponent(fraseCompartilhamento(ultimoResultado.ordenado));
+    const url = "https://wa.me/?text=" + encodeURIComponent(mensagemCompartilhamento(ultimoResultado.ordenado, ultimoResultado.totalInvestido));
     window.open(url, "_blank", "noopener");
     shareMenu.style.display = "none";
+  });
+  document.getElementById("btn-baixar-imagem").addEventListener("click", async (e) => {
+    if (!ultimoResultado) return;
+    const textoOriginal = e.target.textContent;
+    e.target.textContent = "Gerando…";
+    try {
+      await compartilharOuBaixarImagem(ultimoResultado.ordenado, ultimoResultado.totalInvestido);
+    } finally {
+      e.target.textContent = textoOriginal;
+      shareMenu.style.display = "none";
+    }
   });
 
   // ---------- estado inicial: URL compartilhada ou padrão de 5 anos ----------
