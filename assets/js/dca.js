@@ -185,11 +185,29 @@ function descricaoPeriodo() {
   return `de ${fmtDateBR(state.inicio)} a ${fmtDateBR(state.fim)}`;
 }
 
+// frase inicial aleatória do compartilhamento — positiva quando a
+// rentabilidade passa de 5%, negativa caso contrário.
+const FRASES_HEADLINE_POSITIVAS = [
+  "E eles estão certos.",
+  "Desta vez funcionou.",
+  "Meu patrimônio concorda.",
+  "Quem teve paciência agradece.",
+];
+const FRASES_HEADLINE_NEGATIVAS = [
+  "Só não falam que temos que comprar lenço.",
+  "Mas ninguém diz quando que para de chorar.",
+  "Meu patrimônio discorda.",
+  "Eu poderia ter deixado na poupança.",
+];
+function headlineAleatoria(lucroPct) {
+  const lista = lucroPct > 5 ? FRASES_HEADLINE_POSITIVAS : FRASES_HEADLINE_NEGATIVAS;
+  const frase = lista[Math.floor(Math.random() * lista.length)];
+  return `Todo mundo fala para comprar Bitcoin.\n\n${frase}`;
+}
+
 function corpoMensagem(r) {
   const emoji = r.lucro >= 0 ? "🚀" : "📉";
-  const headline = r.lucro >= 0
-    ? "Simulei quanto eu teria em Bitcoin.\n\nE teria valido a pena."
-    : "Simulei quanto eu teria em Bitcoin.\n\nAinda não teria valido a pena.";
+  const headline = headlineAleatoria(r.lucroPct);
 
   const estrategia = state.modo === "lump"
     ? `💰 Aporte único: ${fmtBRL(state.valor)}`
