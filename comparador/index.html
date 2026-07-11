@@ -82,7 +82,7 @@
   .controle-grupo{margin-bottom:22px;}
   .controle-label{
     font-family:var(--font-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--text-muted);margin-bottom:9px;
+    color:var(--text-tertiary);margin-bottom:9px;
   }
   .pills{display:flex;flex-wrap:wrap;gap:8px;}
   .pill{
@@ -105,7 +105,7 @@
     filter:invert(70%);cursor:pointer;
   }
 
-  .data-info{font-size:.74rem;color:var(--text-muted);margin:8px 0 0;}
+  .data-info{font-size:.74rem;color:var(--text-tertiary);margin:8px 0 0;}
   #comparador-error{color:var(--red);font-size:.9rem;margin-bottom:16px;}
 
   .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:.8rem;}
@@ -140,10 +140,10 @@
     font-weight:600;font-size:.86rem;color:var(--text-primary);margin-bottom:10px;
   }
   .card-ativo .pct{font-family:var(--font-display);font-size:1.5rem;font-weight:600;}
-  .card-ativo .valor{font-family:var(--font-mono);font-size:.76rem;color:var(--text-muted);margin-top:6px;}
+  .card-ativo .valor{font-family:var(--font-mono);font-size:.76rem;color:var(--text-tertiary);margin-top:6px;}
 
   #comparador-nota-cambio{
-    display:none;font-size:.8rem;color:var(--text-muted);background:var(--bg-card);
+    display:none;font-size:.8rem;color:var(--text-tertiary);background:var(--bg-card);
     border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-top:18px;text-align:center;
   }
 
@@ -160,21 +160,26 @@
   }
   #share-menu button:hover{background:var(--bg-card-hover);}
 
-  .cross-links{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px;}
-  @media (max-width:640px){.cross-links{grid-template-columns:1fr;}}
+  /* cards reais (não links horizontais): tile compacto e mais próximo de um
+     quadrado, ícone + título + descrição curta, centralizados como par —
+     não esticam para preencher a largura do conteúdo. */
+  .cross-links{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;margin-top:32px;}
   .cross-link-card{
-    display:flex;align-items:center;justify-content:space-between;gap:14px;
-    height:100%;padding:18px 20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-    cursor:pointer;transition:border-color .15s ease, background .15s ease;
+    display:flex;flex-direction:column;align-items:flex-start;
+    width:230px;padding:24px;
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+    cursor:pointer;transition:border-color .15s ease, background .15s ease, transform .15s ease;
   }
-  .cross-link-card:hover{border-color:var(--accent);background:var(--bg-card-hover);}
-  .cross-link-card .tit{font-weight:600;margin-bottom:2px;color:var(--text-primary);}
-  .cross-link-card .sub{font-size:.8rem;color:var(--text-secondary);}
-  .cross-link-card .arrow{
-    flex-shrink:0;color:var(--accent);font-size:1.2rem;line-height:1;
-    transition:transform .15s ease;
+  @media (max-width:640px){.cross-link-card{width:100%;max-width:320px;}}
+  .cross-link-card:hover{border-color:var(--accent);background:var(--bg-card-hover);transform:translateY(-3px);}
+  .cross-link-card .icon{
+    width:44px;height:44px;border-radius:10px;
+    background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;font-weight:600;margin-bottom:18px;
   }
-  .cross-link-card:hover .arrow{transform:translateX(3px);}
+  .cross-link-card .tit{font-weight:600;font-size:1.02rem;margin-bottom:6px;color:var(--text-primary);}
+  .cross-link-card .sub{font-size:.85rem;color:var(--text-tertiary);line-height:1.45;}
 
   .seo-block{max-width:var(--max-w-article);}
   .seo-block h2{margin-top:0;}
@@ -266,18 +271,14 @@
 
     <div class="cross-links">
       <a href="/calculadora/" class="cross-link-card">
-        <div>
-          <div class="tit">Calculadora DCA Bitcoin</div>
-          <div class="sub">Compare aportes recorrentes com aporte único, só em Bitcoin</div>
-        </div>
-        <span class="arrow" aria-hidden="true">→</span>
+        <div class="icon" aria-hidden="true">₿</div>
+        <div class="tit">Calculadora DCA Bitcoin</div>
+        <div class="sub">Compare aportes recorrentes com aporte único</div>
       </a>
       <a href="/ferramentas/" class="cross-link-card">
-        <div>
-          <div class="tit">Ferramentas</div>
-          <div class="sub">Corretoras, carteiras e serviços que uso ou recomendo</div>
-        </div>
-        <span class="arrow" aria-hidden="true">→</span>
+        <div class="icon" aria-hidden="true">⚙</div>
+        <div class="tit">Ferramentas</div>
+        <div class="sub">Corretoras, carteiras e serviços que recomendo</div>
       </a>
     </div>
 

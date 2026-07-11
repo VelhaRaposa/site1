@@ -41,7 +41,7 @@
     <div class="card" style="max-width:760px;margin:0 auto;">
       <h2 style="font-size:1.2rem;">Dias fixos</h2>
       <div id="agenda-list"></div>
-      <p style="margin-top:20px;font-size:.85rem;color:var(--text-muted);">Assista ao vivo no YouTube. Reprises disponíveis no Spotify.</p>
+      <p style="margin-top:20px;font-size:.85rem;color:var(--text-tertiary);">Assista ao vivo no YouTube. Reprises disponíveis no Spotify.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
         <a href="https://www.youtube.com/@caiogare" target="_blank" rel="noopener" class="btn btn-primary">Ir para o YouTube</a>
         <a href="https://open.spotify.com/show/3sBJa8iCt2POBsdVbHaIfO?si=Ii1vu6JfSEydfdBc-GJ5BQ" target="_blank" rel="noopener" class="btn btn-ghost">Ir para o Spotify</a>
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   `).join("");
 
   const wrap = document.getElementById("agenda-videos");
-  wrap.innerHTML = `<p style="color:var(--text-muted);">Carregando vídeos…</p>`;
+  wrap.innerHTML = `<p style="color:var(--text-tertiary);">Carregando vídeos…</p>`;
   const videos = await getLatestVideos(6);
   wrap.innerHTML = videos.map(v => `
     <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
