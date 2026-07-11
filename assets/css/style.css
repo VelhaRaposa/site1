@@ -126,11 +126,17 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
   display:flex;align-items:center;justify-content:space-between;
   height:66px;
 }
-.logo{
-  font-family:var(--font-display);font-weight:600;font-size:1.05rem;
-  display:flex;align-items:center;
+/* componente de marca (logo + nome + tagline) — usado no header e no
+   rodapé. Duas linhas de texto, mas compacto o bastante pra não alterar
+   a altura do header (nav-wrap continua com 66px, definidos abaixo). */
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:block;}
+.brand-text{display:flex;flex-direction:column;line-height:1.2;}
+.brand-name{font-family:var(--font-display);font-weight:600;font-size:.98rem;color:var(--text-primary);}
+.brand-tagline{
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--text-tertiary);white-space:nowrap;
 }
-.logo span{color:var(--accent);}
 .nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0;}
 .nav-links a{
   font-size:.88rem;color:var(--text-secondary);
@@ -350,8 +356,9 @@ input[type=range]{padding:0;accent-color:var(--accent);}
 footer{border-top:1px solid var(--border);padding:44px 0 30px;margin-top:40px;}
 .footer-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;}
 .footer-links{display:flex;gap:22px;list-style:none;padding:0;margin:0;flex-wrap:wrap;}
-.footer-links a{font-size:.85rem;color:var(--text-secondary);}
+.footer-links a{font-size:.85rem;color:var(--text-secondary);display:inline-flex;align-items:center;gap:6px;}
 .footer-links a:hover{color:var(--accent);}
+.footer-links .social-icon{width:15px;height:15px;flex-shrink:0;fill:currentColor;}
 .footer-bottom{
   margin-top:28px;padding-top:20px;border-top:1px solid var(--border);
   font-size:.76rem;color:var(--text-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
