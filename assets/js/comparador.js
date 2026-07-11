@@ -302,7 +302,13 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
 /* ---------- texto de compartilhamento ----------
    Um único formato, usado nos 3 canais (copiar, X, WhatsApp) — a
    personalidade vem da posição do Bitcoin no resultado, não do canal.
-   Curto, com emoji fazendo o trabalho de estrutura, sem texto corrido. */
+   Texto simples, sem emoji (WhatsApp/X renderizam de formas diferentes
+   e alguns glifos quebram no encoding de certos clientes) — a estrutura
+   vem de quebra de linha e rótulos, não de símbolo. Aporte, total
+   investido e período aparecem sempre, em qualquer cenário. */
+const LINK_COMPARADOR_VISIVEL = "caiogare.com.br/comparador";
+const LINK_COMPARADOR_COMPLETO = "https://caiogare.com.br/comparador";
+
 function descricaoPeriodo() {
   if (state.periodoAnos === 0) return `desde ${fmtDateBR(state.inicio)}`;
   if (state.periodoAnos) return `nos últimos ${state.periodoAnos} ano${state.periodoAnos > 1 ? "s" : ""}`;
@@ -312,11 +318,18 @@ function linhaPct(r) {
   return `${r.lucroPct > 0 ? "+" : ""}${r.lucroPct.toFixed(0)}%`;
 }
 function linhasPodio(ordenado, n) {
-  const medalhas = ["🥇", "🥈", "🥉"];
-  return ordenado.slice(0, n).map((r, i) => `${medalhas[i]} ${r.ativo.nome} ${linhaPct(r)}`);
+  return ordenado.slice(0, n).map(r => `${r.ativo.nome} ${linhaPct(r)}`);
+}
+function linhasDetalhe() {
+  return [
+    `Aporte: ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}`,
+    `Período: ${descricaoPeriodo()}`,
+  ];
 }
 
-function mensagemCompartilhamento(ordenado, totalInvestido) {
+// corpo da mensagem, sem o link — usado pelo X, que anexa o link
+// separadamente (parâmetro url do intent, sempre visível e clicável)
+function corpoMensagem(ordenado, totalInvestido) {
   const idxBTC = ordenado.findIndex(r => r.ativo.id === "btc");
   const top3 = linhasPodio(ordenado, 3);
 
@@ -326,36 +339,48 @@ function mensagemCompartilhamento(ordenado, totalInvestido) {
     headline = "Achei que Bitcoin venceria.\n\nE eu tinha razão.";
   } else if (idxBTC === ordenado.length - 1) {
     headline = "Um dia a gente ganha.\n\nNo outro ganham da gente.";
-    linhaExtra = `\n📉 Bitcoin ${linhaPct(ordenado[idxBTC])}`;
+    linhaExtra = `\nBitcoin: ${linhaPct(ordenado[idxBTC])}`;
   } else if (idxBTC > 0) {
     headline = "Pelo menos Bitcoin não ficou em último.";
   }
 
-  return `${headline}\n\n${top3.join("\n")}${linhaExtra}\n\n💰 ${fmtBRL(totalInvestido)}\n📅 ${descricaoPeriodo()}\n\n🔗 ${location.href}`;
+  const detalhes = [`Total investido: ${fmtBRL(totalInvestido)}`, ...linhasDetalhe()].join("\n");
+  return `${headline}\n\n${top3.join("\n")}${linhaExtra}\n\n${detalhes}`;
+}
+
+// texto completo, com o link limpo (caiogare.com.br/comparador) — usado
+// no WhatsApp e em "copiar resultado", onde o link precisa estar
+// embutido no próprio texto (sem parâmetro separado como no X).
+function mensagemCompartilhamento(ordenado, totalInvestido) {
+  return `${corpoMensagem(ordenado, totalInvestido)}\n\n${LINK_COMPARADOR_VISIVEL}`;
 }
 
 /* ---------- imagem para compartilhamento ----------
-   Gera um PNG 1200x675 client-side (título + o próprio gráfico da
-   simulação + pódio + total investido) reaproveitando o canvas já
-   renderizado pelo Chart.js — sem chamada de servidor, sem serviço
-   externo. Em navegadores com suporte a compartilhar arquivos (Web
-   Share API — a maioria dos celulares), abre direto o menu nativo do
-   X/WhatsApp/Telegram; nos demais (a maior parte dos desktops), baixa
-   o arquivo pra a pessoa anexar manualmente. */
+   Gera um PNG 1200x675 client-side (título + o gráfico real da
+   simulação + legenda dos ativos + pódio + total investido +
+   frequência + período) reaproveitando o canvas já renderizado pelo
+   Chart.js — sem chamada de servidor, sem serviço externo. Texto
+   simples, sem emoji (a imagem é um PNG rasterizado, então não tem o
+   mesmo risco de encoding do texto, mas o visual segue a mesma
+   linguagem simples). Em navegadores com suporte a compartilhar
+   arquivos (Web Share API — a maioria dos celulares), abre direto o
+   menu nativo do X/WhatsApp/Telegram; nos demais (a maior parte dos
+   desktops), baixa o arquivo pra a pessoa anexar manualmente. */
 async function gerarImagemCompartilhamento(ordenado, totalInvestido) {
   const W = 1200, H = 675;
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d");
+  const fontSans = "-apple-system, 'Segoe UI', Roboto, sans-serif";
 
   ctx.fillStyle = "#0A0E17";
   ctx.fillRect(0, 0, W, H);
 
   ctx.fillStyle = "#F2F3F5";
   ctx.textAlign = "center";
-  ctx.font = "700 38px -apple-system, 'Segoe UI', Roboto, sans-serif";
-  ctx.fillText("Onde seu dinheiro teria rendido mais?", W / 2, 62);
+  ctx.font = `700 36px ${fontSans}`;
+  ctx.fillText("Onde seu dinheiro teria rendido mais?", W / 2, 54);
 
   if (chartInstance) {
     const chartImg = await new Promise((resolve) => {
@@ -363,39 +388,62 @@ async function gerarImagemCompartilhamento(ordenado, totalInvestido) {
       img.onload = () => resolve(img);
       img.src = chartInstance.toBase64Image();
     });
-    const chartW = 1080, chartH = 350;
-    ctx.drawImage(chartImg, (W - chartW) / 2, 82, chartW, chartH);
+    const chartW = 1080, chartH = 280;
+    ctx.drawImage(chartImg, (W - chartW) / 2, 76, chartW, chartH);
   }
 
+  // legenda dos ativos ativos na simulação — mesma cor da linha no gráfico
+  const ativosAtivosNaImagem = ordenado.filter(r => r.ativo.id !== "total");
+  const legendaY = 388;
+  ctx.font = `600 18px ${fontSans}`;
+  let larguras = ativosAtivosNaImagem.map(r => 22 + ctx.measureText(r.ativo.nome).width);
+  let larguraTotal = larguras.reduce((a, b) => a + b, 0) + (ativosAtivosNaImagem.length - 1) * 28;
+  let lx = (W - larguraTotal) / 2;
+  ativosAtivosNaImagem.forEach((r, i) => {
+    ctx.fillStyle = r.ativo.cor;
+    ctx.beginPath();
+    ctx.arc(lx + 7, legendaY - 6, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#96A0B3";
+    ctx.textAlign = "left";
+    ctx.fillText(r.ativo.nome, lx + 20, legendaY);
+    lx += larguras[i] + 28;
+  });
+
   // rodapé — orçamento fixo de altura (H=675) pra nunca desenhar fora do
-  // canvas: divisória + 3 linhas de pódio + 1 linha de total investido,
-  // com folga suficiente até a borda inferior.
-  const rodapeY = 460;
+  // canvas: divisória, pódio (esquerda) + detalhes (direita), link no rodapé.
+  const rodapeY = 418;
   ctx.strokeStyle = "#1F2634";
   ctx.beginPath();
   ctx.moveTo(80, rodapeY);
   ctx.lineTo(W - 80, rodapeY);
   ctx.stroke();
 
-  const medalhas = ["🥇", "🥈", "🥉"];
   ctx.textAlign = "left";
-  ctx.font = "600 27px -apple-system, 'Segoe UI', Roboto, sans-serif";
-  let y = rodapeY + 38;
-  ordenado.slice(0, 3).forEach((r, i) => {
+  ctx.font = `600 26px ${fontSans}`;
+  let yEsq = rodapeY + 40;
+  ordenado.slice(0, 3).forEach((r) => {
     ctx.fillStyle = "#F2F3F5";
-    ctx.fillText(`${medalhas[i]} ${r.ativo.nome} ${linhaPct(r)}`, 80, y);
-    y += 36;
+    ctx.fillText(`${r.ativo.nome} ${linhaPct(r)}`, 80, yEsq);
+    yEsq += 34;
   });
-  y += 22;
 
-  ctx.font = "500 22px -apple-system, 'Segoe UI', Roboto, sans-serif";
+  ctx.font = `500 20px ${fontSans}`;
   ctx.fillStyle = "#96A0B3";
-  ctx.fillText(`💰 ${fmtBRL(totalInvestido)}`, 80, y);
+  let yDir = rodapeY + 34;
+  [
+    `Total investido: ${fmtBRL(totalInvestido)}`,
+    `Frequência: ${state.frequencia[0].toUpperCase()}${state.frequencia.slice(1)}`,
+    `Período: ${descricaoPeriodo()}`,
+  ].forEach((linha) => {
+    ctx.fillText(linha, 640, yDir);
+    yDir += 27;
+  });
 
-  ctx.textAlign = "right";
+  ctx.textAlign = "center";
   ctx.fillStyle = "#F7931A";
-  ctx.font = "600 22px -apple-system, 'Segoe UI', Roboto, sans-serif";
-  ctx.fillText("🌐 caiogare.com.br/comparador", W - 80, y);
+  ctx.font = `600 21px ${fontSans}`;
+  ctx.fillText(LINK_COMPARADOR_VISIVEL, W / 2, 622);
 
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
@@ -599,7 +647,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   document.getElementById("btn-share-x").addEventListener("click", () => {
     if (!ultimoResultado) return;
-    const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(mensagemCompartilhamento(ultimoResultado.ordenado, ultimoResultado.totalInvestido));
+    // X anexa a URL sozinho (parâmetro url), sempre limpa e clicável —
+    // por isso o texto não repete o link.
+    const url = "https://twitter.com/intent/tweet?text=" +
+      encodeURIComponent(corpoMensagem(ultimoResultado.ordenado, ultimoResultado.totalInvestido)) +
+      "&url=" + encodeURIComponent(LINK_COMPARADOR_COMPLETO);
     window.open(url, "_blank", "noopener");
     shareMenu.style.display = "none";
   });
