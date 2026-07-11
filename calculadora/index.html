@@ -58,8 +58,10 @@
 </script>
 <style>
   /* layout principal: controles à esquerda (~25%), gráfico dominante à direita (~75%) —
-     mesma estrutura do Comparador de Investimentos, a DCA é uma irmã direta dele. */
-  .v5-layout{display:grid;grid-template-columns:250px 1fr;gap:32px;align-items:start;}
+     mesma estrutura do Comparador de Investimentos, a DCA é uma irmã direta dele.
+     260px (não 250px): as 3 pills de Frequência (Mensal/Semanal/Diária) precisam
+     de ~252px pra caber numa linha só. */
+  .v5-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:start;}
   @media (max-width:960px){.v5-layout{grid-template-columns:1fr;}}
 
   .controle-grupo{margin-bottom:22px;}
