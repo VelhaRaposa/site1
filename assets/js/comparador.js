@@ -198,6 +198,10 @@ function comTotalInvestido(ordenado, totalInvestido) {
 }
 
 function renderCards(el, ordenadoComTotal) {
+  // número de colunas acompanha o número real de cards (3 a 6, conforme a
+  // legenda) — assim todos os cards sempre preenchem uma linha inteira,
+  // do mesmo tamanho, sem nenhum sobrando sozinho na linha de baixo.
+  el.style.setProperty("--n-cards", ordenadoComTotal.length);
   el.innerHTML = ordenadoComTotal.map(r => `
     <div class="card-ativo">
       <div class="nome">${dotHtml(r.ativo.cor)}${r.ativo.nome}</div>
@@ -295,11 +299,32 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
   });
 }
 
-function fraseCompartilhamento(ordenado) {
-  const top3 = ordenado.slice(0, 3).map(r =>
-    `${r.ativo.nome} ${r.lucroPct > 0 ? '+' : ''}${r.lucroPct.toFixed(0)}% (${fmtBRL(r.valorFinal)})`
+/* ---------- textos de compartilhamento ----------
+   Um formato por canal, todos curtos e escaneáveis, com emoji fazendo o
+   trabalho de estrutura visual — nada de texto corrido "de relatório". */
+function descricaoPeriodo() {
+  if (state.periodoAnos === 0) return `desde ${fmtDateBR(state.inicio)}`;
+  if (state.periodoAnos) return `nos últimos ${state.periodoAnos} ano${state.periodoAnos > 1 ? "s" : ""}`;
+  return `de ${fmtDateBR(state.inicio)} a ${fmtDateBR(state.fim)}`;
+}
+function linhasPodio(ordenado, n) {
+  const medalhas = ["🥇", "🥈", "🥉", "4º", "5º", "6º"];
+  return ordenado.slice(0, n).map((r, i) =>
+    `${medalhas[i]} ${r.ativo.nome}: ${r.lucroPct > 0 ? "+" : ""}${r.lucroPct.toFixed(0)}%`
   );
-  return `Entre ${fmtDateBR(state.inicio)} e ${fmtDateBR(state.fim)}, com ${fmtBRL(state.valorInicial)} iniciais e ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}: ${top3.join(", ")}.\n\nSimule o seu período: ${location.href}`;
+}
+function fraseResumoAportes() {
+  return `${fmtBRL(state.valorInicial)} + ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}`;
+}
+
+function fraseCopiarResultado(ordenado) {
+  return `💰 Onde meu dinheiro teria rendido mais?\n\n${linhasPodio(ordenado, 3).join("\n")}\n\nSimulando ${fraseResumoAportes()}, ${descricaoPeriodo()}.\n\n👉 Simule o seu período: ${location.href}`;
+}
+function fraseWhatsApp(ordenado) {
+  return `💰 Testei onde meu dinheiro teria rendido mais ${descricaoPeriodo()}:\n\n${linhasPodio(ordenado, 3).join("\n")}\n\nTesta o seu período aqui 👇\n${location.href}`;
+}
+function fraseX(ordenado) {
+  return `Se você tivesse investido ${fraseResumoAportes()} ${descricaoPeriodo()}:\n\n${linhasPodio(ordenado, 3).join("\n")}\n\nSimulei em 10s 👇`;
 }
 
 async function copiarTexto(texto, feedbackEl, textoOriginal) {
@@ -475,17 +500,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   document.getElementById("btn-copiar-resultado").addEventListener("click", (e) => {
     if (!ultimoResultado) return;
-    copiarTexto(fraseCompartilhamento(ultimoResultado.ordenado), e.target, "Copiar resultado");
+    copiarTexto(fraseCopiarResultado(ultimoResultado.ordenado), e.target, "Copiar resultado");
   });
   document.getElementById("btn-share-x").addEventListener("click", () => {
     if (!ultimoResultado) return;
-    const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(fraseCompartilhamento(ultimoResultado.ordenado));
+    const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(fraseX(ultimoResultado.ordenado)) +
+      "&url=" + encodeURIComponent(location.href);
     window.open(url, "_blank", "noopener");
     shareMenu.style.display = "none";
   });
   document.getElementById("btn-share-whatsapp").addEventListener("click", () => {
     if (!ultimoResultado) return;
-    const url = "https://wa.me/?text=" + encodeURIComponent(fraseCompartilhamento(ultimoResultado.ordenado));
+    const url = "https://wa.me/?text=" + encodeURIComponent(fraseWhatsApp(ultimoResultado.ordenado));
     window.open(url, "_blank", "noopener");
     shareMenu.style.display = "none";
   });

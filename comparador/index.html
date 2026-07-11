@@ -18,11 +18,13 @@
 <meta property="og:description" content="Compare o mesmo valor investido, no mesmo período, em Bitcoin, CDI, Ibovespa, S&P 500 e Ouro — com dados históricos reais.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://caiogare.com.br/comparador/">
-<meta property="og:image" content="https://caiogare.com.br/assets/img/perfil.jpg">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://caiogare.com.br/assets/img/comparador-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Onde seu dinheiro teria rendido mais? | Comparador de Investimentos — Caio Garé">
 <meta name="twitter:description" content="Compare o mesmo valor investido, no mesmo período, em Bitcoin, CDI, Ibovespa, S&P 500 e Ouro — com dados históricos reais.">
-<meta name="twitter:image" content="https://caiogare.com.br/assets/img/perfil.jpg">
+<meta name="twitter:image" content="https://caiogare.com.br/assets/img/comparador-og.png">
 <link rel="stylesheet" href="/assets/css/style.css">
 <script type="application/ld+json">
 {
@@ -123,7 +125,10 @@
   .comparativo-head h2{font-size:1.2rem;margin-bottom:4px;}
   .comparativo-head p{margin:0;font-size:.9rem;}
 
-  .cards-comparativo{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+  /* --n-cards é escrito via JS (renderCards) com o número real de cards
+     (3 a 6, conforme a legenda) — todos preenchem uma linha só, do mesmo
+     tamanho, nunca um sobrando sozinho na linha de baixo. */
+  .cards-comparativo{display:grid;grid-template-columns:repeat(var(--n-cards,6),1fr);gap:14px;}
   @media (max-width:960px){.cards-comparativo{grid-template-columns:repeat(3,1fr);}}
   @media (max-width:640px){.cards-comparativo{grid-template-columns:repeat(2,1fr);}}
   .card-ativo{
