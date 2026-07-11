@@ -589,7 +589,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     fimInput.value = state.fim;
     renderLegenda(legendaEl, onToggleAtivo);
   } else {
-    aplicarPeriodoRelativo(5);
+    document.querySelectorAll(".freq-pill").forEach(b => b.classList.toggle("active", b.dataset.freq === state.frequencia));
+    aplicarPeriodoRelativo(1);
   }
   calcular();
 });
