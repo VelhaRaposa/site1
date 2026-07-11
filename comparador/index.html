@@ -73,49 +73,31 @@
 }
 </script>
 <style>
-  /* período — interação principal da página */
-  .periodo-tabs{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 14px;}
-  .periodo-tab{
-    font-family:var(--font-mono);font-size:.82rem;padding:9px 18px;
-    border:1px solid var(--border-strong);border-radius:24px;background:transparent;
+  /* layout principal: controles à esquerda (~25%), gráfico dominante à direita (~75%) */
+  .v5-layout{display:grid;grid-template-columns:250px 1fr;gap:32px;align-items:start;}
+  @media (max-width:960px){.v5-layout{grid-template-columns:1fr;}}
+
+  .controle-grupo{margin-bottom:22px;}
+  .controle-label{
+    font-family:var(--font-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--text-muted);margin-bottom:9px;
+  }
+  .pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill{
+    font-family:var(--font-mono);font-size:.8rem;padding:8px 14px;
+    border:1px solid var(--border-strong);border-radius:20px;background:transparent;
     color:var(--text-secondary);cursor:pointer;
   }
-  .periodo-tab:hover{border-color:var(--accent);color:var(--text-primary);}
-  .periodo-tab.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
-  .periodo-tab--secundario{border:none;background:none;text-decoration:underline;color:var(--text-muted);font-size:.78rem;padding:9px 4px;}
+  .pill:hover{border-color:var(--accent);color:var(--text-primary);}
+  .pill.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
 
-  /* premissas colapsadas: valor inicial + aporte + frequência */
-  .premissas-linha{
-    display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
-    font-size:.92rem;color:var(--text-secondary);text-align:center;margin-bottom:10px;
-  }
-  .premissas-linha button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:.85rem;text-decoration:underline;padding:0;}
-  .premissas-editar, .datas-exatas{
-    display:none;max-width:460px;margin:0 auto 18px;padding:18px 20px;
-    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-  }
-  .datas-exatas{display:none;}
-  .datas-exatas .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  @media (max-width:480px){.datas-exatas .field-row{grid-template-columns:1fr;}}
+  .datas-exatas{display:none;margin-top:12px;}
+  .datas-exatas .field-row{display:grid;grid-template-columns:1fr;gap:12px;}
 
-  .segmented{display:flex;border:1px solid var(--border-strong);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:0;}
-  .segmented input{position:absolute;opacity:0;pointer-events:none;width:0;height:0;margin:0;}
-  .segmented label{
-    flex:1;text-align:center;padding:9px 6px;margin:0;font-size:.85rem;
-    color:var(--text-secondary);cursor:pointer;user-select:none;
-    border-right:1px solid var(--border-strong);transition:background .15s ease,color .15s ease;
-  }
-  .segmented label:last-child{border-right:none;}
-  .segmented input:checked + label{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+  .data-info{font-size:.74rem;color:var(--text-muted);margin-top:-8px;}
+  #comparador-error{color:var(--red);font-size:.9rem;margin-bottom:16px;}
 
-  .data-info{text-align:center;font-size:.76rem;color:var(--text-muted);margin:-4px 0 22px;}
-  #comparador-error{text-align:center;color:var(--red);font-size:.9rem;margin-bottom:16px;}
-
-  /* gráfico + pódio: mesma linha de tela, mesma altura — nada cresce às custas do gráfico */
-  .chart-podio-row{display:grid;grid-template-columns:1fr 250px;gap:22px;align-items:stretch;}
-  @media (max-width:960px){.chart-podio-row{grid-template-columns:1fr;}}
-
-  .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:12px;font-size:.8rem;}
+  .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:.8rem;}
   .legenda-item{
     display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-secondary);
     padding:5px 10px;border-radius:20px;border:1px solid var(--border);user-select:none;transition:opacity .15s ease;
@@ -124,47 +106,27 @@
   .legenda-item.inativo{opacity:.35;}
   .legenda-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
 
-  #comparador-chart-canvas-wrap{position:relative;height:340px;}
+  /* o gráfico deve ocupar a maior parte da tela — nenhum componente compete com ele */
+  #comparador-chart-canvas-wrap{position:relative;height:460px;}
+  @media (max-width:960px){#comparador-chart-canvas-wrap{height:340px;}}
 
-  .podio{
-    display:flex;flex-direction:column;gap:0;background:var(--bg-card);border:1px solid var(--border);
-    border-radius:var(--radius-md);padding:16px;justify-content:space-around;
-  }
-  .podio-item{padding:10px 0;border-top:1px solid var(--border);}
-  .podio-item:first-child{border-top:none;padding-top:0;}
-  .podio-item .medalha{font-size:.8rem;}
-  .podio-item .nome{font-weight:600;font-size:.85rem;margin:3px 0;display:flex;align-items:center;}
-  .podio-item .pct{font-family:var(--font-display);font-size:1.15rem;}
-  .podio-item .valor{font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);margin-top:2px;}
-  .podio-item--primeiro .pct{font-size:1.7rem;}
-  .podio-item--primeiro .nome{font-size:.95rem;}
+  .comparativo-head{margin:36px 0 16px;}
+  .comparativo-head h2{font-size:1.2rem;margin-bottom:4px;}
+  .comparativo-head p{margin:0;font-size:.9rem;}
 
-  @media (max-width:960px){
-    .podio{flex-direction:row;padding:12px 8px;order:-1;} /* pódio antes do gráfico no mobile — resposta antes da rolagem */
-    .podio-item{flex:1;border-top:none;border-left:1px solid var(--border);padding:0 0 0 10px;text-align:left;}
-    .podio-item:first-child{border-left:none;padding-left:0;}
-    .podio-item--primeiro{flex:1.3;}
+  .cards-comparativo{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+  @media (max-width:960px){.cards-comparativo{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:640px){.cards-comparativo{grid-template-columns:repeat(2,1fr);}}
+  .card-ativo{
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:20px 14px;text-align:center;
   }
-  @media (max-width:600px){
-    .podio-item .valor{display:none;} /* mobile: só % no pódio; R$ fica no ranking completo */
-    .podio-item .pct{font-size:.92rem;}
-    .podio-item--primeiro .pct{font-size:1.2rem;}
+  .card-ativo .nome{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    font-weight:600;font-size:.86rem;color:var(--text-primary);margin-bottom:10px;
   }
-
-  .ranking-toggle{
-    display:block;width:100%;text-align:center;background:none;border:1px solid var(--border);
-    border-radius:var(--radius-sm);padding:12px;color:var(--text-secondary);cursor:pointer;
-    font-size:.85rem;margin-top:18px;
-  }
-  .ranking-toggle:hover{border-color:var(--accent);color:var(--accent);}
-  #ranking-completo-painel{display:none;margin-top:4px;}
-  table.ranking-completo{width:100%;border-collapse:collapse;margin-top:4px;font-size:.88rem;}
-  table.ranking-completo th{
-    text-align:left;padding:9px 10px;color:var(--text-muted);font-family:var(--font-mono);
-    font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border-strong);
-  }
-  table.ranking-completo td{padding:10px;border-bottom:1px solid var(--border);}
-  table.ranking-completo td:first-child{width:28px;}
+  .card-ativo .pct{font-family:var(--font-display);font-size:1.5rem;font-weight:600;}
+  .card-ativo .valor{font-family:var(--font-mono);font-size:.76rem;color:var(--text-muted);margin-top:6px;}
 
   #comparador-nota-cambio{
     display:none;font-size:.8rem;color:var(--text-muted);background:var(--bg-card);
@@ -176,7 +138,7 @@
   #share-menu{
     display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
     background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--radius-md);
-    padding:6px;min-width:230px;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.35);
+    padding:6px;min-width:220px;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.35);
   }
   #share-menu button{
     display:block;width:100%;text-align:left;background:none;border:none;color:var(--text-primary);
@@ -212,58 +174,59 @@
 <section class="section-border-top">
   <div class="container container-wide">
 
-    <div class="periodo-tabs">
-      <button type="button" class="periodo-tab" data-anos="1">1 ano</button>
-      <button type="button" class="periodo-tab" data-anos="5">5 anos</button>
-      <button type="button" class="periodo-tab" data-anos="10">10 anos</button>
-      <button type="button" class="periodo-tab" data-anos="0">Máximo</button>
-      <button type="button" class="periodo-tab periodo-tab--secundario" id="btn-datas-exatas">datas exatas</button>
-    </div>
-
-    <div class="datas-exatas" id="datas-exatas">
-      <div class="field-row">
-        <div><label for="inicio">Data inicial</label><input type="date" id="inicio"></div>
-        <div><label for="fim">Data final</label><input type="date" id="fim"></div>
-      </div>
-    </div>
-
-    <div class="premissas-linha">
-      <span id="premissas-texto">Simulando R$ 1.000 iniciais + R$ 200/mês</span>
-      <button type="button" id="btn-editar-premissas">editar</button>
-    </div>
-    <div class="premissas-editar" id="premissas-editar">
-      <label for="valorInicial">Valor inicial (R$)</label>
-      <input type="number" id="valorInicial" min="0" step="50" value="1000">
-      <label for="aporte">Aporte recorrente (R$)</label>
-      <input type="number" id="aporte" min="0" step="50" value="200">
-      <label>Frequência do aporte</label>
-      <div class="segmented">
-        <input type="radio" name="frequencia" id="freq-mensal" value="mensal" checked>
-        <label for="freq-mensal">Mensal</label>
-        <input type="radio" name="frequencia" id="freq-semanal" value="semanal">
-        <label for="freq-semanal">Semanal</label>
-        <input type="radio" name="frequencia" id="freq-diaria" value="diaria">
-        <label for="freq-diaria">Diária</label>
-      </div>
-    </div>
-    <p id="comparador-data-info" class="data-info"></p>
-
     <div id="comparador-error"></div>
 
-    <div class="chart-podio-row">
+    <div class="v5-layout">
+      <div>
+        <div class="controle-grupo">
+          <div class="controle-label">Frequência</div>
+          <div class="pills">
+            <button type="button" class="pill freq-pill" data-freq="mensal">Mensal</button>
+            <button type="button" class="pill freq-pill" data-freq="semanal">Semanal</button>
+            <button type="button" class="pill freq-pill" data-freq="diaria">Diária</button>
+          </div>
+        </div>
+
+        <div class="controle-grupo">
+          <div class="controle-label">Período</div>
+          <div class="pills">
+            <button type="button" class="pill periodo-pill" data-anos="1">1 ano</button>
+            <button type="button" class="pill periodo-pill" data-anos="3">3 anos</button>
+            <button type="button" class="pill periodo-pill" data-anos="5">5 anos</button>
+            <button type="button" class="pill periodo-pill" data-anos="10">10 anos</button>
+            <button type="button" class="pill periodo-pill" data-anos="0">Máximo</button>
+            <button type="button" class="pill periodo-pill periodo-pill--personalizado">Personalizado</button>
+          </div>
+          <div class="datas-exatas" id="datas-exatas">
+            <div class="field-row">
+              <div><label for="inicio">Data inicial</label><input type="date" id="inicio"></div>
+              <div><label for="fim">Data final</label><input type="date" id="fim"></div>
+            </div>
+          </div>
+          <p id="comparador-data-info" class="data-info"></p>
+        </div>
+
+        <div class="controle-grupo">
+          <label for="valorInicial">Valor inicial (R$)</label>
+          <input type="number" id="valorInicial" min="0" step="50" value="1000">
+          <label for="aporte">Aporte recorrente (R$)</label>
+          <input type="number" id="aporte" min="0" step="50" value="200">
+        </div>
+      </div>
+
       <div>
         <div class="legenda-ativos" id="legenda-ativos"></div>
         <div id="comparador-chart-canvas-wrap">
           <canvas id="comparador-chart-canvas"></canvas>
         </div>
       </div>
-      <div class="podio" id="comparador-podio"></div>
     </div>
 
-    <button type="button" class="ranking-toggle" id="btn-ranking-completo">Ver ranking completo ▾</button>
-    <div id="ranking-completo-painel">
-      <div id="ranking-completo-corpo"></div>
+    <div class="comparativo-head">
+      <h2>Comparativo entre ativos</h2>
+      <p class="lead" style="font-size:.95rem;">Retorno de cada ativo no mesmo período, com o mesmo valor investido — ordenado do maior para o menor.</p>
     </div>
+    <div class="cards-comparativo" id="comparador-cards"></div>
 
     <div id="comparador-nota-cambio">O resultado do S&amp;P 500 e/ou do Ouro em reais inclui a variação do dólar no período, além da valorização do próprio ativo — parte do retorno mostrado vem do câmbio, não só do ativo.</div>
 
@@ -271,9 +234,9 @@
       <div id="share-menu-wrap">
         <button type="button" class="btn btn-primary" id="btn-compartilhar">Compartilhar</button>
         <div id="share-menu">
-          <button type="button" id="btn-copiar-historia">Copiar resultado pronto</button>
-          <button type="button" id="btn-copiar-link">Copiar link desta simulação</button>
-          <button type="button" id="btn-baixar-grafico">Baixar gráfico</button>
+          <button type="button" id="btn-copiar-resultado">Copiar resultado</button>
+          <button type="button" id="btn-share-x">Compartilhar no X</button>
+          <button type="button" id="btn-share-whatsapp">Compartilhar no WhatsApp</button>
         </div>
       </div>
     </div>
