@@ -120,6 +120,12 @@
   .legenda-item.inativo{opacity:.35;}
   .legenda-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
 
+  /* moldura discreta em volta do gráfico — reforça que ele é o elemento
+     principal da ferramenta, sem virar um card chamativo. O padding fica
+     no frame (externo), não no wrap medido pelo Chart.js, então a altura
+     do gráfico continua exatamente a mesma de antes. */
+  .chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
+
   /* o gráfico deve ocupar a maior parte da tela — nenhum componente compete com ele */
   #comparador-chart-canvas-wrap{position:relative;height:460px;}
   @media (max-width:960px){#comparador-chart-canvas-wrap{height:340px;}}
@@ -247,8 +253,10 @@
 
       <div>
         <div class="legenda-ativos" id="legenda-ativos"></div>
-        <div id="comparador-chart-canvas-wrap">
-          <canvas id="comparador-chart-canvas"></canvas>
+        <div class="chart-frame">
+          <div id="comparador-chart-canvas-wrap">
+            <canvas id="comparador-chart-canvas"></canvas>
+          </div>
         </div>
       </div>
     </div>

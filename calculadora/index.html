@@ -96,6 +96,11 @@
   }
   .legenda-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
 
+  /* moldura discreta em volta do gráfico — mesma do Comparador. O padding
+     fica no frame (externo), não no wrap medido pelo Chart.js, então a
+     altura do gráfico continua exatamente a mesma de antes. */
+  .chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
+
   /* o gráfico deve ocupar a maior parte da tela — mesmo tamanho do Comparador */
   #dca-chart-canvas-wrap{position:relative;height:460px;}
   @media (max-width:960px){#dca-chart-canvas-wrap{height:340px;}}
@@ -226,10 +231,12 @@
       <div>
         <div class="legenda-ativos" id="legenda-dca">
           <span class="legenda-item"><span class="legenda-dot" style="background:#F7931A"></span>Valor da carteira</span>
-          <span class="legenda-item"><span class="legenda-dot" style="background:#8B93A7"></span>Total investido</span>
+          <span class="legenda-item"><span class="legenda-dot" style="background:#D7DCE5"></span>Total investido</span>
         </div>
-        <div id="dca-chart-canvas-wrap">
-          <canvas id="dca-chart-canvas"></canvas>
+        <div class="chart-frame">
+          <div id="dca-chart-canvas-wrap">
+            <canvas id="dca-chart-canvas"></canvas>
+          </div>
         </div>
       </div>
     </div>

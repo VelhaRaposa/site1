@@ -40,7 +40,7 @@ const ATIVOS = [
 
 const FREQ_DIAS = { mensal: 30, semanal: 7, diaria: 1 };
 const FREQ_LABEL = { mensal: "mês", semanal: "semana", diaria: "dia" };
-const COR_TOTAL_INVESTIDO = "#8B93A7";
+const COR_TOTAL_INVESTIDO = "#D7DCE5"; // linha de referência, não um ativo — ver renderChart
 
 let historicos = {};
 let chartInstance = null;
@@ -249,10 +249,10 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
   datasets.push({
     label: "Total investido",
     data: idx.map(i => totalInvestidoSerie[i]),
-    borderColor: "rgba(139,147,167,0.35)",
+    borderColor: "rgba(215,220,229,0.45)", // tom próximo de --text-secondary (#D7DCE5), bem mais fraco que os ativos — linha de referência, não uma série concorrendo visualmente
     backgroundColor: COR_TOTAL_INVESTIDO,
     pointBackgroundColor: COR_TOTAL_INVESTIDO,
-    borderDash: [4, 4],
+    borderDash: [6, 4], // tracejado mais evidente que o dos ativos (que não têm dash nenhum)
     borderWidth: 1,
     pointRadius: 0,
     fill: false,
@@ -269,14 +269,14 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
       scales: {
         x: {
           grid: { color: "#1F2634" },
-          ticks: { color: "#8B93A7", maxTicksLimit: 8, font: { family: "JetBrains Mono", size: 10 } },
+          ticks: { color: "#D7DCE5", maxTicksLimit: 8, font: { family: "JetBrains Mono", size: 10 } },
         },
         y: {
           grid: { color: "#1F2634" },
           ticks: {
-            color: "#8B93A7",
+            color: "#D7DCE5",
             font: { family: "JetBrains Mono", size: 10 },
-            callback: (v) => "R$" + (v / 1000).toFixed(0) + "k",
+            callback: (v) => "R$ " + (v / 1000).toFixed(0) + " mil",
           },
         },
       },
