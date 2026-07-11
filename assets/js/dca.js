@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="stat"><div class="num">${fmtBRL(totalInvestido)}</div><div class="label">total investido</div></div>
           <div class="stat"><div class="num">${totalBTC.toFixed(6)}</div><div class="label">BTC acumulado</div></div>
           <div class="stat"><div class="num">${fmtBRL(precoMedio)}</div><div class="label">preço médio de compra</div></div>
-          <div class="stat"><div class="num" style="color:${lucro >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtBRL(valorAtual)}</div><div class="label">valor final da carteira</div><div style="font-size:.68rem;color:var(--text-muted);margin-top:2px;">em ${fmtDateBR(fim)}</div></div>
+          <div class="stat"><div class="num" style="color:${lucro >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtBRL(valorAtual)}</div><div class="label">valor final da carteira</div><div style="font-size:.68rem;color:var(--text-tertiary);margin-top:2px;">em ${fmtDateBR(fim)}</div></div>
           <div class="stat"><div class="num" style="color:${lucroPct >= 0 ? 'var(--green)' : 'var(--red)'}">${lucroPct >= 0 ? '+' : ''}${lucroPct.toFixed(1)}%</div><div class="label">rentabilidade</div></div>
           <div class="stat"><div class="num" style="color:${lucro >= 0 ? 'var(--green)' : 'var(--red)'}">${lucro >= 0 ? '+' : ''}${fmtBRL(lucro)}</div><div class="label">rentabilidade em R$</div></div>
         </div>

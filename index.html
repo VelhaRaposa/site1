@@ -102,7 +102,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
   const wrap = document.getElementById("home-videos");
-  wrap.innerHTML = `<p style="color:var(--text-muted);">Carregando vídeos…</p>`;
+  wrap.innerHTML = `<p style="color:var(--text-tertiary);">Carregando vídeos…</p>`;
   const videos = await getLatestVideos(3);
   wrap.innerHTML = videos.map(v => `
     <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">

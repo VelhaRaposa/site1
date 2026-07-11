@@ -14,9 +14,15 @@
   --border:        #1F2634;
   --border-strong: #2B3448;
 
-  --text-primary:   #F2F3F5;
-  --text-secondary: #96A0B3; /* leve ganho de luminância sobre o #8B93A7 original — 6.3:1 → 7.3:1 de contraste, ainda claramente secundário em relação ao texto primário */
-  --text-muted:     #828B9E; /* hierarquia construída a partir do branco, não do cinza escuro — o #5B6478 original caía a 3.25:1 (abaixo do mínimo de 4.5:1 do WCAG AA) em labels, legendas e texto de rodapé; este tom mantém a mesma família de cor mas sobe para ~5.1–5.6:1 em qualquer fundo do site */
+  /* hierarquia construída a partir do branco (reduzindo luminosidade a cada
+     nível), não a partir de cinza escuro — mesmo o nível mais apagado
+     (--text-muted, só para rodapé/disclaimers) fica em ~8.7–9.6:1 de
+     contraste em qualquer fundo do site, bem acima do mínimo AA (4.5:1). */
+  --text-primary:   #FFFFFF; /* título principal (h1–h4 e ênfase) */
+  --text-subtitle:  #E8ECF3; /* subtítulo (.lead — linha de abertura de página/seção) */
+  --text-secondary: #D7DCE5; /* texto normal (parágrafos, corpo de conteúdo) */
+  --text-tertiary:  #C5CCD8; /* texto secundário (labels, legendas, metadados) */
+  --text-muted:     #AEB7C6; /* somente disclaimers, observações legais e rodapé */
 
   --accent:      #F7931A; /* laranja bitcoin */
   --accent-dark: #C97314;
@@ -72,7 +78,7 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
    (a do .hero-inner na home, a do .container em cada página) em vez do
    subtítulo ficar preso numa medida de leitura de artigo mais estreita
    que o título — era isso que criava o vazio à direita da descrição. */
-.lead{font-size:1.125rem;line-height:1.5;color:var(--text-secondary);}
+.lead{font-size:1.125rem;line-height:1.5;color:var(--text-subtitle);}
 .container{max-width:var(--max-w);margin:0 auto;padding:0 24px;}
 .container-wide{max-width:var(--max-w-wide);margin:0 auto;padding:0 24px;}
 .eyebrow{
@@ -224,7 +230,7 @@ section{padding:44px 0;}
 }
 .card h3{margin-bottom:.45em;font-size:1.2rem;}
 .card p{font-size:.97rem;line-height:1.55;margin-bottom:0;}
-.card .meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);margin-top:14px;}
+.card .meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-tertiary);margin-top:14px;}
 
 /* cartão de parceiro: botão sempre alinhado embaixo, logo ao lado do nome */
 .partner-card{display:flex;flex-direction:column;}
@@ -244,7 +250,7 @@ section{padding:44px 0;}
 /* selo discreto (ex: contagem de usuários da comunidade) */
 .selo{
   display:inline-block;font-family:var(--font-mono);font-size:.7rem;
-  color:var(--text-muted);margin-top:12px;
+  color:var(--text-tertiary);margin-top:12px;
 }
 
 /* vídeo card */
@@ -258,7 +264,7 @@ section{padding:44px 0;}
 }
 .video-thumb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
 .video-title{font-size:.94rem;font-weight:600;margin-bottom:4px;color:var(--text-primary);}
-.video-meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);}
+.video-meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-tertiary);}
 
 /* pilar tag */
 .tag{
@@ -273,7 +279,7 @@ section{padding:44px 0;}
   font-family:var(--font-display);font-size:var(--num-md);color:var(--accent);
   font-variant-numeric:tabular-nums;overflow-wrap:break-word;
 }
-.stat .label{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
+.stat .label{font-size:.8rem;color:var(--text-tertiary);margin-top:2px;}
 .stat--sm .num{font-size:var(--num-sm);}
 .stat--lg .num{font-size:var(--num-lg);}
 .stat--lg .label{font-size:.95rem;margin-top:6px;}
