@@ -302,10 +302,11 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
 /* ---------- texto de compartilhamento ----------
    Um único formato, usado nos 3 canais (copiar, X, WhatsApp) — a
    personalidade vem da posição do Bitcoin no resultado, não do canal.
-   Texto simples, sem emoji (WhatsApp/X renderizam de formas diferentes
-   e alguns glifos quebram no encoding de certos clientes) — a estrutura
-   vem de quebra de linha e rótulos, não de símbolo. Aporte, total
-   investido e período aparecem sempre, em qualquer cenário. */
+   Emoji só do conjunto simples e universal (🚀📈📉💰💵📅👇) — sem
+   medalha (quebra no WhatsApp) e sem nada exótico. Bitcoin sempre em
+   linha isolada (espaço antes e depois), esteja ele em 1º, no meio ou
+   fora do pódio — é o que dá personalidade ao texto. Aporte, total
+   investido e período aparecem sempre. */
 const LINK_COMPARADOR_VISIVEL = "caiogare.com.br/comparador";
 const LINK_COMPARADOR_COMPLETO = "https://caiogare.com.br/comparador";
 
@@ -317,42 +318,66 @@ function descricaoPeriodo() {
 function linhaPct(r) {
   return `${r.lucroPct > 0 ? "+" : ""}${r.lucroPct.toFixed(0)}%`;
 }
-function linhasPodio(ordenado, n) {
-  return ordenado.slice(0, n).map(r => `${r.ativo.nome} ${linhaPct(r)}`);
+function emojiDoAtivo(r) {
+  if (r.ativo.id === "btc") return r.lucroPct > 0 ? "🚀" : "📉";
+  return r.lucroPct > 0 ? "📈" : "📉";
 }
-function linhasDetalhe() {
-  return [
-    `Aporte: ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}`,
-    `Período: ${descricaoPeriodo()}`,
-  ];
+
+// pódio com Bitcoin sempre isolado (linha em branco antes e depois),
+// não importa a posição — os demais ficam agrupados sem espaço entre si.
+function blocoRanking(ordenado) {
+  const idxBTC = ordenado.findIndex(r => r.ativo.id === "btc");
+  const dentroTop3 = idxBTC !== -1 && idxBTC < 3;
+  const top3 = ordenado.slice(0, 3);
+
+  const linhas = [];
+  top3.forEach((r, i) => {
+    const linha = `${emojiDoAtivo(r)} ${r.ativo.nome} ${linhaPct(r)}`;
+    if (dentroTop3 && i === idxBTC) {
+      if (linhas.length > 0) linhas.push("");
+      linhas.push(linha);
+      linhas.push("");
+    } else {
+      linhas.push(linha);
+    }
+  });
+  let bloco = linhas.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+
+  if (!dentroTop3 && idxBTC !== -1) {
+    const r = ordenado[idxBTC];
+    bloco += `\n\n${emojiDoAtivo(r)} Bitcoin ${linhaPct(r)}`;
+  }
+  return bloco;
 }
 
 // corpo da mensagem, sem o link — usado pelo X, que anexa o link
 // separadamente (parâmetro url do intent, sempre visível e clicável)
 function corpoMensagem(ordenado, totalInvestido) {
   const idxBTC = ordenado.findIndex(r => r.ativo.id === "btc");
-  const top3 = linhasPodio(ordenado, 3);
 
   let headline = "Onde meu dinheiro teria rendido mais?";
-  let linhaExtra = "";
   if (idxBTC === 0) {
     headline = "Achei que Bitcoin venceria.\n\nE eu tinha razão.";
   } else if (idxBTC === ordenado.length - 1) {
     headline = "Um dia a gente ganha.\n\nNo outro ganham da gente.";
-    linhaExtra = `\nBitcoin: ${linhaPct(ordenado[idxBTC])}`;
   } else if (idxBTC > 0) {
     headline = "Pelo menos Bitcoin não ficou em último.";
   }
 
-  const detalhes = [`Total investido: ${fmtBRL(totalInvestido)}`, ...linhasDetalhe()].join("\n");
-  return `${headline}\n\n${top3.join("\n")}${linhaExtra}\n\n${detalhes}`;
+  const detalhes = [
+    `💰 ${fmtBRL(state.aporte)}/${FREQ_LABEL[state.frequencia]}`,
+    `💵 Total investido: ${fmtBRL(totalInvestido)}`,
+  ].join("\n");
+  const periodo = `📅 ${fmtDateBR(state.inicio)} → ${fmtDateBR(state.fim)}`;
+
+  return `${headline}\n\n${blocoRanking(ordenado)}\n\n${detalhes}\n\n${periodo}`;
 }
 
 // texto completo, com o link limpo (caiogare.com.br/comparador) — usado
 // no WhatsApp e em "copiar resultado", onde o link precisa estar
 // embutido no próprio texto (sem parâmetro separado como no X).
 function mensagemCompartilhamento(ordenado, totalInvestido) {
-  return `${corpoMensagem(ordenado, totalInvestido)}\n\n${LINK_COMPARADOR_VISIVEL}`;
+  return `${corpoMensagem(ordenado, totalInvestido)}\n\n👇\n${LINK_COMPARADOR_VISIVEL}`;
 }
 
 /* ---------- imagem para compartilhamento ----------
