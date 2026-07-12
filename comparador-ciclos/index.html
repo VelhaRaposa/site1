@@ -52,7 +52,7 @@
       "name": "O ciclo atual do Bitcoin já teve um novo topo confirmado?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Não — o ciclo mais recente (2022) já atingiu seu topo e está em queda; o fundo mais recente é tratado como provisório até um novo topo confirmar o fim dessa queda. Por isso o ciclo atual ainda não aparece no modo Ciclo de Baixa — apenas no modo Ciclo de Alta, marcado com um asterisco (em andamento)."
+        "text": "Não — o ciclo mais recente (2022) já atingiu seu topo e está em queda; o fundo mais recente é tratado como provisório até um novo topo confirmar o fim dessa queda. Por isso, no modo Ciclo de Baixa, esse ciclo aparece marcado com um asterisco (em andamento); no modo Ciclo de Alta, mostramos só os ciclos já completos, sem assumir um fundo ainda não confirmado."
       }
     },
     {
@@ -80,55 +80,26 @@
   .pill:hover{border-color:var(--accent);color:var(--text-primary);}
   .pill.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
 
-  .toolbar-divisor{width:1px;height:24px;background:var(--border);}
-  @media (max-width:640px){.toolbar-divisor{display:none;}}
-
-  .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;font-size:.8rem;}
-  .legenda-item{
-    display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-secondary);
-    padding:5px 10px;border-radius:20px;border:1px solid var(--border);user-select:none;transition:opacity .15s ease;
-  }
-  .legenda-item:hover{border-color:var(--accent);}
-  .legenda-item.inativo{opacity:.35;}
-  .legenda-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
-
   .chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
   #ciclos-chart-canvas-wrap{position:relative;height:560px;}
   @media (max-width:640px){#ciclos-chart-canvas-wrap{height:380px;}}
 
-  .comparativo-head{margin:36px 0 16px;}
-  .comparativo-head h2{font-size:1.2rem;margin-bottom:4px;}
-  .comparativo-head p{margin:0;font-size:.9rem;}
+  /* legenda simples abaixo do gráfico — só identificação de cor, sem
+     caixa/borda, sem estatísticas. Continua clicável (liga/desliga a
+     linha no gráfico), só não parece mais um controle de formulário. */
+  .legenda-ativos{
+    display:flex;gap:8px 28px;flex-wrap:wrap;justify-content:center;
+    margin:18px 0 40px;font-size:.85rem;
+  }
+  .legenda-item{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:var(--text-secondary);
+    user-select:none;transition:opacity .15s ease, color .15s ease;
+  }
+  .legenda-item:hover{color:var(--text-primary);}
+  .legenda-item.inativo{opacity:.35;}
+  .legenda-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block;}
 
-  .cards-comparativo{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,148px));justify-content:center;gap:14px;}
-  @media (max-width:640px){.cards-comparativo{grid-template-columns:repeat(2,1fr);}}
-  .card-ativo{
-    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-    padding:18px 12px;text-align:center;transition:opacity .15s ease;
-  }
-  .card-ativo.inativo{opacity:.4;}
-  .card-ativo .nome{
-    display:flex;align-items:center;justify-content:center;gap:6px;
-    font-weight:600;font-size:.84rem;color:var(--text-primary);margin-bottom:10px;
-  }
-  .card-ativo .pct{font-family:var(--font-display);font-size:1.25rem;font-weight:600;}
-  .card-ativo .valor-linha{font-family:var(--font-mono);font-size:.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;}
-  .card-ativo .valor-nota{font-family:var(--font-mono);font-size:.68rem;color:var(--text-tertiary);font-style:italic;margin-top:6px;min-height:1.3em;}
-
-  .share-row{display:flex;justify-content:center;margin-top:24px;}
-  #share-menu-wrap{position:relative;}
-  #share-menu{
-    display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
-    background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--radius-md);
-    padding:6px;min-width:220px;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.35);
-  }
-  #share-menu button{
-    display:block;width:100%;text-align:left;background:none;border:none;color:var(--text-primary);
-    padding:10px 12px;border-radius:6px;cursor:pointer;font-size:.85rem;white-space:nowrap;
-  }
-  #share-menu button:hover{background:var(--bg-card-hover);}
-
-  .cross-links{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;margin-top:32px;}
+  .cross-links{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;margin-top:8px;}
   .cross-link-card{
     display:flex;flex-direction:column;align-items:flex-start;
     width:230px;padding:24px;
@@ -169,31 +140,13 @@
         <button type="button" class="pill modo-pill" data-modo="up">Ciclo de Alta</button>
         <button type="button" class="pill modo-pill" data-modo="down">Ciclo de Baixa</button>
       </div>
-      <div class="toolbar-divisor" aria-hidden="true"></div>
-      <div class="legenda-ativos" id="legenda-ciclos"></div>
     </div>
     <div class="chart-frame">
       <div id="ciclos-chart-canvas-wrap">
         <canvas id="ciclos-chart-canvas"></canvas>
       </div>
     </div>
-
-    <div class="comparativo-head">
-      <h2>Ciclos do Bitcoin</h2>
-      <p class="lead" style="font-size:.95rem;">Cada ciclo mantém a mesma cor e posição nos dois modos — ordenados cronologicamente, não por desempenho.</p>
-    </div>
-    <div class="cards-comparativo" id="ciclos-cards"></div>
-
-    <div class="share-row" id="ciclos-share">
-      <div id="share-menu-wrap">
-        <button type="button" class="btn btn-primary" id="btn-compartilhar">Compartilhar</button>
-        <div id="share-menu">
-          <button type="button" id="btn-copiar-resultado">Copiar resultado</button>
-          <button type="button" id="btn-share-x">Compartilhar no X</button>
-          <button type="button" id="btn-share-whatsapp">Compartilhar no WhatsApp</button>
-        </div>
-      </div>
-    </div>
+    <div class="legenda-ativos" id="legenda-ciclos"></div>
 
     <div class="cross-links">
       <a href="/comparador/" class="cross-link-card">

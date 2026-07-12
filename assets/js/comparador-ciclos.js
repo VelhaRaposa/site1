@@ -8,24 +8,23 @@
 
    V1: datas de topo e fundo de cada ciclo são valores fixos abaixo,
    validados manualmente contra a série real — sem detecção automática.
+   Ver README, seção 9, para a tabela congelada dessas datas/preços.
 
    METODOLOGIA:
    - Cada ciclo é definido por um par fundo→topo (uma alta completa).
    - A cor de cada ciclo é fixa nos dois modos; o rótulo exibido (ex.
      "2011–2013") reflete o intervalo relevante em cada modo.
    - Ciclo de Alta: D+0 = fundo do próprio ciclo, eixo Y = múltiplo desde
-     o fundo.
+     o fundo. Só exibe ciclos já completos (com topo confirmado) — o
+     ciclo mais recente ("atual"), cujo fundo ainda é provisório, não
+     aparece aqui para não sugerir um fundo confirmado que não existe.
    - Ciclo de Baixa: D+0 = topo do próprio ciclo, eixo Y = múltiplo desde
      o topo, terminando no fundo do ciclo SEGUINTE (a queda que sucede a
-     alta).
-   - O ciclo mais recente ("atual") ainda não tem topo confirmado — por
-     isso ele só aparece no modo Ciclo de Alta (rótulo "2026*", ainda em
-     andamento); no modo Ciclo de Baixa ele não é exibido, e quem carrega
-     a queda em andamento é o ciclo anterior ("2025*", cujo fundo mais
-     recente é provisório).
-   - Deliberadamente sem painel de interpretação (ciclo mais parecido,
-     média histórica etc.) — o gráfico e os cards mostram os dados,
-     sem tentar concluir nada por conta própria.
+     alta). O ciclo mais recente ("2022") carrega a queda em andamento —
+     seu fundo mais recente é provisório, rótulo "2025*".
+   - Sem painel de interpretação (ciclo mais parecido, média histórica
+     etc.) e sem cards de detalhe — só o gráfico e uma legenda de cor,
+     para o gráfico ser o produto, não a interface em volta dele.
    ========================================================= */
 
 const HISTORICO_URL = "/assets/data/btc-history-usd.json";
@@ -79,10 +78,6 @@ function diasEntre(d0, d1) {
 }
 function dotHtml(cor) {
   return `<span class="legenda-dot" style="background:${cor}"></span>`;
-}
-function fmtPct(pct) {
-  const sinal = pct >= 0 ? "+" : "";
-  return `${sinal}${pct.toLocaleString("pt-BR", { maximumFractionDigits: pct >= 1000 || pct <= -100 ? 0 : 1 })}%`;
 }
 
 /* ---------- dados ---------- */
@@ -154,12 +149,16 @@ function construirTodosOsCiclos(mapa) {
 
 // rótulo exibido do ciclo no modo atual — mostra origem e destino
 // (ex. "2011–2013"), ou só o ano de início com asterisco quando o
-// ciclo ainda está em andamento (ex. "2026*"). Retorna null quando o
-// ciclo não tem dado nesse modo (ex. "atual" no modo de Baixa).
+// ciclo ainda está em andamento (ex. "2025*"). Retorna null quando o
+// ciclo não deve aparecer nesse modo:
+// - "atual" nunca aparece no modo de Alta (fundo ainda provisório, sem
+//   confirmação — não queremos sugerir um fundo que não existe);
+// - "atual" nunca aparece no modo de Baixa (sem topo, não há queda).
 function rotuloCiclo(id) {
   if (state.modo === "up") {
+    if (id === "atual") return null;
     const d = cicloUpPorId[id];
-    return d.emAndamento ? `${anoDe(d.fundo.data)}*` : `${anoDe(d.fundo.data)}–${anoDe(d.topo.data)}`;
+    return `${anoDe(d.fundo.data)}–${anoDe(d.topo.data)}`;
   }
   const d = cicloDownPorId[id];
   if (!d) return null;
@@ -167,13 +166,13 @@ function rotuloCiclo(id) {
 }
 
 // ciclos com dado disponível no modo atual, na ordem cronológica fixa
-// (5 no modo de Alta, 4 no modo de Baixa — "atual" fica de fora até ter
-// um topo confirmado)
+// (4 ciclos completos no modo de Alta; 4 no modo de Baixa, o último
+// ainda em andamento)
 function entidadesDoModo() {
   return CICLOS.filter(c => rotuloCiclo(c.id) !== null);
 }
 
-/* ---------- render: legenda ---------- */
+/* ---------- render: legenda (única informação abaixo do gráfico) ---------- */
 function renderLegenda(el, onToggle) {
   el.innerHTML = entidadesDoModo().map(c => `
     <span class="legenda-item ${state.ciclosAtivos.has(c.id) ? "" : "inativo"}" data-id="${c.id}" role="button" tabindex="0">
@@ -185,70 +184,7 @@ function renderLegenda(el, onToggle) {
   });
 }
 
-/* ---------- render: cards de ciclo (ordem cronológica fixa) ---------- */
-function renderCardsCiclos(el) {
-  el.innerHTML = entidadesDoModo().map(c => {
-    const ativo = state.ciclosAtivos.has(c.id);
-    const rotulo = rotuloCiclo(c.id);
-    const nota = "* ciclo em andamento";
-    if (state.modo === "up") {
-      const d = cicloUpPorId[c.id];
-      return `
-        <div class="card-ativo ${ativo ? "" : "inativo"}" data-id="${c.id}">
-          <div class="nome">${dotHtml(c.cor)}${rotulo}</div>
-          <div class="pct" style="color:${c.cor}">${fmtPct(d.altaPct)}</div>
-          <div class="valor-linha">Fundo: ${fmtUSD(d.fundo.preco)}</div>
-          <div class="valor-linha">Topo: ${fmtUSD(d.topo.preco)}</div>
-          <div class="valor-linha">D+${d.dias}</div>
-          <div class="valor-nota">${d.emAndamento ? nota : "&nbsp;"}</div>
-        </div>`;
-    }
-    const d = cicloDownPorId[c.id];
-    return `
-      <div class="card-ativo ${ativo ? "" : "inativo"}" data-id="${c.id}">
-        <div class="nome">${dotHtml(c.cor)}${rotulo}</div>
-        <div class="pct" style="color:${c.cor}">${fmtPct(d.quedaPct)}</div>
-        <div class="valor-linha">Topo: ${fmtUSD(d.topo.preco)}</div>
-        <div class="valor-linha">Fundo: ${fmtUSD(d.fundo.preco)}</div>
-        <div class="valor-linha">D+${d.dias}</div>
-        <div class="valor-nota">${d.provisorio ? nota : "&nbsp;"}</div>
-      </div>`;
-  }).join("");
-}
-
 /* ---------- render: gráfico ---------- */
-// linha vertical "estamos aqui" — só existe no modo de Alta, marcando o
-// dia de hoje no ciclo em andamento (no modo de Baixa não há queda em
-// andamento agora: o fundo mais recente já foi encontrado, ver topo do
-// arquivo).
-const linhaHojePlugin = {
-  id: "linhaHoje",
-  afterDraw(chart) {
-    const n = chart.$linhaHojeN;
-    if (n == null) return;
-    const { ctx, chartArea, scales } = chart;
-    const x = scales.x.getPixelForValue(n);
-    if (x < chartArea.left || x > chartArea.right) return;
-    ctx.save();
-    ctx.strokeStyle = "rgba(255,255,255,0.55)";
-    ctx.setLineDash([3, 3]);
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(x, chartArea.top);
-    ctx.lineTo(x, chartArea.bottom);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = "#C5CCD8";
-    ctx.font = "10px JetBrains Mono, monospace";
-    ctx.textAlign = x > chartArea.right - 90 ? "right" : "left";
-    ctx.fillText(`estamos aqui · D+${n}`, x + (ctx.textAlign === "right" ? -6 : 6), chartArea.top + 12);
-    ctx.restore();
-  },
-};
-if (typeof Chart !== "undefined" && !Chart.registry.plugins.get("linhaHoje")) {
-  Chart.register(linhaHojePlugin);
-}
-
 function renderChart(canvasEl) {
   const ctx = canvasEl.getContext("2d");
   if (chartInstance) chartInstance.destroy();
@@ -257,17 +193,17 @@ function renderChart(canvasEl) {
     .filter(c => state.ciclosAtivos.has(c.id))
     .map(c => {
       const d = state.modo === "up" ? cicloUpPorId[c.id] : cicloDownPorId[c.id];
-      const isAtual = c.id === "atual";
+      const emDestaque = state.modo === "down" && c.id === "2022"; // queda em andamento
       return {
         label: rotuloCiclo(c.id),
         data: d.pontos.map(p => ({ x: p.n, y: p.mult, preco: p.preco })),
         borderColor: c.cor,
         backgroundColor: c.cor,
-        borderWidth: isAtual ? 3.2 : 1.8,
+        borderWidth: emDestaque ? 3.2 : 1.8,
         pointRadius: 0,
         pointBackgroundColor: c.cor,
         tension: 0.08,
-        order: isAtual ? 0 : 1, // ciclo atual desenhado por último (acima das demais)
+        order: emDestaque ? 0 : 1,
       };
     });
 
@@ -324,37 +260,6 @@ function renderChart(canvasEl) {
       },
     },
   });
-
-  chartInstance.$linhaHojeN = state.modo === "up" ? cicloUpPorId["atual"].dias : null;
-  chartInstance.update();
-}
-
-/* ---------- compartilhamento ---------- */
-const LINK_VISIVEL = "caiogare.com.br/comparador-ciclos";
-const LINK_COMPLETO = "https://caiogare.com.br/comparador-ciclos";
-
-function mensagemCompartilhamento() {
-  const modoLabel = state.modo === "up" ? "Ciclo de Alta" : "Ciclo de Baixa";
-  const atual = cicloUpPorId["atual"];
-  const linhas = [
-    `📊 Onde estamos no ciclo do Bitcoin?`,
-    ``,
-    `Modo: ${modoLabel}`,
-    `Ciclo atual (${rotuloCiclo("atual") || "2026*"}): D+${atual.dias}`,
-    `Desde o fundo: ${fmtPct(atual.altaPct)}`,
-    ``, "👇", LINK_VISIVEL,
-  ];
-  return linhas.join("\n");
-}
-
-async function copiarTexto(texto, feedbackEl, textoOriginal) {
-  try {
-    await navigator.clipboard.writeText(texto);
-    feedbackEl.textContent = "Copiado!";
-  } catch (e) {
-    feedbackEl.textContent = "Não foi possível copiar";
-  }
-  setTimeout(() => { feedbackEl.textContent = textoOriginal; }, 1800);
 }
 
 /* ---------- estado na URL ---------- */
@@ -373,10 +278,6 @@ function escreverEstadoNaURL() {
 document.addEventListener("DOMContentLoaded", async () => {
   const legendaEl = document.getElementById("legenda-ciclos");
   const canvasEl = document.getElementById("ciclos-chart-canvas");
-  const cardsEl = document.getElementById("ciclos-cards");
-  const shareMenuWrap = document.getElementById("share-menu-wrap");
-  const shareMenu = document.getElementById("share-menu");
-  const btnCompartilhar = document.getElementById("btn-compartilhar");
 
   historicoMap = await carregarHistorico();
   construirTodosOsCiclos(historicoMap);
@@ -385,7 +286,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelectorAll(".modo-pill").forEach(b => b.classList.toggle("active", b.dataset.modo === state.modo));
     renderLegenda(legendaEl, onToggleCiclo);
     renderChart(canvasEl);
-    renderCardsCiclos(cardsEl);
     escreverEstadoNaURL();
   }
 
@@ -405,30 +305,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       state.modo = btn.dataset.modo;
       renderTudo();
     });
-  });
-
-  // ---------- menu de compartilhar ----------
-  btnCompartilhar.addEventListener("click", (e) => {
-    e.stopPropagation();
-    shareMenu.style.display = shareMenu.style.display === "block" ? "none" : "block";
-  });
-  document.addEventListener("click", (e) => {
-    if (!shareMenuWrap.contains(e.target)) shareMenu.style.display = "none";
-  });
-  document.getElementById("btn-copiar-resultado").addEventListener("click", (e) => {
-    copiarTexto(mensagemCompartilhamento(), e.target, "Copiar resultado");
-  });
-  document.getElementById("btn-share-x").addEventListener("click", () => {
-    const url = "https://twitter.com/intent/tweet?text=" +
-      encodeURIComponent(mensagemCompartilhamento().replace(LINK_VISIVEL, "").trim()) +
-      "&url=" + encodeURIComponent(LINK_COMPLETO);
-    window.open(url, "_blank", "noopener");
-    shareMenu.style.display = "none";
-  });
-  document.getElementById("btn-share-whatsapp").addEventListener("click", () => {
-    const url = "https://wa.me/?text=" + encodeURIComponent(mensagemCompartilhamento());
-    window.open(url, "_blank", "noopener");
-    shareMenu.style.display = "none";
   });
 
   const modoURL = lerEstadoDaURL();
