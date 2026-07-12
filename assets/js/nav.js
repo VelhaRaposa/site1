@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/agenda/", label: "Agenda" },
   { href: "/comparador/", label: "Comparador de Investimentos" },
   { href: "/calculadora/", label: "Calculadora DCA Bitcoin" },
+  { href: "/comparador-ciclos/", label: "Comparador de Ciclos" },
   { href: "/ferramentas/", label: "Ferramentas" },
   { href: "/contato/", label: "Contato" },
 ];
