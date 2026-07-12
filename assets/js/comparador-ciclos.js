@@ -59,7 +59,6 @@ let cicloDownPorId = {};
 
 const state = {
   modo: "up", // "up" | "down"
-  escala: "log", // "log" | "linear"
   ciclosAtivos: new Set(CICLOS.map(c => c.id)),
 };
 
@@ -291,7 +290,7 @@ function renderChart(canvasEl) {
           title: { display: true, text: "Dias corridos desde o marco (D+0)", color: "#8B93A7", font: { family: "JetBrains Mono", size: 10 } },
         },
         y: {
-          type: state.escala === "log" ? "logarithmic" : "linear",
+          type: "logarithmic", // fixa — é o padrão correto para comparar ciclos de magnitudes tão diferentes
           grid: { color: "#1F2634" },
           ticks: {
             color: "#D7DCE5",
@@ -384,16 +383,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function renderTudo() {
     document.querySelectorAll(".modo-pill").forEach(b => b.classList.toggle("active", b.dataset.modo === state.modo));
-    document.querySelectorAll(".escala-pill").forEach(b => b.classList.toggle("active", b.dataset.escala === state.escala));
     renderLegenda(legendaEl, onToggleCiclo);
     renderChart(canvasEl);
     renderCardsCiclos(cardsEl);
     escreverEstadoNaURL();
   }
 
+  // sem mínimo de ciclos visíveis — o usuário pode esconder todos, deixar
+  // só um, ou qualquer combinação
   function onToggleCiclo(id) {
     if (state.ciclosAtivos.has(id)) {
-      if (state.ciclosAtivos.size <= 1) return; // sempre pelo menos 1 ciclo visível
       state.ciclosAtivos.delete(id);
     } else {
       state.ciclosAtivos.add(id);
@@ -404,12 +403,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelectorAll(".modo-pill").forEach(btn => {
     btn.addEventListener("click", () => {
       state.modo = btn.dataset.modo;
-      renderTudo();
-    });
-  });
-  document.querySelectorAll(".escala-pill").forEach(btn => {
-    btn.addEventListener("click", () => {
-      state.escala = btn.dataset.escala;
       renderTudo();
     });
   });

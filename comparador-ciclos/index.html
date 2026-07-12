@@ -67,24 +67,23 @@
 }
 </script>
 <style>
-  .v5-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:start;}
-  @media (max-width:960px){.v5-layout{grid-template-columns:1fr;}}
-
-  .controle-grupo{margin-bottom:28px;}
-  .controle-label{
-    font-family:var(--font-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--text-tertiary);margin-bottom:12px;
-  }
-  .pills{display:flex;flex-direction:column;gap:10px;}
+  /* barra de controles acima do gráfico — modo + legenda de ciclos na
+     mesma linha, sem coluna lateral. O gráfico é o produto principal
+     da página, então nada compete com ele em largura. */
+  .ciclos-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:16px;}
+  .modo-toggle{display:flex;gap:8px;}
   .pill{
-    font-family:var(--font-mono);font-size:.92rem;padding:16px 20px;width:100%;
-    border:1px solid var(--border-strong);border-radius:12px;background:transparent;
-    color:var(--text-secondary);cursor:pointer;text-align:center;
+    font-family:var(--font-mono);font-size:.82rem;padding:10px 18px;
+    border:1px solid var(--border-strong);border-radius:10px;background:transparent;
+    color:var(--text-secondary);cursor:pointer;white-space:nowrap;
   }
   .pill:hover{border-color:var(--accent);color:var(--text-primary);}
   .pill.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
 
-  .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:.8rem;}
+  .toolbar-divisor{width:1px;height:24px;background:var(--border);}
+  @media (max-width:640px){.toolbar-divisor{display:none;}}
+
+  .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;font-size:.8rem;}
   .legenda-item{
     display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-secondary);
     padding:5px 10px;border-radius:20px;border:1px solid var(--border);user-select:none;transition:opacity .15s ease;
@@ -94,8 +93,8 @@
   .legenda-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
 
   .chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
-  #ciclos-chart-canvas-wrap{position:relative;height:460px;}
-  @media (max-width:960px){#ciclos-chart-canvas-wrap{height:340px;}}
+  #ciclos-chart-canvas-wrap{position:relative;height:560px;}
+  @media (max-width:640px){#ciclos-chart-canvas-wrap{height:380px;}}
 
   .comparativo-head{margin:36px 0 16px;}
   .comparativo-head h2{font-size:1.2rem;margin-bottom:4px;}
@@ -165,32 +164,17 @@
 <section class="section-border-top">
   <div class="container container-wide">
 
-    <div class="v5-layout">
-      <div>
-        <div class="controle-grupo">
-          <div class="controle-label">Comparação</div>
-          <div class="pills">
-            <button type="button" class="pill modo-pill" data-modo="up">Ciclo de Alta</button>
-            <button type="button" class="pill modo-pill" data-modo="down">Ciclo de Baixa</button>
-          </div>
-        </div>
-
-        <div class="controle-grupo">
-          <div class="controle-label">Escala</div>
-          <div class="pills">
-            <button type="button" class="pill escala-pill" data-escala="log">Logarítmica</button>
-            <button type="button" class="pill escala-pill" data-escala="linear">Linear</button>
-          </div>
-        </div>
+    <div class="ciclos-toolbar">
+      <div class="modo-toggle">
+        <button type="button" class="pill modo-pill" data-modo="up">Ciclo de Alta</button>
+        <button type="button" class="pill modo-pill" data-modo="down">Ciclo de Baixa</button>
       </div>
-
-      <div>
-        <div class="legenda-ativos" id="legenda-ciclos"></div>
-        <div class="chart-frame">
-          <div id="ciclos-chart-canvas-wrap">
-            <canvas id="ciclos-chart-canvas"></canvas>
-          </div>
-        </div>
+      <div class="toolbar-divisor" aria-hidden="true"></div>
+      <div class="legenda-ativos" id="legenda-ciclos"></div>
+    </div>
+    <div class="chart-frame">
+      <div id="ciclos-chart-canvas-wrap">
+        <canvas id="ciclos-chart-canvas"></canvas>
       </div>
     </div>
 
@@ -225,7 +209,7 @@
     </div>
 
     <div class="disclaimer-box">
-      <strong>Sobre esta ferramenta:</strong> compara ciclos históricos do Bitcoin usando datas de topo e fundo fixadas manualmente contra dados reais (sem detecção automática nesta versão), em dólar. Não considera halving, liquidez global, indicadores on-chain ou câmbio. Rentabilidade passada não é garantia de resultado futuro. Isto não é recomendação de investimento.
+      <strong>Sobre esta ferramenta:</strong> compara ciclos históricos do Bitcoin (fundo → topo, e topo → fundo) usando datas fixadas manualmente contra dados reais em dólar (sem detecção automática nesta versão). Não considera liquidez global, indicadores on-chain, DXY, M2 ou câmbio. Rentabilidade passada não é garantia de resultado futuro. Isto não é recomendação de investimento.
     </div>
 
   </div>
@@ -234,7 +218,7 @@
 <section class="section-border-top">
   <div class="container seo-block">
     <h2>Como funciona o cálculo</h2>
-    <p>Cada ciclo é definido por um par fundo → topo (uma alta completa), com datas fixadas contra o histórico real de preço em dólar — não por halving nem por indicadores de emissão. O eixo X mostra dias corridos desde o marco de cada ciclo (D+0, D+1, D+2...), não datas de calendário — é isso que permite sobrepor ciclos de anos diferentes no mesmo gráfico. O eixo Y mostra o múltiplo do preço em relação ao marco (fundo, no Ciclo de Alta; topo, no Ciclo de Baixa), em escala logarítmica por padrão.</p>
+    <p>A metodologia é exclusivamente de preço: cada ciclo é definido por um par fundo → topo (Ciclo de Alta) ou topo → fundo (Ciclo de Baixa), com datas históricas definidas manualmente contra o histórico real de preço em dólar. O eixo X mostra dias corridos desde o marco de cada ciclo (D+0, D+1, D+2...), não datas de calendário — é isso que permite sobrepor ciclos de anos diferentes no mesmo gráfico. O eixo Y mostra o múltiplo do preço em relação ao marco, sempre em escala logarítmica — é o que preserva a leitura dos ciclos antigos (altas de milhares de %) ao lado do ciclo atual.</p>
 
     <h2>Definição dos ciclos</h2>
     <p>No Ciclo de Alta, cada ciclo vai do seu fundo até o seu próprio topo. No Ciclo de Baixa, cada ciclo vai do seu topo até o fundo do ciclo seguinte (a queda que sucede a alta). A cor de cada ciclo é sempre a mesma nos dois modos; o rótulo (ex. "2011–2013") muda para refletir o intervalo relevante em cada modo, e ganha um asterisco quando o ciclo ainda está em andamento.</p>
@@ -243,7 +227,7 @@
     <p>Usar uma série em reais misturaria a variação cambial do dólar frente ao real com o comportamento do próprio Bitcoin — o que distorce as datas de topo e fundo de cada ciclo e a magnitude das altas e quedas. Todos os cálculos desta ferramenta usam exclusivamente a série em dólar.</p>
 
     <h2>O que essa ferramenta não considera</h2>
-    <p>Halving, liquidez global, indicadores on-chain, DXY ou M2 — esta é a primeira versão, deliberadamente simples, focada só em ciclos históricos de preço. As datas de topo e fundo de cada ciclo são fixadas manualmente (validadas contra a série real), não detectadas automaticamente.</p>
+    <p>Liquidez global, indicadores on-chain, DXY ou M2 — esta é a primeira versão, deliberadamente simples, focada só em ciclos históricos de preço. As datas de topo e fundo de cada ciclo são fixadas manualmente (validadas contra a série real), não detectadas automaticamente.</p>
 
     <!-- TODO: converter esta seção de FAQ em acordeão (colapsável), como nas outras ferramentas do site, numa próxima iteração -->
     <h2>FAQ</h2>
