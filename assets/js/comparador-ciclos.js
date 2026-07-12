@@ -6,9 +6,18 @@
    do Bitcoin com uma série em reais distorce datas de topo/fundo e
    magnitude por causa do câmbio; ver README).
 
-   V1: datas de topo e fundo de cada ciclo são valores fixos abaixo,
-   validados manualmente contra a série real — sem detecção automática.
-   Ver README, seção 9, para a tabela congelada dessas datas/preços.
+   V1: datas e preços de topo/fundo de cada ciclo são valores fixos
+   ("congelados") abaixo — não vêm da série de preço carregada em
+   tempo real, e sim de um consenso de mercado definido manualmente
+   (imprensa financeira / Bitstamp / Coinbase / CoinMarketCap), com
+   prioridade sobre a precisão histórica bruta de qualquer índice
+   único. Ver README, seção 9, para a tabela completa com fontes.
+
+   Os dias ENTRE o fundo e o topo de cada ciclo continuam vindo da
+   série real (assets/data/btc-history-usd.json) — só os dois extremos
+   (D+0 e o último dia) são sobrescritos pelo preço congelado, para o
+   gráfico sempre começar exatamente em 0% e terminar exatamente na
+   porcentagem da tabela oficial.
 
    METODOLOGIA:
    - Cada ciclo é definido por um par fundo→topo (uma alta completa).
@@ -29,22 +38,24 @@
 
 const HISTORICO_URL = "/assets/data/btc-history-usd.json";
 
-// datas e preços validados contra a série real em USD — fundo/topo de
-// cada ciclo, na ordem cronológica. A cor é o identificador visual fixo
-// de cada ciclo; o rótulo exibido é calculado em rotuloCiclo().
+// marcos canônicos de cada ciclo — congelados por decisão editorial
+// (consenso de mercado), não recalculados da série real. Ver README,
+// seção 9, para a tabela com a fonte de cada valor. A cor é o
+// identificador visual fixo de cada ciclo; o rótulo exibido é
+// calculado em rotuloCiclo().
 const CICLOS = [
   { id: "2011", cor: "#3E7CB1",
     fundo: { data: "2011-11-22", preco: 2.30 },
-    topo:  { data: "2013-12-05", preco: 1136.90 } },
+    topo:  { data: "2013-12-05", preco: 1137 } },
   { id: "2015", cor: "#4CAF7D",
-    fundo: { data: "2015-01-15", preco: 172.00 },
-    topo:  { data: "2017-12-17", preco: 19279.90 } },
+    fundo: { data: "2015-01-14", preco: 152 },
+    topo:  { data: "2017-12-17", preco: 19783 } },
   { id: "2018", cor: "#E1615B",
-    fundo: { data: "2018-12-16", preco: 3231.91 },
-    topo:  { data: "2021-11-09", preco: 67562.17 } },
+    fundo: { data: "2018-12-07", preco: 3122 },
+    topo:  { data: "2021-11-10", preco: 68789 } },
   { id: "2022", cor: "#9B7FD4",
-    fundo: { data: "2022-11-22", preco: 15759.61 },
-    topo:  { data: "2025-10-07", preco: 124776.68 } },
+    fundo: { data: "2022-11-21", preco: 15476 },
+    topo:  { data: "2025-10-06", preco: 126296 } },
   { id: "atual", cor: "#F7931A",
     fundo: { data: "2026-07-01", preco: 58534.28, provisorio: true },
     topo: null },
@@ -109,6 +120,11 @@ function construirCicloUp(ciclo, mapa) {
   const emAndamento = !ciclo.topo;
   const fimData = emAndamento ? ultimaData : ciclo.topo.data;
   const pontos = serieEntreDatas(mapa, ciclo.fundo.data, fimData);
+  // ancora os extremos no preço congelado (tabela oficial) — os dias
+  // intermediários seguem vindo da série real, já que não temos um
+  // preço congelado dia a dia, só nos marcos de fundo/topo
+  pontos[0].preco = ciclo.fundo.preco;
+  if (!emAndamento) pontos[pontos.length - 1].preco = ciclo.topo.preco;
   const precoFinal = pontos[pontos.length - 1].preco;
   const dias = diasEntre(ciclo.fundo.data, fimData);
   const altaPct = (precoFinal / ciclo.fundo.preco - 1) * 100;
@@ -128,6 +144,9 @@ function construirCicloDown(ciclo, proximoCiclo, mapa) {
   if (!ciclo.topo) return null;
   const fundoAlvo = proximoCiclo.fundo;
   const pontos = serieEntreDatas(mapa, ciclo.topo.data, fundoAlvo.data);
+  // mesmo ancoramento nos extremos congelados que o Ciclo de Alta
+  pontos[0].preco = ciclo.topo.preco;
+  pontos[pontos.length - 1].preco = fundoAlvo.preco;
   const precoFinal = pontos[pontos.length - 1].preco;
   const dias = diasEntre(ciclo.topo.data, fundoAlvo.data);
   const quedaPct = (precoFinal / ciclo.topo.preco - 1) * 100;

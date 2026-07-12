@@ -147,43 +147,61 @@ integrações diferentes.
 ## 9. Comparador de Ciclos — metodologia congelada (não editar sem revisão)
 
 A ferramenta em `/comparador-ciclos/` usa exclusivamente preço (nunca
-halving) para definir ciclos do Bitcoin, com datas de topo e fundo
-fixadas manualmente em `assets/js/comparador-ciclos.js` (array
-`CICLOS`) — sem detecção automática nesta versão. Fonte dos preços:
-`assets/data/btc-history-usd.json`. Esta tabela documenta os marcos
-oficiais para não serem alterados por acidente numa edição futura;
-qualquer mudança aqui deve ser proposital e revisada.
+halving) para definir ciclos do Bitcoin, com datas e preços de topo e
+fundo **congelados manualmente** em `assets/js/comparador-ciclos.js`
+(array `CICLOS`) — sem detecção automática nesta versão.
+
+**Critério de congelamento (decisão editorial, revisão de PR2):**
+prioriza consenso de mercado (o número mais citado pela imprensa
+financeira e por ferramentas de análise de ciclo) acima da precisão
+histórica de um índice único. Por isso os valores abaixo **não vêm**
+de `assets/data/btc-history-usd.json` (que é usado só para desenhar a
+trajetória do preço *entre* um marco e outro) — os extremos de cada
+linha são sempre o valor desta tabela, não o valor bruto do dataset
+naquele dia.
 
 **Ciclo de Alta** (fundo → topo, mesmo ciclo):
 
-| Ciclo | Fundo | Topo |
-|---|---|---|
-| 2011 | 2011-11-22 — US$ 2,30 | 2013-12-05 — US$ 1.136,90 |
-| 2015 | 2015-01-15 — US$ 172,00 | 2017-12-17 — US$ 19.279,90 |
-| 2018 | 2018-12-16 — US$ 3.231,91 | 2021-11-09 — US$ 67.562,17 |
-| 2022 | 2022-11-22 — US$ 15.759,61 | 2025-10-07 — US$ 124.776,68 |
-| Atual | 2026-07-01 — US$ 58.534,28 (provisório) | ainda sem topo confirmado |
+| Ciclo | Fundo | Topo | Fonte |
+|---|---|---|---|
+| 2011 | 2011-11-22 — US$ 2,30 | 2013-12-05 — US$ 1.137,00 | Mt. Gox / Bitstamp (dado de 2011 é o mais fraco de toda a tabela — mercado muito ilíquido na época, sem consenso de dia exato) |
+| 2015 | 2015-01-14 — US$ 152,00 | 2017-12-17 — US$ 19.783,00 | Bitstamp (mínima intradiária); CoinDesk BPI |
+| 2018 | 2018-12-07 — US$ 3.122,00 | 2021-11-10 — US$ 68.789,00 | Figura mais repetida no mercado ("$3.122") — a data 07/12 é onde ela realmente ocorreu (CoinDesk), não 15/12 como muitas retrospectivas citam de forma solta; CoinMarketCap |
+| 2022 | 2022-11-21 — US$ 15.476,00 | 2025-10-06 — US$ 126.296,00 | Consenso geral (mesma âncora que o CycleTop usa); Coinbase |
+| Atual | 2026-07-01 — US$ 58.534,28 (provisório) | ainda sem topo confirmado | blockchain.info — este ponto **não** foi congelado (ciclo em andamento, sem consenso de mercado ainda formado) |
 
 **Ciclo de Baixa** (topo de um ciclo → fundo do ciclo seguinte):
 
-| Ciclo | Topo | Fundo |
-|---|---|---|
-| 2011 | 2011-06-11 — US$ 33,80 | 2011-11-22 — US$ 2,30 |
-| 2013→2015 | 2013-12-05 — US$ 1.136,90 | 2015-01-15 — US$ 172,00 |
-| 2017→2018 | 2017-12-17 — US$ 19.279,90 | 2018-12-16 — US$ 3.231,91 |
-| 2021→2022 | 2021-11-09 — US$ 67.562,17 | 2022-11-22 — US$ 15.759,61 |
-| 2025→atual | 2025-10-07 — US$ 124.776,68 | 2026-07-01 — US$ 58.534,28 (provisório) |
+| Ciclo | Topo | Fundo | Fonte |
+|---|---|---|---|
+| 2013→2015 | 2013-12-05 — US$ 1.137,00 | 2015-01-14 — US$ 152,00 | ver linhas acima |
+| 2017→2018 | 2017-12-17 — US$ 19.783,00 | 2018-12-07 — US$ 3.122,00 | ver linhas acima |
+| 2021→2022 | 2021-11-10 — US$ 68.789,00 | 2022-11-21 — US$ 15.476,00 | ver linhas acima |
+| 2025→atual | 2025-10-06 — US$ 126.296,00 | 2026-07-01 — US$ 58.534,28 (provisório) | ver linhas acima |
 
-**Validação cruzada (auditoria de metodologia):** todas as datas acima
-foram comparadas contra Glassnode, Into The Cryptoverse (Benjamin
-Cowen), LookIntoBitcoin, BitcoinCounterFlow e CycleTop.co. As datas de
-2013, 2015, 2017, 2018, 2021 e 2022 ficam dentro da variação normal
-entre índices de preço (0-1 dia, mesmo mês/faixa de preço). O topo de
-2025 (07/10, US$ 124.776,68) está com uma variação um pouco maior do
-que o padrão — a maioria das fontes cita 05-06/10/2025, na faixa de
-US$ 125.800–126.300 — vale reconfirmar contra a série antes da próxima
-atualização "congelada" desta tabela. Nenhuma fonte pesquisada usa
-halving como âncora de topo/fundo de forma exclusiva; Cowen usa duas
-convenções em paralelo (halving E fundo realizado), e nosso critério
-(fundo→topo por preço) corresponde à segunda.
+Não existe uma entrada de Ciclo de Baixa isolada para 2011 (topo de
+jun/2011 → fundo de nov/2011) — essa mini-bolha nunca foi implementada
+como uma entidade própria no array `CICLOS`; ela só existe hoje como o
+ponto de partida (fundo) da grande alta 2011→2013. Ficou como limitação
+conhecida, não corrigida nesta rodada.
+
+**Como os extremos são aplicados no gráfico:** os dias *entre* o fundo
+e o topo de cada ciclo continuam vindo da série real
+(`assets/data/btc-history-usd.json`) — só os dois extremos (D+0 e o
+último dia da linha) são sobrescritos pelo preço desta tabela, para a
+curva sempre começar exatamente em 0% e terminar exatamente na
+porcentagem oficial. Ver `construirCicloUp`/`construirCicloDown` em
+`assets/js/comparador-ciclos.js`.
+
+**Auditoria de fontes (PR2):** pesquisa cruzada contra Glassnode, Into
+The Cryptoverse (Cowen), LookIntoBitcoin, BitcoinCounterFlow e
+CycleTop.co não encontrou, para nenhuma das 4 últimas, uma citação
+direta e verificável de data+preço exatos (os 4 sites bloqueiam acesso
+automatizado) — os valores acima vêm de imprensa financeira (Forbes,
+CNBC, CoinDesk, Yahoo Finance) com maior taxa de confirmação cruzada.
+Nenhuma fonte pesquisada usa halving como âncora de topo/fundo de forma
+exclusiva; Cowen usa duas convenções em paralelo (halving E fundo
+realizado), e nosso critério (fundo→topo por preço) corresponde à
+segunda. Esta tabela está **congelada** — próximas mudanças exigem
+revisão proposital, não pesquisa automática.
 
