@@ -36,7 +36,7 @@
       "name": "Onde estamos no ciclo atual do Bitcoin comparado aos ciclos anteriores?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Esta ferramenta compara o ciclo atual do Bitcoin com os ciclos de 2011, 2015, 2018 e 2022, alinhados por dias corridos desde o fundo (Cycle Up) ou desde o topo (Cycle Down) de cada um — não por data de calendário. Assim dá para ver, no mesmo ponto do ciclo, como o preço se comportou em cada época."
+        "text": "Esta ferramenta compara o ciclo atual do Bitcoin com os ciclos de 2011, 2015, 2018 e 2022, alinhados por dias corridos desde o fundo (Ciclo de Alta) ou desde o topo (Ciclo de Baixa) de cada um — não por data de calendário. Assim dá para ver, no mesmo ponto do ciclo, como o preço se comportou em cada época."
       }
     },
     {
@@ -52,7 +52,7 @@
       "name": "O ciclo atual do Bitcoin já teve um novo topo confirmado?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Não — o ciclo mais recente (2022) já atingiu seu topo e está em queda; o fundo mais recente é tratado como provisório até um novo topo confirmar o fim desse ciclo de baixa. Por isso o ciclo \"Atual\" ainda não aparece no modo Cycle Down."
+        "text": "Não — o ciclo mais recente (2022) já atingiu seu topo e está em queda; o fundo mais recente é tratado como provisório até um novo topo confirmar o fim dessa queda. Por isso o ciclo atual ainda não aparece no modo Ciclo de Baixa — apenas no modo Ciclo de Alta, marcado com um asterisco (em andamento)."
       }
     },
     {
@@ -70,17 +70,16 @@
   .v5-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:start;}
   @media (max-width:960px){.v5-layout{grid-template-columns:1fr;}}
 
-  .controle-grupo{margin-bottom:22px;}
+  .controle-grupo{margin-bottom:28px;}
   .controle-label{
     font-family:var(--font-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--text-tertiary);margin-bottom:9px;
+    color:var(--text-tertiary);margin-bottom:12px;
   }
-  .controle-sub{font-size:.8rem;color:var(--text-tertiary);margin-top:8px;line-height:1.4;}
-  .pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .pills{display:flex;flex-direction:column;gap:10px;}
   .pill{
-    font-family:var(--font-mono);font-size:.8rem;padding:8px 14px;
-    border:1px solid var(--border-strong);border-radius:20px;background:transparent;
-    color:var(--text-secondary);cursor:pointer;
+    font-family:var(--font-mono);font-size:.92rem;padding:16px 20px;width:100%;
+    border:1px solid var(--border-strong);border-radius:12px;background:transparent;
+    color:var(--text-secondary);cursor:pointer;text-align:center;
   }
   .pill:hover{border-color:var(--accent);color:var(--text-primary);}
   .pill.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
@@ -102,35 +101,20 @@
   .comparativo-head h2{font-size:1.2rem;margin-bottom:4px;}
   .comparativo-head p{margin:0;font-size:.9rem;}
 
-  .cards-comparativo{display:grid;grid-template-columns:repeat(var(--n-cards,5),1fr);gap:14px;}
-  @media (max-width:960px){.cards-comparativo{grid-template-columns:repeat(3,1fr);}}
+  .cards-comparativo{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,148px));justify-content:center;gap:14px;}
   @media (max-width:640px){.cards-comparativo{grid-template-columns:repeat(2,1fr);}}
   .card-ativo{
     background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-    padding:20px 14px;text-align:center;transition:opacity .15s ease;
+    padding:18px 12px;text-align:center;transition:opacity .15s ease;
   }
   .card-ativo.inativo{opacity:.4;}
   .card-ativo .nome{
     display:flex;align-items:center;justify-content:center;gap:6px;
-    font-weight:600;font-size:.86rem;color:var(--text-primary);margin-bottom:10px;
+    font-weight:600;font-size:.84rem;color:var(--text-primary);margin-bottom:10px;
   }
-  .card-ativo .pct{font-family:var(--font-display);font-size:1.4rem;font-weight:600;}
-  .card-ativo .valor{font-family:var(--font-mono);font-size:.72rem;color:var(--text-tertiary);margin-top:8px;line-height:1.6;}
-
-  .cards-analise{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
-  @media (max-width:960px){.cards-analise{grid-template-columns:repeat(3,1fr);}}
-  @media (max-width:640px){.cards-analise{grid-template-columns:repeat(2,1fr);}}
-  .card-analise{
-    background:var(--bg-card-hover);border:1px solid var(--border);border-radius:var(--radius-md);
-    padding:16px 14px;
-  }
-  .card-analise-label{
-    font-family:var(--font-mono);font-size:.65rem;letter-spacing:.05em;text-transform:uppercase;
-    color:var(--text-muted, var(--text-tertiary));margin-bottom:8px;
-  }
-  .card-analise-valor{font-family:var(--font-display);font-size:1.15rem;font-weight:600;color:var(--text-primary);}
-  .card-analise-sub{font-family:var(--font-mono);font-size:.7rem;color:var(--text-tertiary);margin-top:6px;line-height:1.6;}
-  .card-analise-sub em{font-style:italic;color:var(--text-tertiary);}
+  .card-ativo .pct{font-family:var(--font-display);font-size:1.25rem;font-weight:600;}
+  .card-ativo .valor-linha{font-family:var(--font-mono);font-size:.72rem;color:var(--text-tertiary);margin-top:6px;line-height:1.5;}
+  .card-ativo .valor-nota{font-family:var(--font-mono);font-size:.68rem;color:var(--text-tertiary);font-style:italic;margin-top:6px;min-height:1.3em;}
 
   .share-row{display:flex;justify-content:center;margin-top:24px;}
   #share-menu-wrap{position:relative;}
@@ -184,21 +168,19 @@
     <div class="v5-layout">
       <div>
         <div class="controle-grupo">
-          <div class="controle-label">Modo</div>
+          <div class="controle-label">Comparação</div>
           <div class="pills">
-            <button type="button" class="pill modo-pill" data-modo="up">Cycle Up</button>
-            <button type="button" class="pill modo-pill" data-modo="down">Cycle Down</button>
+            <button type="button" class="pill modo-pill" data-modo="up">Ciclo de Alta</button>
+            <button type="button" class="pill modo-pill" data-modo="down">Ciclo de Baixa</button>
           </div>
-          <p class="controle-sub" id="ciclos-subtitulo-modo"></p>
         </div>
 
         <div class="controle-grupo">
-          <div class="controle-label">Eixo Y</div>
+          <div class="controle-label">Escala</div>
           <div class="pills">
-            <button type="button" class="pill escala-pill" data-escala="log">Log</button>
+            <button type="button" class="pill escala-pill" data-escala="log">Logarítmica</button>
             <button type="button" class="pill escala-pill" data-escala="linear">Linear</button>
           </div>
-          <p class="controle-sub">Escala logarítmica preserva a leitura dos ciclos antigos (altas de milhares de %) ao lado do ciclo atual.</p>
         </div>
       </div>
 
@@ -217,12 +199,6 @@
       <p class="lead" style="font-size:.95rem;">Cada ciclo mantém a mesma cor e posição nos dois modos — ordenados cronologicamente, não por desempenho.</p>
     </div>
     <div class="cards-comparativo" id="ciclos-cards"></div>
-
-    <div class="comparativo-head">
-      <h2>Painel de análise</h2>
-      <p class="lead" style="font-size:.95rem;">Resumo rápido para acompanhar o ciclo em andamento.</p>
-    </div>
-    <div class="cards-analise" id="ciclos-painel-analise"></div>
 
     <div class="share-row" id="ciclos-share">
       <div id="share-menu-wrap">
@@ -258,10 +234,10 @@
 <section class="section-border-top">
   <div class="container seo-block">
     <h2>Como funciona o cálculo</h2>
-    <p>Cada ciclo é definido por um par fundo → topo (uma alta completa), com datas fixadas contra o histórico real de preço em dólar — não por halving nem por indicadores de emissão. O eixo X mostra dias corridos desde o marco de cada ciclo (D+0, D+1, D+2...), não datas de calendário — é isso que permite sobrepor ciclos de anos diferentes no mesmo gráfico. O eixo Y mostra o múltiplo do preço em relação ao marco (fundo, no modo Cycle Up; topo, no modo Cycle Down), em escala logarítmica por padrão.</p>
+    <p>Cada ciclo é definido por um par fundo → topo (uma alta completa), com datas fixadas contra o histórico real de preço em dólar — não por halving nem por indicadores de emissão. O eixo X mostra dias corridos desde o marco de cada ciclo (D+0, D+1, D+2...), não datas de calendário — é isso que permite sobrepor ciclos de anos diferentes no mesmo gráfico. O eixo Y mostra o múltiplo do preço em relação ao marco (fundo, no Ciclo de Alta; topo, no Ciclo de Baixa), em escala logarítmica por padrão.</p>
 
     <h2>Definição dos ciclos</h2>
-    <p>No modo Cycle Up, cada ciclo vai do seu fundo até o seu próprio topo. No modo Cycle Down, cada ciclo vai do seu topo até o fundo do ciclo seguinte (a queda que sucede a alta). O rótulo, a cor e a posição de cada ciclo são sempre os mesmos nos dois modos — só muda o que é o "dia zero" e os números exibidos.</p>
+    <p>No Ciclo de Alta, cada ciclo vai do seu fundo até o seu próprio topo. No Ciclo de Baixa, cada ciclo vai do seu topo até o fundo do ciclo seguinte (a queda que sucede a alta). A cor de cada ciclo é sempre a mesma nos dois modos; o rótulo (ex. "2011–2013") muda para refletir o intervalo relevante em cada modo, e ganha um asterisco quando o ciclo ainda está em andamento.</p>
 
     <h2>Por que dólar (USD) e não real (BRL)</h2>
     <p>Usar uma série em reais misturaria a variação cambial do dólar frente ao real com o comportamento do próprio Bitcoin — o que distorce as datas de topo e fundo de cada ciclo e a magnitude das altas e quedas. Todos os cálculos desta ferramenta usam exclusivamente a série em dólar.</p>
