@@ -144,3 +144,46 @@ desenvolvimento, então optou-se por um único mecanismo (Yahoo Finance)
 reaproveitado três vezes, mais simples de manter do que três
 integrações diferentes.
 
+## 9. Comparador de Ciclos — metodologia congelada (não editar sem revisão)
+
+A ferramenta em `/comparador-ciclos/` usa exclusivamente preço (nunca
+halving) para definir ciclos do Bitcoin, com datas de topo e fundo
+fixadas manualmente em `assets/js/comparador-ciclos.js` (array
+`CICLOS`) — sem detecção automática nesta versão. Fonte dos preços:
+`assets/data/btc-history-usd.json`. Esta tabela documenta os marcos
+oficiais para não serem alterados por acidente numa edição futura;
+qualquer mudança aqui deve ser proposital e revisada.
+
+**Ciclo de Alta** (fundo → topo, mesmo ciclo):
+
+| Ciclo | Fundo | Topo |
+|---|---|---|
+| 2011 | 2011-11-22 — US$ 2,30 | 2013-12-05 — US$ 1.136,90 |
+| 2015 | 2015-01-15 — US$ 172,00 | 2017-12-17 — US$ 19.279,90 |
+| 2018 | 2018-12-16 — US$ 3.231,91 | 2021-11-09 — US$ 67.562,17 |
+| 2022 | 2022-11-22 — US$ 15.759,61 | 2025-10-07 — US$ 124.776,68 |
+| Atual | 2026-07-01 — US$ 58.534,28 (provisório) | ainda sem topo confirmado |
+
+**Ciclo de Baixa** (topo de um ciclo → fundo do ciclo seguinte):
+
+| Ciclo | Topo | Fundo |
+|---|---|---|
+| 2011 | 2011-06-11 — US$ 33,80 | 2011-11-22 — US$ 2,30 |
+| 2013→2015 | 2013-12-05 — US$ 1.136,90 | 2015-01-15 — US$ 172,00 |
+| 2017→2018 | 2017-12-17 — US$ 19.279,90 | 2018-12-16 — US$ 3.231,91 |
+| 2021→2022 | 2021-11-09 — US$ 67.562,17 | 2022-11-22 — US$ 15.759,61 |
+| 2025→atual | 2025-10-07 — US$ 124.776,68 | 2026-07-01 — US$ 58.534,28 (provisório) |
+
+**Validação cruzada (auditoria de metodologia):** todas as datas acima
+foram comparadas contra Glassnode, Into The Cryptoverse (Benjamin
+Cowen), LookIntoBitcoin, BitcoinCounterFlow e CycleTop.co. As datas de
+2013, 2015, 2017, 2018, 2021 e 2022 ficam dentro da variação normal
+entre índices de preço (0-1 dia, mesmo mês/faixa de preço). O topo de
+2025 (07/10, US$ 124.776,68) está com uma variação um pouco maior do
+que o padrão — a maioria das fontes cita 05-06/10/2025, na faixa de
+US$ 125.800–126.300 — vale reconfirmar contra a série antes da próxima
+atualização "congelada" desta tabela. Nenhuma fonte pesquisada usa
+halving como âncora de topo/fundo de forma exclusiva; Cowen usa duas
+convenções em paralelo (halving E fundo realizado), e nosso critério
+(fundo→topo por preço) corresponde à segunda.
+
