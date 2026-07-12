@@ -80,17 +80,17 @@
   .pill:hover{border-color:var(--accent);color:var(--text-primary);}
   .pill.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
 
-  .chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
+  .toolbar-divisor{width:1px;height:24px;background:var(--border);}
+  @media (max-width:640px){.toolbar-divisor{display:none;}}
+
+  .chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:40px;}
   #ciclos-chart-canvas-wrap{position:relative;height:560px;}
   @media (max-width:640px){#ciclos-chart-canvas-wrap{height:380px;}}
 
-  /* legenda simples abaixo do gráfico — só identificação de cor, sem
-     caixa/borda, sem estatísticas. Continua clicável (liga/desliga a
-     linha no gráfico), só não parece mais um controle de formulário. */
-  .legenda-ativos{
-    display:flex;gap:8px 28px;flex-wrap:wrap;justify-content:center;
-    margin:18px 0 40px;font-size:.85rem;
-  }
+  /* legenda simples, na mesma barra do toggle de modo — só identificação
+     de cor, sem caixa/borda, sem estatísticas. Continua clicável
+     (liga/desliga a linha no gráfico). */
+  .legenda-ativos{display:flex;gap:8px 20px;flex-wrap:wrap;font-size:.85rem;}
   .legenda-item{
     display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:var(--text-secondary);
     user-select:none;transition:opacity .15s ease, color .15s ease;
@@ -140,13 +140,14 @@
         <button type="button" class="pill modo-pill" data-modo="up">Ciclo de Alta</button>
         <button type="button" class="pill modo-pill" data-modo="down">Ciclo de Baixa</button>
       </div>
+      <div class="toolbar-divisor" aria-hidden="true"></div>
+      <div class="legenda-ativos" id="legenda-ciclos"></div>
     </div>
     <div class="chart-frame">
       <div id="ciclos-chart-canvas-wrap">
         <canvas id="ciclos-chart-canvas"></canvas>
       </div>
     </div>
-    <div class="legenda-ativos" id="legenda-ciclos"></div>
 
     <div class="cross-links">
       <a href="/comparador/" class="cross-link-card">
