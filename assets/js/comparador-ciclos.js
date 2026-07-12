@@ -35,7 +35,7 @@ const CICLOS = [
   { id: "2018", nome: "2018", cor: "#E1615B",
     fundo: { data: "2018-12-16", preco: 3231.91 },
     topo:  { data: "2021-11-09", preco: 67562.17 } },
-  { id: "2022", nome: "2022", cor: "#D9A441",
+  { id: "2022", nome: "2022", cor: "#9B7FD4",
     fundo: { data: "2022-11-22", preco: 15759.61 },
     topo:  { data: "2025-10-07", preco: 124776.68 } },
   { id: "atual", nome: "Atual", cor: "#F7931A",
