@@ -29,8 +29,10 @@
      aparece aqui para não sugerir um fundo confirmado que não existe.
    - Ciclo de Baixa: D+0 = topo do próprio ciclo, eixo Y = múltiplo desde
      o topo, terminando no fundo do ciclo SEGUINTE (a queda que sucede a
-     alta). O ciclo mais recente ("2022") carrega a queda em andamento —
-     seu fundo mais recente é provisório, rótulo "2025*".
+     alta) — ou em ultimaData, se esse fundo ainda for provisório (queda
+     em andamento, sem fundo confirmado). O ciclo mais recente ("2022")
+     carrega a queda em andamento — seu fundo mais recente é provisório,
+     rótulo "2025*", e a série vai até o último dado disponível.
    - Sem painel de interpretação (ciclo mais parecido, média histórica
      etc.) e sem cards de detalhe — só o gráfico e uma legenda de cor,
      para o gráfico ser o produto, não a interface em volta dele.
@@ -140,20 +142,30 @@ function construirCicloUp(ciclo, mapa) {
 // ciclo em queda = topo do próprio ciclo -> fundo do ciclo SEGUINTE
 // (a queda que sucede a alta desse ciclo). O último ciclo ("atual") ainda
 // não tem topo confirmado, então não gera linha de Ciclo de Baixa.
+// Quando o fundo do próximo ciclo é provisório (queda ainda em andamento,
+// sem fundo confirmado), a série não para nesse marco congelado — ela
+// segue até ultimaData, com o mesmo tratamento usado em construirCicloUp
+// para um ciclo em andamento: só o ponto inicial é ancorado no preço
+// congelado (o topo, aqui confirmado), o final fica com o preço real
+// mais recente da série.
 function construirCicloDown(ciclo, proximoCiclo, mapa) {
   if (!ciclo.topo) return null;
   const fundoAlvo = proximoCiclo.fundo;
-  const pontos = serieEntreDatas(mapa, ciclo.topo.data, fundoAlvo.data);
+  const emAndamento = !!fundoAlvo.provisorio;
+  const fimData = emAndamento ? ultimaData : fundoAlvo.data;
+  const pontos = serieEntreDatas(mapa, ciclo.topo.data, fimData);
   // mesmo ancoramento nos extremos congelados que o Ciclo de Alta
   pontos[0].preco = ciclo.topo.preco;
-  pontos[pontos.length - 1].preco = fundoAlvo.preco;
+  if (!emAndamento) pontos[pontos.length - 1].preco = fundoAlvo.preco;
   const precoFinal = pontos[pontos.length - 1].preco;
-  const dias = diasEntre(ciclo.topo.data, fundoAlvo.data);
+  const dias = diasEntre(ciclo.topo.data, fimData);
   const quedaPct = (precoFinal / ciclo.topo.preco - 1) * 100;
   return {
     id: ciclo.id, cor: ciclo.cor,
-    topo: ciclo.topo, fundo: fundoAlvo, dias, quedaPct,
-    provisorio: !!fundoAlvo.provisorio,
+    topo: ciclo.topo,
+    fundo: emAndamento ? { data: fimData, preco: precoFinal, provisorio: true } : fundoAlvo,
+    dias, quedaPct,
+    provisorio: emAndamento,
     pontos: pontos.map(p => ({ n: p.n, mult: p.preco / ciclo.topo.preco, preco: p.preco })),
   };
 }

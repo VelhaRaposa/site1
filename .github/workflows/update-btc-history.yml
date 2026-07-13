@@ -1,11 +1,13 @@
 name: Atualizar histórico do Bitcoin
 
-# Roda automaticamente toda segunda-feira às 06:00 (horário de Brasília
-# é UTC-3, então 09:00 UTC), e também pode ser disparado manualmente
-# na aba "Actions" do GitHub, botão "Run workflow".
+# Roda automaticamente todo dia às 06:00 (horário de Brasília é UTC-3,
+# então 09:00 UTC), e também pode ser disparado manualmente na aba
+# "Actions" do GitHub, botão "Run workflow". Os próprios scripts não
+# incluem o candle do dia corrente (ainda em formação) — então mesmo
+# rodando diariamente, a defasagem máxima do dataset é de 1 dia.
 on:
   schedule:
-    - cron: "0 9 * * 1"
+    - cron: "0 9 * * *"
   workflow_dispatch: {}
 
 # Necessário para o robô poder commitar a atualização de volta no repositório.
