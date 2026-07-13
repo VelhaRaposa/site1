@@ -121,8 +121,12 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
   backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
 }
+/* mesma largura máxima do conteúdo (hero, grids) — antes o header usava
+   --max-w (1100px, o container de leitura), 340px mais estreito que
+   --max-w-wide (1440px), o que deixava o menu sem folga nenhuma pros 7
+   itens e fazia o cabeçalho parecer desalinhado do resto da página. */
 .nav-wrap{
-  max-width:var(--max-w);margin:0 auto;padding:0 24px;
+  max-width:var(--max-w-wide);margin:0 auto;padding:0 24px;
   display:flex;align-items:center;justify-content:space-between;
   height:66px;
 }
@@ -201,6 +205,17 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
   .hero-inner{grid-template-columns:1fr;}
   .hero-photo{max-width:280px;margin:24px auto 0;}
 }
+
+/* hero compacta das páginas de ferramenta (Comparador, DCA, Ciclos) — a
+   ferramenta em si (formulário/gráfico) é o conteúdo principal da página,
+   então a introdução (tag + título + descrição) ocupa bem menos altura
+   que a hero padrão do site (usada só na Home). Não mexe em .hero nem em
+   h1/.lead globais — só nestas 3 páginas, via classe própria. */
+.tool-hero{padding:36px 0 12px;}
+.tool-hero h1{font-size:clamp(1.7rem,2.8vw,2.25rem);margin-bottom:.35em;}
+.tool-hero .eyebrow{margin-bottom:.5em;}
+.tool-hero .lead{font-size:1rem;line-height:1.5;margin-bottom:0;}
+.tool-hero + .section-border-top{padding-top:28px;}
 
 /* ---------- sections ---------- */
 /* espaçamento vertical reduzido (64→56→44px): densidade "produto" revisada
