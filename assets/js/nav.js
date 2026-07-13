@@ -8,20 +8,24 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/agenda/", label: "Agenda" },
   { href: "/comparador/", label: "Comparador de Investimentos" },
-  { href: "/calculadora/", label: "Calculadora DCA Bitcoin" },
-  { href: "/comparador-ciclos/", label: "Comparador de Ciclos" },
-  { href: "/ferramentas/", label: "Ferramentas" },
+  { href: "/calculadora/", label: "DCA Bitcoin" },
+  { href: "/comparador-ciclos/", label: "Ciclos Bitcoin" },
+  { href: "/ferramentas/", label: "Guia Bitcoin" },
   { href: "/contato/", label: "Contato" },
 ];
 
-// componente de marca (logo + nome + tagline) — usado no header e no rodapé
-const BRAND_HTML = `
-  <img src="/favicon.svg" alt="" class="brand-mark" aria-hidden="true">
-  <span class="brand-text">
-    <span class="brand-name">Caio Garé</span>
-    <span class="brand-tagline">Bitcoin • Economia • Mercados</span>
-  </span>
-`;
+// componente de marca (logo + nome + tagline) — usado no header e no rodapé.
+// O header omite a tagline (mantém o cabeçalho compacto e numa linha só);
+// o rodapé continua mostrando as duas linhas.
+function brandHtml(showTagline){
+  return `
+    <img src="/favicon.svg" alt="" class="brand-mark" aria-hidden="true">
+    <span class="brand-text">
+      <span class="brand-name">Caio Garé</span>
+      ${showTagline ? `<span class="brand-tagline">Bitcoin • Economia • Mercados</span>` : ""}
+    </span>
+  `;
+}
 
 // ícones sociais (traço único, herdam a cor do link via currentColor) —
 // paths oficiais da Simple Icons, só o glyph, sem cor de marca fixa
@@ -48,7 +52,7 @@ function renderHeader(){
 
   document.getElementById("site-header").innerHTML = `
     <div class="nav-wrap">
-      <a href="/" class="brand">${BRAND_HTML}</a>
+      <a href="/" class="brand">${brandHtml(false)}</a>
       <ul class="nav-links" id="nav-links">${links}</ul>
       <div class="nav-cta">
         <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">☰</button>
@@ -97,7 +101,7 @@ function renderFooter(){
     <div class="container container-wide">
       <div class="footer-grid">
         <div>
-          <a href="/" class="brand">${BRAND_HTML}</a>
+          <a href="/" class="brand">${brandHtml(true)}</a>
         </div>
         <ul class="footer-links">
           <li><a href="${SITE.youtubeUrl}" target="_blank" rel="noopener">${SOCIAL_ICONS.youtube}YouTube</a></li>

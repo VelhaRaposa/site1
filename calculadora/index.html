@@ -89,7 +89,9 @@
   }
 
   .data-info{font-size:.74rem;color:var(--text-tertiary);margin:8px 0 0;}
-  #dca-error{color:var(--red);font-size:.9rem;margin-bottom:16px;}
+  /* margem só quando há mensagem de erro de fato — vazia, a div não deve
+     empurrar o layout (o v5-layout já cuida do próprio espaçamento). */
+  #dca-error:not(:empty){color:var(--red);font-size:.9rem;margin-bottom:16px;}
 
   .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:.8rem;}
   .legenda-item{
@@ -173,7 +175,7 @@
 <body>
 <header id="site-header"></header>
 
-<section style="padding-top:40px;padding-bottom:8px;">
+<section class="tool-hero">
   <div class="container container-wide">
     <p class="eyebrow">ferramenta</p>
     <h1>Simulador de Bitcoin — DCA e Lump Sum</h1>
@@ -273,7 +275,7 @@
       </a>
       <a href="/ferramentas/" class="cross-link-card">
         <div class="icon" aria-hidden="true">⚙</div>
-        <div class="tit">Ferramentas</div>
+        <div class="tit">Guia Bitcoin</div>
         <div class="sub">Corretoras, carteiras e serviços que recomendo</div>
       </a>
     </div>
