@@ -43,7 +43,6 @@
   /* header é sticky (66px) — sem isso, qualquer salto de âncora ("Começar",
      "ver outras corretoras") esconde o título do passo atrás do header. */
   .passo, .apendice{scroll-margin-top:84px;padding:32px 0;border-top:1px solid var(--border);}
-  .passo .container{max-width:var(--max-w);}
   .passo h2{font-size:1.5rem;margin-bottom:.55em;}
   .passo-num{color:var(--accent);font-family:var(--font-mono);}
   .passo p{max-width:640px;}
@@ -56,20 +55,20 @@
   /* passo 1 — dois cenários lado a lado, peso visual idêntico (sem
      medalha, sem "recomendado") — a pessoa escolhe um caminho, não um
      produto vencedor. */
-  .cenarios{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;max-width:720px;}
+  .cenarios{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px;max-width:900px;}
   @media (max-width:640px){.cenarios{grid-template-columns:1fr;}}
   .cenario{
     background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-    padding:20px;display:flex;flex-direction:column;
+    padding:28px;display:flex;flex-direction:column;
   }
   .cenario-tag{
     font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
     color:var(--text-tertiary);margin:0 0 .8em;
   }
-  .cenario-parceiro{display:flex;align-items:center;gap:9px;margin-bottom:.6em;}
-  .cenario-logo{width:26px;height:26px;object-fit:contain;flex-shrink:0;}
-  .cenario-parceiro span{font-family:var(--font-display);font-weight:600;font-size:1.05rem;color:var(--text-primary);}
-  .cenario-desc{font-size:.92rem;color:var(--text-secondary);flex-grow:1;margin-bottom:1em;}
+  .cenario-parceiro{display:flex;align-items:center;gap:11px;margin-bottom:.6em;}
+  .cenario-logo{width:40px;height:40px;object-fit:contain;flex-shrink:0;}
+  .cenario-parceiro span{font-family:var(--font-display);font-weight:600;font-size:1.25rem;color:var(--text-primary);}
+  .cenario-desc{font-size:.97rem;color:var(--text-secondary);flex-grow:1;margin-bottom:1em;}
   .passo-link-secundario{margin-top:14px;font-size:.88rem;}
   .passo-link-secundario a{color:var(--text-tertiary);border-bottom:1px solid var(--border-strong);}
   .passo-link-secundario a:hover{color:var(--accent);border-color:var(--accent);}
@@ -79,12 +78,12 @@
      real do gráfico embutido, não um botão. */
   .passo--destaque{border-top-color:var(--accent);background:linear-gradient(180deg, var(--accent-soft), transparent 40%);}
   .ciclos-preview{
-    margin-top:20px;max-width:760px;
+    margin-top:20px;max-width:1000px;
     background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--radius-lg);
-    padding:20px 20px 18px;
+    padding:24px 24px 20px;
   }
-  .ciclos-preview svg{width:100%;height:160px;display:block;}
-  @media (max-width:640px){.ciclos-preview svg{height:110px;}}
+  .ciclos-preview svg{width:100%;height:220px;display:block;}
+  @media (max-width:640px){.ciclos-preview svg{height:130px;}}
   .ciclos-preview-cta{
     display:inline-block;margin-top:14px;color:var(--accent);font-weight:600;font-size:.95rem;
   }
@@ -149,7 +148,7 @@
 <header id="site-header"></header>
 
 <section class="jornada-hero">
-  <div class="container">
+  <div class="container container-wide">
     <p class="eyebrow">guia</p>
     <h1>Primeiros Passos no Bitcoin</h1>
     <p class="lead">O caminho que eu seguiria se estivesse começando hoje.</p>
@@ -166,9 +165,9 @@
 </section>
 
 <section class="passo" id="passo-1">
-  <div class="container">
+  <div class="container container-wide">
     <h2><span class="passo-num">01 —</span> Compre um pouco. Aprenda na prática.</h2>
-    <p>Não tente acertar o momento perfeito. Nem quem vive de mercado consegue fazer isso de forma consistente.</p>
+    <p>Não tente acertar o momento perfeito. É raro até quem vive de mercado conseguir fazer isso com consistência.</p>
     <p>Compre uma quantidade pequena. O suficiente para aprender como tudo funciona, mas não o suficiente para tirar seu sono. R$100 bem investidos ensinam mais sobre Bitcoin do que horas de vídeo.</p>
     <p class="passo-sub">Escolha o caminho que faz mais sentido para você</p>
     <div class="cenarios">
@@ -178,7 +177,7 @@
           <img src="/assets/img/logos/binance.png" alt="" class="cenario-logo">
           <span>Binance</span>
         </div>
-        <p class="cenario-desc">Maior corretora do mundo, interface conhecida e menor atrito para começar.</p>
+        <p class="cenario-desc">Maior corretora do mundo e uma das formas mais simples de comprar Bitcoin pela primeira vez.</p>
         <button type="button" class="btn btn-primary" data-parceiro="Binance">Acessar</button>
       </div>
       <div class="cenario">
@@ -187,7 +186,7 @@
           <img src="/assets/img/logos/bingx.png" alt="" class="cenario-logo">
           <span>BingX</span>
         </div>
-        <p class="cenario-desc">Sem KYC obrigatório, PIX e desconto para quem acompanha o canal.</p>
+        <p class="cenario-desc">Sem KYC obrigatório, fácil de usar e com desconto exclusivo para quem acompanha o canal.</p>
         <button type="button" class="btn btn-primary" data-parceiro="BingX">Acessar</button>
       </div>
     </div>
@@ -196,11 +195,11 @@
 </section>
 
 <section class="passo passo--destaque" id="passo-2">
-  <div class="container">
+  <div class="container container-wide">
     <h2><span class="passo-num">02 —</span> Entenda os ciclos do Bitcoin.</h2>
     <p>Se você lembrar de uma coisa só depois de ler esta página, que seja essa.</p>
     <p>O mercado muda. As notícias mudam. O preço muda. O que normalmente machuca o investidor é mudar de estratégia toda vez que isso acontece.</p>
-    <p>Bitcoin se move em ciclos. Isso já aconteceu mais de uma vez. E dá para observar isso em dados históricos, não apenas em opiniões.</p>
+    <p>Bitcoin já passou por ciclos de alta e queda mais de uma vez. É possível observar esse comportamento nos dados históricos.</p>
     <div class="ciclos-preview">
       <svg viewBox="0 0 1040 210" preserveAspectRatio="none" aria-hidden="true">
         <g stroke="#1F2634" stroke-width="1">
@@ -220,9 +219,9 @@
 </section>
 
 <section class="passo" id="passo-3">
-  <div class="container">
+  <div class="container container-wide">
     <h2><span class="passo-num">03 —</span> Faça hold. Não tente adivinhar o mercado.</h2>
-    <p>Depois que você entende os ciclos, a próxima tentação é tentar prever topo e fundo. Eu não conheço ninguém que consiga fazer isso de forma consistente. Conheço muita gente que tentou.</p>
+    <p>Depois que você entende os ciclos, a próxima tentação é tentar prever topo e fundo. É muito raro ver alguém conseguir fazer isso de forma consistente. Conheço muita gente que tentou.</p>
     <p>O que historicamente funciona melhor para quem não vive de mercado é simples: comprar aos poucos e manter a estratégia.</p>
     <div class="tool-card">
       <p class="tool-label">Calculadora DCA</p>
@@ -237,10 +236,10 @@
 </section>
 
 <section class="passo" id="passo-4">
-  <div class="container">
+  <div class="container container-wide">
     <h2><span class="passo-num">04 —</span> Aprenda autocustódia.</h2>
     <p class="passo-sub">Not your keys, not your coins</p>
-    <p>Durante anos eu deixei Bitcoin em corretoras e nunca tive problema. Em 2022, durante a crise da FTX, retirei meus fundos quando os rumores começaram a crescer. Poucos dias depois a corretora quebrou. Foi quando entendi na prática o significado de "Not your keys, not your coins".</p>
+    <p>Durante anos eu deixei Bitcoin em corretoras e nunca tive problema. Em 2022, durante a crise da FTX, retirei meus fundos quando os rumores começaram a crescer. Poucos dias depois a corretora quebrou. Foi aí que entendi, na prática, o que significa "Not your keys, not your coins".</p>
     <div class="depoimento">
       <blockquote>“Uso Trezor desde 2021. Já utilizei Ledger e SecuX antes. Hoje prefiro Trezor.”</blockquote>
       <cite>— Caio Garé</cite>
@@ -254,9 +253,9 @@
 </section>
 
 <section class="passo" id="passo-5">
-  <div class="container">
-    <h2><span class="passo-num">05 —</span> Compre com mais privacidade.</h2>
-    <p>Esse é um passo opcional. Não é o primeiro passo. Faz sentido para quem já entende como Bitcoin funciona e deseja reduzir a exposição de dados durante a compra.</p>
+  <div class="container container-wide">
+    <h2><span class="passo-num">05 —</span> Automatize seus aportes.</h2>
+    <p>Depois de aprender a usar sua própria carteira, você pode automatizar suas compras e receber Bitcoin diretamente nela.</p>
     <div class="passo-acao">
       <img src="/assets/img/logos/fort-exchange.png" alt="">
       <span>Fort Exchange</span>
@@ -266,9 +265,9 @@
 </section>
 
 <section class="passo" id="passo-6">
-  <div class="container">
+  <div class="container container-wide">
     <h2><span class="passo-num">06 —</span> Organize seus impostos.</h2>
-    <p>Bitcoin não escapa da Receita. Declarar corretamente evita dor de cabeça no futuro. Vale tanto para quem realizou lucro quanto para quem apenas mantém posição.</p>
+    <p>Bitcoin também entra na declaração do Imposto de Renda, assim como qualquer outro investimento. Manter isso organizado desde o início evita dor de cabeça mais na frente — vale tanto para quem já vendeu com lucro quanto para quem só está segurando.</p>
     <div class="passo-acao">
       <img src="/assets/img/logos/declare-cripto.png" alt="">
       <span>Declare Cripto</span>
@@ -278,9 +277,9 @@
 </section>
 
 <section class="passo" id="passo-7">
-  <div class="container">
+  <div class="container container-wide">
     <h2><span class="passo-num">07 —</span> Use Bitcoin no dia a dia.</h2>
-    <p>A maioria das pessoas descobre o Bitcoin como investimento. Com o tempo, algumas descobrem que também podem utilizá-lo. Hoje existem soluções que permitem gastar Bitcoin ou stablecoins sem precisar converter manualmente para reais toda vez.</p>
+    <p>A maioria das pessoas descobre o Bitcoin como investimento. Com o tempo, algumas descobrem que dá pra gastar também, não só guardar. Hoje dá pra gastar Bitcoin ou stablecoins direto, sem precisar converter manualmente para reais toda vez.</p>
     <div class="passo-acao">
       <img src="/assets/img/logos/redotpay.png" alt="">
       <span>RedotPay</span>
@@ -290,14 +289,14 @@
 </section>
 
 <section class="fechamento">
-  <div class="container">
+  <div class="container container-wide">
     <h2>Você chegou ao fim dos 7 passos.</h2>
     <ul class="checklist-final">
       <li>Compre um pouco</li>
       <li>Entenda os ciclos</li>
       <li>Faça hold</li>
       <li>Aprenda autocustódia</li>
-      <li>Compre com mais privacidade</li>
+      <li>Automatize seus aportes</li>
       <li>Organize seus impostos</li>
       <li>Use Bitcoin no dia a dia</li>
     </ul>
@@ -308,7 +307,7 @@
 </section>
 
 <section class="apendice" id="apendice">
-  <div class="container">
+  <div class="container container-wide">
     <h2>Outras corretoras</h2>
     <p style="font-size:.9rem;color:var(--text-tertiary);max-width:520px;">Já comprei Bitcoin antes e quero comparar outras opções.</p>
     <div class="apendice-lista">
