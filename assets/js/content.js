@@ -108,10 +108,9 @@ const SITE = {
             categoria: "Exchange",
             descricao: "Exchange que utilizo para compra de Bitcoin via PIX, com 10% de desconto nas taxas para a comunidade.",
             desconto: "10%",
-            url: "https://bingxdao.com/partner/caiogare1/",
+            url: "https://bingxdao.com/invite/4W8C6MCE/",
             idClique: "bingx",
             logo: "/assets/img/logos/bingx.png",
-            destaque: true,
           },
           {
             nome: "Fort Exchange",

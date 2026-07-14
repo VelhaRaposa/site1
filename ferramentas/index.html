@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ferramentas para Bitcoin — Caio Garé</title>
+<title>Primeiros Passos no Bitcoin | Caio Garé</title>
 <!-- Favicons — Caio Garé -->
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -12,69 +12,312 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#0B2138">
-<meta name="description" content="Corretoras, carteiras e serviços que Caio Garé utiliza ou recomenda para comprar, guardar, declarar e usar Bitcoin no dia a dia.">
+<meta name="description" content="O caminho que eu seguiria se estivesse começando hoje: comprar, entender os ciclos, fazer hold, guardar com segurança e declarar certo. Um guia em 7 passos, direto ao ponto.">
 <link rel="canonical" href="https://caiogare.com.br/ferramentas/">
-<meta property="og:title" content="Ferramentas para Bitcoin — Caio Garé">
-<meta property="og:description" content="Corretoras, carteiras e serviços que Caio Garé utiliza ou recomenda para comprar, guardar, declarar e usar Bitcoin no dia a dia.">
+<meta property="og:title" content="Primeiros Passos no Bitcoin | Caio Garé">
+<meta property="og:description" content="O caminho que eu seguiria se estivesse começando hoje: comprar, entender os ciclos, fazer hold, guardar com segurança e declarar certo.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://caiogare.com.br/ferramentas/">
 <meta property="og:image" content="https://caiogare.com.br/assets/img/perfil.jpg">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ferramentas para Bitcoin — Caio Garé">
-<meta name="twitter:description" content="Corretoras, carteiras e serviços que Caio Garé utiliza ou recomenda para comprar, guardar, declarar e usar Bitcoin no dia a dia.">
+<meta name="twitter:title" content="Primeiros Passos no Bitcoin | Caio Garé">
+<meta name="twitter:description" content="O caminho que eu seguiria se estivesse começando hoje: comprar, entender os ciclos, fazer hold, guardar com segurança e declarar certo.">
 <meta name="twitter:image" content="https://caiogare.com.br/assets/img/perfil.jpg">
 <link rel="stylesheet" href="/assets/css/style.css">
+<style>
+  /* landing page educativa — jornada de 7 passos. Nada de grid de cards:
+     cada passo é texto curto + 1 elemento visual + 1 ação, na ordem
+     ensino -> execução. Ferramentas próprias (ciclos/DCA/comparador)
+     recebem mais peso visual que qualquer parceiro — é a regra central
+     do redesenho: o site que ensina, não o site que vende afiliados. */
+  .jornada-hero{padding:36px 0 28px;border-bottom:1px solid var(--border);}
+  .jornada-hero .lead{margin-bottom:14px;}
+  .jornada-hero p{max-width:640px;}
+  .jornada-meta{
+    display:flex;gap:16px;align-items:center;flex-wrap:wrap;
+    font-family:var(--font-mono);font-size:.78rem;color:var(--text-tertiary);
+    margin-top:18px;
+  }
+  .jornada-comecar{margin-top:20px;}
+
+  /* header é sticky (66px) — sem isso, qualquer salto de âncora ("Começar",
+     "ver outras corretoras") esconde o título do passo atrás do header. */
+  .passo, .apendice{scroll-margin-top:84px;padding:32px 0;border-top:1px solid var(--border);}
+  .passo .container{max-width:var(--max-w);}
+  .passo h2{font-size:1.5rem;margin-bottom:.55em;}
+  .passo-num{color:var(--accent);font-family:var(--font-mono);}
+  .passo p{max-width:640px;}
+  .passo-sub{
+    font-family:var(--font-mono);font-size:.78rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--text-tertiary);margin:0 0 .8em;
+  }
+  @media (max-width:640px){.passo{padding:24px 0;}}
+
+  /* passo 1 — dois cenários lado a lado, peso visual idêntico (sem
+     medalha, sem "recomendado") — a pessoa escolhe um caminho, não um
+     produto vencedor. */
+  .cenarios{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;max-width:720px;}
+  @media (max-width:640px){.cenarios{grid-template-columns:1fr;}}
+  .cenario{
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:20px;display:flex;flex-direction:column;
+  }
+  .cenario-tag{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--text-tertiary);margin:0 0 .8em;
+  }
+  .cenario-parceiro{display:flex;align-items:center;gap:9px;margin-bottom:.6em;}
+  .cenario-logo{width:26px;height:26px;object-fit:contain;flex-shrink:0;}
+  .cenario-parceiro span{font-family:var(--font-display);font-weight:600;font-size:1.05rem;color:var(--text-primary);}
+  .cenario-desc{font-size:.92rem;color:var(--text-secondary);flex-grow:1;margin-bottom:1em;}
+  .passo-link-secundario{margin-top:14px;font-size:.88rem;}
+  .passo-link-secundario a{color:var(--text-tertiary);border-bottom:1px solid var(--border-strong);}
+  .passo-link-secundario a:hover{color:var(--accent);border-color:var(--accent);}
+
+  /* passo 2 — o protagonista da página. Tratamento visual mais forte
+     que qualquer outro passo ou parceiro: borda de acento + preview
+     real do gráfico embutido, não um botão. */
+  .passo--destaque{border-top-color:var(--accent);background:linear-gradient(180deg, var(--accent-soft), transparent 40%);}
+  .ciclos-preview{
+    margin-top:20px;max-width:760px;
+    background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--radius-lg);
+    padding:20px 20px 18px;
+  }
+  .ciclos-preview svg{width:100%;height:160px;display:block;}
+  @media (max-width:640px){.ciclos-preview svg{height:110px;}}
+  .ciclos-preview-cta{
+    display:inline-block;margin-top:14px;color:var(--accent);font-weight:600;font-size:.95rem;
+  }
+
+  /* passo 3 — ferramentas próprias em destaque (mais peso que um
+     parceiro), mas abaixo do protagonista do passo 2. */
+  .tool-card{
+    margin-top:18px;max-width:640px;
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:18px 20px;
+  }
+  .tool-card + .tool-card{margin-top:12px;}
+  .tool-card .tool-label{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--text-tertiary);margin-bottom:.5em;
+  }
+  .tool-card a.tool-cta{color:var(--accent);font-weight:600;font-size:1rem;}
+
+  /* passo 4 — depoimento pessoal, formato de citação, não card padrão */
+  .depoimento{
+    margin-top:20px;max-width:640px;
+    border-left:3px solid var(--accent);padding:4px 0 4px 20px;
+  }
+  .depoimento blockquote{
+    margin:0 0 .6em;font-family:var(--font-display);font-size:1.15rem;font-weight:500;
+    color:var(--text-primary);font-style:normal;line-height:1.4;
+  }
+  .depoimento cite{font-style:normal;font-size:.85rem;color:var(--text-tertiary);}
+  .depoimento-parceiro{display:flex;align-items:center;gap:10px;margin-top:18px;}
+  .depoimento-parceiro img{width:26px;height:26px;object-fit:contain;}
+  .depoimento-parceiro span{font-weight:600;}
+
+  /* passos 5-7 — mesmo padrão simples: texto + parceiro em linha,
+     sem card, sem logo grande — coadjuvante mesmo. */
+  .passo-acao{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap;}
+  .passo-acao img{width:24px;height:24px;object-fit:contain;flex-shrink:0;}
+  .passo-acao span{font-weight:600;color:var(--text-primary);}
+
+  /* fechamento */
+  .fechamento{padding:36px 0;border-top:1px solid var(--border);}
+  .checklist-final{list-style:none;margin:18px 0;padding:0;display:flex;flex-direction:column;gap:8px;max-width:420px;}
+  .checklist-final li{display:flex;align-items:center;gap:10px;font-size:.95rem;color:var(--text-secondary);}
+  .checklist-final li::before{content:"✓";color:var(--accent);font-weight:700;}
+  .fechamento p{max-width:640px;}
+
+  /* apêndice — deliberadamente sem destaque, sem storytelling */
+  .apendice{padding:28px 0 36px;border-top:1px solid var(--border);}
+  .apendice h2{font-size:1.05rem;color:var(--text-tertiary);margin-bottom:.3em;}
+  .apendice-lista{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+  .apendice-item{
+    display:flex;align-items:center;gap:8px;
+    background:var(--bg-card);border:1px solid var(--border);border-radius:20px;
+    padding:8px 14px 8px 10px;font-size:.85rem;
+  }
+  .apendice-item img{width:18px;height:18px;object-fit:contain;}
+  .apendice-item button{background:none;border:none;color:var(--accent);font-size:.85rem;font-weight:600;cursor:pointer;padding:0;margin-left:4px;}
+
+  .disclaimer-box{max-width:640px;}
+</style>
 </head>
 <body>
 <header id="site-header"></header>
 
-<section style="padding-top:40px;">
-  <div class="container container-wide">
-    <p class="eyebrow">recursos</p>
-    <h1>Guia Bitcoin</h1>
-    <p class="lead">Corretoras, carteiras e serviços que utilizo ou recomendo para comprar, guardar e administrar Bitcoin.</p>
-  </div>
-</section>
-
-<section class="section-border-top">
-  <div class="container container-wide">
-    <div class="section-head">
-      <h2>Para começar</h2>
+<section class="jornada-hero">
+  <div class="container">
+    <p class="eyebrow">guia</p>
+    <h1>Primeiros Passos no Bitcoin</h1>
+    <p class="lead">O caminho que eu seguiria se estivesse começando hoje.</p>
+    <p>Bitcoin parece complicado no começo. Mas a maior parte dos erros não acontece por falta de conhecimento técnico. Acontece porque as pessoas pulam etapas. Esta página mostra a sequência que eu seguiria para comprar, guardar e entender Bitcoin sem depender de terceiros.</p>
+    <div class="jornada-meta">
+      <span>Leitura: 5 minutos</span>
+      <span>·</span>
+      <span>7 passos</span>
     </div>
-    <div class="grid grid-2" id="secao-comecando"></div>
-  </div>
-</section>
-
-<section class="section-border-top">
-  <div class="container container-wide">
-    <div class="section-head">
-      <h2>Guardar Bitcoin</h2>
+    <div class="jornada-comecar">
+      <a href="#passo-1" class="btn btn-primary">Começar ↓</a>
     </div>
-    <div class="grid grid-2" id="secao-guardar"></div>
   </div>
 </section>
 
-<section class="section-border-top">
-  <div class="container container-wide">
-    <div class="section-head">
-      <h2>Serviços complementares</h2>
+<section class="passo" id="passo-1">
+  <div class="container">
+    <h2><span class="passo-num">01 —</span> Compre um pouco. Aprenda na prática.</h2>
+    <p>Não tente acertar o momento perfeito. Nem quem vive de mercado consegue fazer isso de forma consistente.</p>
+    <p>Compre uma quantidade pequena. O suficiente para aprender como tudo funciona, mas não o suficiente para tirar seu sono. R$100 bem investidos ensinam mais sobre Bitcoin do que horas de vídeo.</p>
+    <p class="passo-sub">Escolha o caminho que faz mais sentido para você</p>
+    <div class="cenarios">
+      <div class="cenario">
+        <p class="cenario-tag">Quero a opção mais simples</p>
+        <div class="cenario-parceiro">
+          <img src="/assets/img/logos/binance.png" alt="" class="cenario-logo">
+          <span>Binance</span>
+        </div>
+        <p class="cenario-desc">Maior corretora do mundo, interface conhecida e menor atrito para começar.</p>
+        <button type="button" class="btn btn-primary" data-parceiro="Binance">Acessar</button>
+      </div>
+      <div class="cenario">
+        <p class="cenario-tag">Quero mais privacidade</p>
+        <div class="cenario-parceiro">
+          <img src="/assets/img/logos/bingx.png" alt="" class="cenario-logo">
+          <span>BingX</span>
+        </div>
+        <p class="cenario-desc">Sem KYC obrigatório, PIX e desconto para quem acompanha o canal.</p>
+        <button type="button" class="btn btn-primary" data-parceiro="BingX">Acessar</button>
+      </div>
     </div>
-    <div class="grid grid-2" id="secao-servicos"></div>
+    <p class="passo-link-secundario"><a href="#apendice">Já comprei antes e quero comparar outras corretoras →</a></p>
   </div>
 </section>
 
-<section class="section-border-top">
-  <div class="container container-wide">
-    <div class="section-head">
-      <h2>Outras exchanges</h2>
+<section class="passo passo--destaque" id="passo-2">
+  <div class="container">
+    <h2><span class="passo-num">02 —</span> Entenda os ciclos do Bitcoin.</h2>
+    <p>Se você lembrar de uma coisa só depois de ler esta página, que seja essa.</p>
+    <p>O mercado muda. As notícias mudam. O preço muda. O que normalmente machuca o investidor é mudar de estratégia toda vez que isso acontece.</p>
+    <p>Bitcoin se move em ciclos. Isso já aconteceu mais de uma vez. E dá para observar isso em dados históricos, não apenas em opiniões.</p>
+    <div class="ciclos-preview">
+      <svg viewBox="0 0 1040 210" preserveAspectRatio="none" aria-hidden="true">
+        <g stroke="#1F2634" stroke-width="1">
+          <line x1="0" y1="0" x2="1040" y2="0"/>
+          <line x1="0" y1="70" x2="1040" y2="70"/>
+          <line x1="0" y1="140" x2="1040" y2="140"/>
+          <line x1="0" y1="210" x2="1040" y2="210"/>
+        </g>
+        <polyline points="0.0,210.0 9.7,208.7 19.5,202.9 29.2,203.1 38.9,205.2 48.6,205.4 58.4,206.6 68.1,205.2 77.8,203.6 87.6,202.7 97.3,201.5 107.0,202.1 116.7,193.9 126.5,193.8 136.2,192.8 145.9,189.5 155.7,177.3 165.4,177.8 175.1,179.5 184.8,175.3 194.6,167.3 204.3,166.9 214.0,170.0 223.8,171.4 233.5,167.9 243.2,167.8 252.9,169.2 262.7,169.3 272.4,169.2 282.1,170.5 291.9,176.6 301.6,176.9 311.3,178.0 321.0,173.2 330.8,175.2 340.5,179.8 350.2,180.8 360.0,181.7 369.7,182.0 379.4,181.9 389.1,177.4 398.9,175.6 408.6,172.3 418.3,170.0 428.1,172.0 437.8,176.0 447.5,178.6 457.2,186.6 467.0,185.7 476.7,181.3 486.4,182.0 496.2,175.0 505.9,172.2 515.6,171.3 525.4,172.6 535.1,171.3 544.8,172.8 554.5,173.7 564.3,172.5 574.0,173.5 583.7,167.6 593.5,165.6 603.2,163.6 612.9,166.4 622.6,169.7 632.4,167.5 642.1,168.2 651.8,168.6 661.6,166.4 671.3,161.5 681.0,155.6 690.7,154.7 700.5,149.3 710.2,148.6 719.9,148.1 729.7,140.0 739.4,131.2 749.1,124.4 758.8,130.9 768.6,125.7 778.3,118.1 788.0,116.9 797.8,116.9 807.5,112.4 817.2,115.2 826.9,111.0 836.7,108.3 846.4,116.0 856.1,114.0 865.9,116.2 875.6,124.8 885.3,124.4 895.0,124.5 904.8,129.5 914.5,128.5 924.2,130.5 934.0,129.6 943.7,124.3 953.4,120.1 963.1,116.6 972.9,116.9 982.6,119.6 992.3,123.1 1002.1,117.4 1011.8,111.4 1021.5,108.6 1031.2,109.2 1040.0,105.3" fill="none" stroke="#E1615B" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        <polyline points="0.0,210.0 9.9,206.5 19.8,206.6 29.7,207.0 39.6,207.6 49.5,206.4 59.4,199.5 69.3,195.5 79.2,196.6 89.1,194.3 99.0,196.4 109.0,200.9 118.9,190.2 128.8,189.9 138.7,189.5 148.6,188.9 158.5,188.5 168.4,190.4 178.3,191.3 188.2,190.2 198.1,191.8 208.0,192.0 217.9,187.5 227.8,187.4 237.7,187.8 247.6,188.4 257.5,188.5 267.4,191.6 277.3,192.3 287.2,192.8 297.1,191.7 307.0,192.2 317.0,190.0 326.9,189.3 336.8,183.2 346.7,182.3 356.6,179.7 366.5,179.8 376.4,174.6 386.3,176.3 396.2,174.9 406.1,174.5 416.0,176.4 425.9,177.8 435.8,175.4 445.7,170.5 455.6,169.8 465.5,159.7 475.4,158.2 485.3,160.3 495.2,160.9 505.1,161.9 515.0,160.7 525.0,162.5 534.9,162.5 544.8,159.9 554.7,160.0 564.6,159.8 574.5,161.8 584.4,163.0 594.3,165.3 604.2,160.1 614.1,161.3 624.0,164.9 633.9,163.5 643.8,164.7 653.7,165.5 663.6,162.4 673.5,162.3 683.4,164.0 693.3,159.4 703.2,157.8 713.1,155.8 723.0,149.5 733.0,147.7 742.9,147.7 752.8,147.7 762.7,149.1 772.6,148.6 782.5,145.4 792.4,146.4 802.3,148.0 812.2,148.3 822.1,152.5 832.0,154.1 841.9,151.6 851.8,153.3 861.7,156.0 871.6,152.5 881.5,148.6 891.4,145.8 901.3,144.7 911.2,144.3 921.1,145.0 931.0,145.3 941.0,144.5 950.9,144.1 960.8,140.9 970.7,140.8 980.6,142.1 990.5,141.4 1000.4,143.1 1010.3,143.4 1020.2,142.0 1030.1,143.9 1040.0,138.9" fill="none" stroke="#9B7FD4" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        <polyline points="0.0,210.0 9.7,195.4 19.5,194.8 29.2,197.1 39.0,195.1 48.7,190.5 58.4,189.1 68.2,193.8 77.9,192.6 87.6,197.0 97.4,195.1 107.1,194.6 116.9,195.1 126.6,194.9 136.3,196.7 146.1,196.0 155.8,193.6 165.5,192.5 175.3,185.8 185.0,189.6 194.8,189.2 204.5,190.4 214.2,195.5 224.0,195.9 233.7,194.7 243.4,196.0 253.2,195.1 262.9,193.7 272.7,190.5 282.4,183.9 292.1,178.9 301.9,184.2 311.6,179.8 321.3,175.9 331.1,172.4 340.8,174.5 350.6,173.1 360.3,178.5 370.0,179.0 379.8,179.4 389.5,176.0 399.3,174.7 409.0,176.2 418.7,176.6 428.5,175.4 438.2,175.6 447.9,175.0 457.7,173.6 467.4,172.6 477.2,173.0 486.9,171.8 496.6,164.4 506.4,155.3 516.1,161.9 525.8,159.6 535.6,160.2 545.3,160.7 555.1,165.1 564.8,165.5 574.5,164.9 584.3,163.3 594.0,163.0 603.7,163.6 613.5,163.1 623.2,161.4 633.0,161.1 642.7,159.1 652.4,158.3 662.2,156.4 671.9,155.4 681.6,154.7 691.4,149.3 701.1,145.8 710.9,153.5 720.6,149.0 730.3,146.8 740.1,145.8 749.8,142.2 759.6,137.7 769.3,138.9 779.0,145.2 788.8,143.6 798.5,139.7 808.2,139.1 818.0,133.7 827.7,128.4 837.5,121.1 847.2,116.4 856.9,109.5 866.7,113.1 876.4,116.3 886.1,117.9 895.9,112.9 905.6,110.6 915.4,104.7 925.1,98.8 934.8,94.7 944.6,96.6 954.3,100.2 964.0,97.9 973.8,93.3 983.5,87.3 993.3,84.8 1003.0,78.2 1012.7,76.7 1022.5,68.5 1032.2,52.6 1040.0,45.2" fill="none" stroke="#4CAF7D" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        <polyline points="0.0,210.0 9.8,205.3 19.6,201.5 29.4,197.5 39.1,192.2 48.9,189.2 58.7,180.8 68.5,171.7 78.3,171.7 88.1,175.0 97.8,179.8 107.6,178.9 117.4,179.3 127.2,187.3 137.0,183.2 146.8,183.4 156.6,183.2 166.3,182.2 176.1,185.5 185.9,183.3 195.7,185.0 205.5,183.8 215.3,182.3 225.1,183.7 234.8,183.0 244.6,183.4 254.4,182.8 264.2,182.6 274.0,181.5 283.8,180.0 293.5,174.9 303.3,175.1 313.1,173.6 322.9,172.4 332.7,165.4 342.5,163.3 352.3,163.0 362.0,156.3 371.8,154.2 381.6,158.8 391.4,154.2 401.2,158.5 411.0,156.6 420.8,154.1 430.5,153.3 440.3,152.5 450.1,153.7 459.9,154.0 469.7,154.5 479.5,157.2 489.2,157.3 499.0,156.5 508.8,154.6 518.6,152.4 528.4,152.0 538.2,149.9 548.0,150.2 557.7,150.2 567.5,149.9 577.3,149.8 587.1,148.0 596.9,142.0 606.7,138.9 616.5,135.1 626.2,129.7 636.0,126.6 645.8,122.6 655.6,116.5 665.4,107.0 675.2,104.4 684.9,92.4 694.7,81.0 704.5,61.1 714.3,95.3 724.1,74.2 733.9,69.8 743.7,78.4 753.4,76.7 763.2,75.6 773.0,73.5 782.8,75.6 792.6,80.3 802.4,81.6 812.2,81.3 821.9,87.0 831.7,91.4 841.5,82.8 851.3,85.1 861.1,81.8 870.9,80.1 880.6,80.1 890.4,81.3 900.2,78.5 910.0,73.4 919.8,76.0 929.6,74.4 939.4,75.4 949.1,74.4 958.9,75.1 968.7,72.1 978.5,62.4 988.3,57.7 998.1,54.1 1007.8,40.5 1017.6,18.4 1027.4,11.3 1037.2,2.9 1040.0,0.0" fill="none" stroke="#3E7CB1" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      <a href="/comparador-ciclos/" class="ciclos-preview-cta">Ver onde estamos no ciclo atual →</a>
     </div>
-    <div class="grid grid-2" id="secao-outras"></div>
   </div>
 </section>
 
-<section style="padding:8px 0 20px;">
-  <div class="container container-wide">
-    <div class="disclaimer-box" style="max-width:640px;margin-top:0;">
+<section class="passo" id="passo-3">
+  <div class="container">
+    <h2><span class="passo-num">03 —</span> Faça hold. Não tente adivinhar o mercado.</h2>
+    <p>Depois que você entende os ciclos, a próxima tentação é tentar prever topo e fundo. Eu não conheço ninguém que consiga fazer isso de forma consistente. Conheço muita gente que tentou.</p>
+    <p>O que historicamente funciona melhor para quem não vive de mercado é simples: comprar aos poucos e manter a estratégia.</p>
+    <div class="tool-card">
+      <p class="tool-label">Calculadora DCA</p>
+      <a href="/calculadora/" class="tool-cta">Simule seu próprio aporte →</a>
+    </div>
+    <div class="tool-card">
+      <p class="tool-label">Comparador de Investimentos</p>
+      <p style="margin-bottom:.6em;">Quer comparar Bitcoin com CDI, Ibovespa ou S&amp;P 500 no mesmo período?</p>
+      <a href="/comparador/" class="tool-cta">Abrir comparador →</a>
+    </div>
+  </div>
+</section>
+
+<section class="passo" id="passo-4">
+  <div class="container">
+    <h2><span class="passo-num">04 —</span> Aprenda autocustódia.</h2>
+    <p class="passo-sub">Not your keys, not your coins</p>
+    <p>Durante anos eu deixei Bitcoin em corretoras e nunca tive problema. Em 2022, durante a crise da FTX, retirei meus fundos quando os rumores começaram a crescer. Poucos dias depois a corretora quebrou. Foi quando entendi na prática o significado de "Not your keys, not your coins".</p>
+    <div class="depoimento">
+      <blockquote>“Uso Trezor desde 2021. Já utilizei Ledger e SecuX antes. Hoje prefiro Trezor.”</blockquote>
+      <cite>— Caio Garé</cite>
+      <div class="depoimento-parceiro">
+        <img src="/assets/img/logos/kriptobr.png" alt="">
+        <span>KriptoBR</span>
+        <button type="button" class="btn btn-ghost" data-parceiro="KriptoBR">Acessar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="passo" id="passo-5">
+  <div class="container">
+    <h2><span class="passo-num">05 —</span> Compre com mais privacidade.</h2>
+    <p>Esse é um passo opcional. Não é o primeiro passo. Faz sentido para quem já entende como Bitcoin funciona e deseja reduzir a exposição de dados durante a compra.</p>
+    <div class="passo-acao">
+      <img src="/assets/img/logos/fort-exchange.png" alt="">
+      <span>Fort Exchange</span>
+      <button type="button" class="btn btn-ghost" data-parceiro="Fort Exchange">Acessar</button>
+    </div>
+  </div>
+</section>
+
+<section class="passo" id="passo-6">
+  <div class="container">
+    <h2><span class="passo-num">06 —</span> Organize seus impostos.</h2>
+    <p>Bitcoin não escapa da Receita. Declarar corretamente evita dor de cabeça no futuro. Vale tanto para quem realizou lucro quanto para quem apenas mantém posição.</p>
+    <div class="passo-acao">
+      <img src="/assets/img/logos/declare-cripto.png" alt="">
+      <span>Declare Cripto</span>
+      <button type="button" class="btn btn-ghost" data-parceiro="Declare Cripto">Acessar</button>
+    </div>
+  </div>
+</section>
+
+<section class="passo" id="passo-7">
+  <div class="container">
+    <h2><span class="passo-num">07 —</span> Use Bitcoin no dia a dia.</h2>
+    <p>A maioria das pessoas descobre o Bitcoin como investimento. Com o tempo, algumas descobrem que também podem utilizá-lo. Hoje existem soluções que permitem gastar Bitcoin ou stablecoins sem precisar converter manualmente para reais toda vez.</p>
+    <div class="passo-acao">
+      <img src="/assets/img/logos/redotpay.png" alt="">
+      <span>RedotPay</span>
+      <button type="button" class="btn btn-ghost" data-parceiro="RedotPay">Acessar</button>
+    </div>
+  </div>
+</section>
+
+<section class="fechamento">
+  <div class="container">
+    <h2>Você chegou ao fim dos 7 passos.</h2>
+    <ul class="checklist-final">
+      <li>Compre um pouco</li>
+      <li>Entenda os ciclos</li>
+      <li>Faça hold</li>
+      <li>Aprenda autocustódia</li>
+      <li>Compre com mais privacidade</li>
+      <li>Organize seus impostos</li>
+      <li>Use Bitcoin no dia a dia</li>
+    </ul>
+    <p>Se você chegou até aqui, já está na frente da maioria. Porque a maior parte dos erros acontece quando alguém tenta pular etapas.</p>
+    <p>Foi o caminho que eu segui. E é o caminho que eu seguiria novamente se estivesse começando hoje.</p>
+    <p><a href="/contato/" class="btn btn-ghost">Ainda tem dúvidas? Fale comigo →</a></p>
+  </div>
+</section>
+
+<section class="apendice" id="apendice">
+  <div class="container">
+    <h2>Outras corretoras</h2>
+    <p style="font-size:.9rem;color:var(--text-tertiary);max-width:520px;">Já comprei Bitcoin antes e quero comparar outras opções.</p>
+    <div class="apendice-lista">
+      <span class="apendice-item"><img src="/assets/img/logos/coinex.png" alt="">CoinEx<button type="button" data-parceiro="CoinEx">Acessar</button></span>
+      <span class="apendice-item"><img src="/assets/img/logos/bitget.png" alt="">Bitget<button type="button" data-parceiro="Bitget">Acessar</button></span>
+      <span class="apendice-item"><img src="/assets/img/logos/blofin.png" alt="">Blofin<button type="button" data-parceiro="Blofin">Acessar</button></span>
+      <span class="apendice-item"><img src="/assets/img/logos/bybit.png" alt="">Bybit<button type="button" data-parceiro="Bybit">Acessar</button></span>
+    </div>
+    <div class="disclaimer-box" style="margin-top:24px;">
       Alguns links desta página podem gerar comissão para o site sem custo adicional para você.
     </div>
   </div>
@@ -85,40 +328,17 @@
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/nav.js"></script>
 <script>
-function cardFerramenta(item) {
-  const botaoSecundario = item.urlSecundaria
-    ? `<button class="btn btn-ghost" style="flex:1;" onclick="trackPartnerClick('${item.idClique}-tutorial', '${item.urlSecundaria}')">${item.textoSecundario}</button>`
-    : "";
-  return `
-    <div class="card partner-card${item.destaque ? " partner-card--destaque" : ""}">
-      ${item.categoria ? `<span class="tag">${item.categoria}</span>` : ""}
-      <div class="partner-header">
-        ${item.logo ? `<img src="${item.logo}" alt="${item.nome}" class="partner-logo-img">` : ""}
-        <h3 style="margin:0;">${item.nome}</h3>
-      </div>
-      <p>${item.descricao}</p>
-      ${item.selo ? `<span class="selo">${item.selo}</span>` : ""}
-      <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="trackPartnerClick('${item.idClique}', '${item.url}')">Acessar</button>
-        ${botaoSecundario}
-      </div>
-    </div>
-  `;
-}
-
+// liga cada [data-parceiro] ao parceiro real em SITE.ferramentas.secoes (nome,
+// url, idClique) — mantém o mesmo evento/rastreio já usado em toda a página
+// (trackPartnerClick, GA4), sem duplicar URL/idClique aqui no HTML. Pra trocar
+// um link, edita só o content.js, como sempre.
 document.addEventListener("DOMContentLoaded", () => {
-  const secoes = SITE.ferramentas.secoes;
-
-  const mapa = {
-    "Para começar": "secao-comecando",
-    "Guardar Bitcoin": "secao-guardar",
-    "Serviços complementares": "secao-servicos",
-    "Outras plataformas": "secao-outras",
-  };
-  secoes.forEach(secao => {
-    const elId = mapa[secao.titulo];
-    const el = document.getElementById(elId);
-    if (el) el.innerHTML = secao.itens.map(cardFerramenta).join("");
+  const itens = SITE.ferramentas.secoes.flatMap(s => s.itens);
+  const porNome = new Map(itens.map(i => [i.nome, i]));
+  document.querySelectorAll("[data-parceiro]").forEach(el => {
+    const item = porNome.get(el.dataset.parceiro);
+    if (!item) return;
+    el.addEventListener("click", () => trackPartnerClick(item.idClique, item.url));
   });
 });
 </script>
