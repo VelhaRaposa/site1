@@ -237,9 +237,10 @@ alimentar essas listas com mais de 1 item. Ver `docs/roadmap-v2.md`.
 Mesmo padrão 100% local das outras ferramentas (sem API, sem backend) —
 única exceção é a captura de e-mail na Tela Ciclo Atual, que usa um
 formulário [Formspree](https://formspree.io) (mesmo serviço já usado no
-site). **Para ativar:** crie um formulário em formspree.io e troque
-`SEU_ID_AQUI` pelo ID gerado, em `quando-vender/index.html`, na linha
-`<form class="qvb-email-row" action="https://formspree.io/f/SEU_ID_AQUI" ...>`.
-No MVP, o envio do alerta em si (avisar quando o gatilho realmente
-disparar) ainda é manual — só a captura do e-mail já está pronta.
+site). **Já ativado** com o endpoint `https://formspree.io/f/mgogvrrw`
+em `quando-vender/index.html` — as submissões (e o e-mail de
+notificação) aparecem no dashboard da conta Formspree usada para criar
+esse formulário. No MVP, o envio do alerta em si (avisar quando o
+gatilho realmente disparar) ainda é manual — só a captura do e-mail já
+está pronta.
 
