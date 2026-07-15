@@ -213,11 +213,13 @@ revisão proposital, não pesquisa automática.
 Essa frase é a essência da próxima ferramenta em planejamento: um
 simulador de regras de realização parcial de lucro e rebalanceamento —
 sem prever topo, sem indicador proprietário, sem recomendação
-financeira. O usuário escolhe a regra (ex.: "vender X% a cada Y% acima
-do ATH anterior"); a ferramenta só simula o que essa regra teria feito
-nos 4 ciclos já congelados acima. Pesquisa de mercado, 23 regras
-candidatas, backtest real contra os dados deste repositório, e o
-critério de aceite de qualquer regra futura ("ela tiraria algo da mesa
-antes da queda de 2021 e antes da queda atual?") estão documentados em
-`docs/pesquisa-exit-strategy.md` e `docs/produto-quando-vender-bitcoin.md`.
+financeira. Em vez de o usuário escolher uma regra técnica, ele escolhe
+um perfil de investidor (Preservação, Equilíbrio ou Convicção) — cada
+perfil já é uma combinação fixa e documentada de regras testadas contra
+os 4 ciclos já congelados acima. Pesquisa de mercado, 23 regras
+candidatas, backtest real contra os dados deste repositório, os 3
+perfis e o critério de aceite de qualquer regra futura ("ela tiraria
+algo da mesa antes da queda de 2021 e antes da queda atual?") estão
+documentados em `docs/pesquisa-exit-strategy.md`,
+`docs/produto-quando-vender-bitcoin.md` e `docs/perfis-de-investidor.md`.
 

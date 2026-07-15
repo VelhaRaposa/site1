@@ -302,28 +302,37 @@ esgota em uma visita** continua grátis.
 
 ## 8. MVP — menor versão que já resolve o problema real (1 semana)
 
+> **Atualizado por `docs/perfis-de-investidor.md`:** o MVP abaixo foi
+> revisado depois de testar perfis de investidor (Preservação,
+> Equilíbrio, Convicção) em vez de uma única regra padrão. A escolha por
+> perfil é o diferencial de produto real — as primitivas de
+> implementação (recuperação de capital, piso por idade, bandas de
+> preço) são as mesmas, então o custo de construir os 3 perfis desde o
+> início é marginal frente a construir só 1 regra. Ver aquele documento
+> para os números completos.
+
 **Escopo:**
 - Input: BTC atual (ou valor + preço médio) — reaproveitando o mesmo
   padrão de input da Calculadora DCA já existente.
-- **Uma única regra pré-configurada por padrão**, mas com os parâmetros
-  editáveis: "vender X% a cada Y% acima do ATH do ciclo anterior" (a
-  regra B do backtest) — escolhida como padrão porque, entre as
-  testadas, foi a que mais protegeu no crash mais recente (2021→2022,
-  +$17.808) e continua disparando mesmo no ciclo atual, diferente da
-  regra por múltiplo fixo (D). Usar uma banda mais larga que os 25% do
-  teste (ex.: 40–50%) para não esgotar a posição cedo demais (ver §2.2).
+- **Escolha de 1 dos 3 perfis (Preservação / Equilíbrio / Convicção)**
+  como primeira pergunta, em vez de uma regra técnica — cada perfil já
+  é uma combinação fixa e documentada das regras testadas (ver
+  `docs/perfis-de-investidor.md`). O modo avançado (mexer nos
+  parâmetros de cada regra) fica atrás de um toggle, não é o padrão.
 - Backtest automático, sem seleção de datas manual, contra os 4 ciclos
   já congelados em `comparador-ciclos.js` — reaproveita 100% da
   metodologia e dos dados que já existem, sem nova fonte de verdade.
-- Output: 3 cards (patrimônio vs. HODL, capital recuperado, BTC
-  restante) + o gráfico de ciclo com os marcadores de venda sobrepostos.
+- Output: as 4 métricas de tranquilidade (meses até recuperar capital,
+  % exposto no topo, proteção no fundo seguinte, nº de eventos) + o
+  gráfico de ciclo com os marcadores de venda sobrepostos.
 - Tudo client-side, 100% local, mesmo padrão arquitetural das
   ferramentas atuais (sem API, sem backend).
 
 **Fora do MVP (fica para v2):**
-- Comparação simultânea de múltiplas regras.
+- Comparação simultânea dos 3 perfis lado a lado (v1 mostra 1 por vez,
+  com "veja os outros perfis" secundário).
 - Alertas/e-mail.
-- Regra híbrida com pesos customizáveis.
+- Perfil customizado com pesos próprios além dos 3 padrão.
 - Integração com patrimônio multi-ativo.
 - Conta de usuário / salvar cenário.
 - Card de compartilhamento em imagem (pode ser v1.1, é simples, mas não
