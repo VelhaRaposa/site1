@@ -205,7 +205,17 @@ realizado), e nosso critério (fundo→topo por preço) corresponde à
 segunda. Esta tabela está **congelada** — próximas mudanças exigem
 revisão proposital, não pesquisa automática.
 
-## 10. "Quando Vender Bitcoin?" — ferramenta em `/quando-vender/`
+## 10. "Quando Vender Bitcoin?" — ferramenta em `/quando-vender/` (despublicada, em revisão de produto)
+
+> **Status: fora do menu, fora do sitemap, com `noindex`.** A página foi
+> publicada, testada com usuário real e depois retirada de circulação
+> de propósito: no uso real, ela respondia "como uma regra teria se
+> saído nos ciclos passados do Bitcoin?" (prova/backtest) em vez de
+> "quando eu vendo Bitcoin?" (plano pessoal) — a pergunta que deveria
+> ser a principal virou secundária, e vice-versa. O código continua no
+> repositório; a reformulação da informação está em andamento antes de
+> republicar. Não remova o link deste README nem o arquivo até a
+> decisão de produto estar fechada.
 
 > "Eu não preciso vender o topo. Eu só não quero assistir mais uma queda
 > de 70% sem tirar nada da mesa."
