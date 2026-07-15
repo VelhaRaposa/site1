@@ -222,4 +222,8 @@ perfis e o critério de aceite de qualquer regra futura ("ela tiraria
 algo da mesa antes da queda de 2021 e antes da queda atual?") estão
 documentados em `docs/pesquisa-exit-strategy.md`,
 `docs/produto-quando-vender-bitcoin.md` e `docs/perfis-de-investidor.md`.
+A tela central do produto não é mais o backtest histórico — é o "Modo
+Ciclo Atual" (perfil, capital já recuperado, próximo gatilho, quanto
+falta), pensado para gerar recorrência de uso real em vez de uma
+calculadora de uso único; ver `docs/recorrencia-e-mvp-final.md`.
 
