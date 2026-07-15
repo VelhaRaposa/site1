@@ -225,5 +225,9 @@ documentados em `docs/pesquisa-exit-strategy.md`,
 A tela central do produto não é mais o backtest histórico — é o "Modo
 Ciclo Atual" (perfil, capital já recuperado, próximo gatilho, quanto
 falta), pensado para gerar recorrência de uso real em vez de uma
-calculadora de uso único; ver `docs/recorrencia-e-mvp-final.md`.
+calculadora de uso único; ver `docs/recorrencia-e-mvp-final.md`. A tese
+está aprovada — a especificação de interface (hero, headline, os 3
+perfis, onboarding, tela de resultado, tela Ciclo Atual, CTAs,
+hierarquia MVP/V1/V2 e o wireframe textual completo das duas telas
+principais) está em `docs/interface-quando-vender-bitcoin.md`.
 
