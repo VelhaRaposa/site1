@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quando Vender Bitcoin? Simulador de Regras de Realização de Lucro | Caio Garé</title>
+<!-- Favicons — Caio Garé -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0B2138">
+<meta name="description" content="Escolha o tipo de investidor que você é (Preservação, Equilíbrio ou Convicção) e veja a regra de realização de lucro que ele seguiria nos 4 ciclos reais do Bitcoin. Sem prever topo. Sem indicador complicado. Sem recomendação financeira.">
+<link rel="canonical" href="https://caiogare.com.br/quando-vender/">
+<meta property="og:title" content="Quando Vender Bitcoin? | Caio Garé">
+<meta property="og:description" content="Escolha o tipo de investidor que você é e veja a regra de realização de lucro que ele seguiria nos 4 ciclos reais do Bitcoin. Sem prever topo. Sem recomendação financeira.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://caiogare.com.br/quando-vender/">
+<meta property="og:image" content="https://caiogare.com.br/assets/img/quando-vender-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Quando Vender Bitcoin? | Caio Garé">
+<meta name="twitter:description" content="Escolha o tipo de investidor que você é e veja a regra de realização de lucro que ele seguiria nos 4 ciclos reais do Bitcoin.">
+<meta name="twitter:image" content="https://caiogare.com.br/assets/img/quando-vender-og.png">
+<link rel="stylesheet" href="/assets/css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Quando vender Bitcoin?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não existe um preço ou data certa — esta ferramenta não tenta prever o topo do ciclo. Em vez disso, ela ajuda a definir uma regra objetiva de realização parcial de lucro, escolhida antes da euforia do mercado, com base no tipo de investidor que você é."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Essa ferramenta dá recomendação de compra ou venda?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não. É um simulador educacional que mostra o que uma regra de realização parcial teria feito nos ciclos históricos do Bitcoin (2013, 2017, 2021 e 2025) e o que ela indicaria hoje, com base nos parâmetros que você escolhe. Não é recomendação de investimento."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "O que são os perfis Preservação, Equilíbrio e Convicção?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "São 3 combinações fixas e documentadas de regras de realização de lucro, cada uma com uma prioridade diferente: Preservação busca recuperar o capital investido o mais cedo possível; Equilíbrio busca recuperar capital mantendo a maior parte da posição; Convicção realiza o mínimo necessário para nunca ficar de mãos vazias, aceitando mais volatilidade."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  .grid-3 .card{display:flex;flex-direction:column;}
+  .perfil-card-frase{flex-grow:1;}
+  .perfil-card--ativo{border-color:var(--accent);background:linear-gradient(180deg, var(--accent-soft), transparent 60%);}
+
+  .qvb-chip{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-mono);font-size:.85rem;
+    padding:8px 16px;border:1px solid var(--border-strong);border-radius:20px;
+    color:var(--accent);margin-bottom:20px;
+  }
+
+  #qvb-erro:not(:empty){color:var(--red);font-size:.9rem;margin-bottom:16px;}
+
+  .qvb-nota{font-size:.85rem;color:var(--text-tertiary);margin-top:4px;}
+
+  table.qvb-tabela{width:100%;border-collapse:collapse;margin-top:12px;font-size:.92rem;}
+  table.qvb-tabela th, table.qvb-tabela td{
+    text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);
+  }
+  table.qvb-tabela th{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--text-tertiary);font-weight:500;
+  }
+  @media (max-width:640px){
+    table.qvb-tabela{font-size:.82rem;}
+    table.qvb-tabela th, table.qvb-tabela td{padding:8px 8px;}
+  }
+
+  .qvb-gatilho-card p{margin-bottom:.6em;font-size:.97rem;}
+  .qvb-gatilho-card p:last-child{margin-bottom:0;}
+
+  .qvb-email-card{background:var(--accent-soft);border-color:var(--accent);}
+  .qvb-email-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;}
+  .qvb-email-row input[type="email"]{flex:1;min-width:220px;margin-bottom:0;}
+  .qvb-email-row button{white-space:nowrap;}
+
+  .qvb-premium-teaser{
+    max-width:var(--max-w-article);font-size:.9rem;color:var(--text-tertiary);
+    padding:20px 0;border-top:1px solid var(--border);
+  }
+  .qvb-premium-teaser a{color:var(--accent);}
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+
+<section class="tool-hero">
+  <div class="container container-wide">
+    <p class="eyebrow">ferramenta gratuita</p>
+    <h1>Quando vender Bitcoin?</h1>
+    <p class="lead">Escolha o tipo de investidor que você é e veja a regra de realização de lucro que ele seguiria nos 4 ciclos reais do Bitcoin. Sem prever topo. Sem indicador complicado. Sem recomendação financeira.</p>
+  </div>
+</section>
+
+<section class="section-border-top" id="perfis">
+  <div class="container container-wide">
+    <div class="section-head">
+      <p class="eyebrow">que tipo de investidor você é?</p>
+      <h2>3 formas de tirar algo da mesa — nenhuma tenta acertar o topo</h2>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card" data-perfil-card="preservacao">
+        <div class="icon">🛡</div>
+        <h3>Preservação</h3>
+        <p class="perfil-card-frase">Recuperar 100% do capital investido o mais cedo possível. Prioriza eliminar risco.</p>
+        <button type="button" class="btn btn-ghost" data-acao="escolher-perfil">Escolher este perfil</button>
+      </div>
+      <div class="card" data-perfil-card="equilibrio">
+        <div class="icon">⚖</div>
+        <h3>Equilíbrio</h3>
+        <p class="perfil-card-frase">Recupera capital e mantém a maior parte da posição. Busca equilíbrio entre participação na alta e realização.</p>
+        <button type="button" class="btn btn-ghost" data-acao="escolher-perfil">Escolher este perfil</button>
+      </div>
+      <div class="card" data-perfil-card="conviccao">
+        <div class="icon">💎</div>
+        <h3>Convicção</h3>
+        <p class="perfil-card-frase">Realizações menores. Aceita maior volatilidade para preservar mais BTC.</p>
+        <button type="button" class="btn btn-ghost" data-acao="escolher-perfil">Escolher este perfil</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top" id="onboarding">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">seus números</p>
+      <h2>Veja o que essa regra faria por você</h2>
+    </div>
+
+    <span class="qvb-chip" id="qvb-chip-perfil"></span>
+
+    <div id="qvb-erro"></div>
+
+    <form id="qvb-form-onboarding">
+      <label for="qvb-btc">Quanto Bitcoin você tem hoje? (BTC)</label>
+      <input type="number" id="qvb-btc" min="0" step="any" placeholder="0.05" required>
+
+      <label for="qvb-preco-medio">Qual foi seu preço médio de compra? (US$, opcional)</label>
+      <input type="number" id="qvb-preco-medio" min="0" step="any" placeholder="15476">
+      <p class="qvb-nota">Se deixar em branco, usamos o fundo do último ciclo confirmado (nov/2022, US$ 15.476) como referência no seu Ciclo Atual.</p>
+
+      <button type="submit" class="btn btn-primary">Ver meu resultado</button>
+    </form>
+  </div>
+</section>
+
+<section class="section-border-top" id="resultado" hidden>
+  <div class="container container-wide">
+    <div class="section-head">
+      <p class="eyebrow">seu resultado</p>
+      <p class="lead" id="qvb-resultado-frase" style="color:var(--text-primary);font-weight:600;"></p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat stat--lg">
+        <div class="num" id="qvb-stat-capital">—</div>
+        <div class="label">Capital recuperado</div>
+      </div>
+      <div class="stat stat--lg">
+        <div class="num" id="qvb-stat-exposicao">—</div>
+        <div class="label">BTC ainda exposto</div>
+      </div>
+      <div class="stat stat--lg">
+        <div class="num" id="qvb-stat-protecao">—</div>
+        <div class="label">Proteção na queda seguinte, vs. HODL</div>
+        <div class="qvb-nota" id="qvb-stat-protecao-nota" style="margin-top:6px;"></div>
+      </div>
+    </div>
+    <p class="qvb-nota">Assumimos que sua posição atual foi comprada no fundo daquele ciclo específico — não no seu preço médio real. É a forma de comparar perfis de forma justa entre ciclos de magnitudes muito diferentes.</p>
+
+    <h3 style="margin-top:32px;">Como essa regra teria se saído nos outros ciclos</h3>
+    <table class="qvb-tabela">
+      <thead>
+        <tr><th>Ciclo</th><th>Capital recuperado</th><th>BTC exposto no topo</th><th>Proteção na queda seguinte</th></tr>
+      </thead>
+      <tbody id="qvb-outros-ciclos-corpo"></tbody>
+    </table>
+
+    <div style="margin-top:28px;">
+      <button type="button" class="btn btn-primary" id="qvb-btn-ver-ciclo-atual">Ver meu Ciclo Atual</button>
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top" id="ciclo-atual" hidden>
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">seu ciclo, agora</p>
+      <h2>Onde você está hoje</h2>
+      <p class="lead">Não é sobre acertar o topo. É sobre saber, a qualquer momento, o que sua regra já fez por você e o que vem a seguir.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat stat--lg">
+        <div class="num" id="qvb-ca-capital">—</div>
+        <div class="label">Capital recuperado — "o resto já é dinheiro da casa"</div>
+      </div>
+      <div class="stat stat--lg">
+        <div class="num" id="qvb-ca-exposicao">—</div>
+        <div class="label">BTC ainda exposto do seu patrimônio</div>
+      </div>
+    </div>
+
+    <div class="card qvb-gatilho-card" style="margin-top:20px;">
+      <h3>Próximo gatilho da sua regra</h3>
+      <div id="qvb-ca-gatilho"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>Última ação simulada</h3>
+      <p id="qvb-ca-ultima-acao"></p>
+      <h3 style="margin-top:18px;">Próxima ação esperada</h3>
+      <p id="qvb-ca-proxima-acao" style="margin-bottom:0;"></p>
+    </div>
+
+    <div class="card qvb-email-card" style="margin-top:20px;">
+      <h3>Quer ser avisado quando esse gatilho acontecer?</h3>
+      <p>Só um e-mail, quando o seu gatilho específico disparar. Nada além disso.</p>
+      <form class="qvb-email-row" action="https://formspree.io/f/SEU_ID_AQUI" method="POST">
+        <input type="email" name="email" placeholder="seu@email.com" required>
+        <button type="submit" class="btn btn-primary">Me avise</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container">
+    <div class="disclaimer-box">
+      <strong>Isto não é recomendação de investimento.</strong> Esta ferramenta simula, com dados históricos reais do Bitcoin, o que uma regra mecânica de realização de lucro teria feito no passado e o que ela indicaria hoje — com base exclusivamente nos parâmetros que você escolhe. Rentabilidade passada não garante rentabilidade futura.
+    </div>
+    <p class="qvb-premium-teaser">Recursos avançados em breve: comparar os 3 perfis lado a lado automaticamente, alertas customizados e patrimônio multi-ativo. <a href="/contato/">Quero saber quando lançar →</a></p>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="/assets/js/content.js"></script>
+<script src="/assets/js/analytics.js"></script>
+<script src="/assets/js/nav.js"></script>
+<script src="/assets/js/quando-vender.js"></script>
+</body>
+</html>
