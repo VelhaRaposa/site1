@@ -4,13 +4,17 @@
    ou rodapé, mexa nos textos abaixo (entre aspas).
    ========================================================= */
 
+// "Quando Vender Bitcoin?" (/quando-vender/) despublicada de propósito
+// — página fora do menu, sem link em nenhum lugar do site — enquanto a
+// informação está sendo reformulada (a página respondia "como uma regra
+// se saiu no passado" em vez de "quando eu vendo". Ver docs/). O
+// arquivo continua no repositório para retomar o trabalho.
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/agenda/", label: "Agenda" },
   { href: "/comparador/", label: "Comparador de Investimentos" },
   { href: "/calculadora/", label: "DCA Bitcoin" },
   { href: "/comparador-ciclos/", label: "Ciclos Bitcoin" },
-  { href: "/quando-vender/", label: "Quando Vender Bitcoin?" },
   { href: "/ferramentas/", label: "Guia Bitcoin" },
   { href: "/contato/", label: "Contato" },
 ];
