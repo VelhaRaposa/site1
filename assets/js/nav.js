@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "/comparador/", label: "Comparador de Investimentos" },
   { href: "/calculadora/", label: "DCA Bitcoin" },
   { href: "/comparador-ciclos/", label: "Ciclos Bitcoin" },
+  { href: "/quando-vender/", label: "Quando Vender Bitcoin?" },
   { href: "/ferramentas/", label: "Guia Bitcoin" },
   { href: "/contato/", label: "Contato" },
 ];

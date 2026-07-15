@@ -205,29 +205,41 @@ realizado), e nosso critério (fundo→topo por preço) corresponde à
 segunda. Esta tabela está **congelada** — próximas mudanças exigem
 revisão proposital, não pesquisa automática.
 
-## 10. Próxima ferramenta planejada — "Quando Vender Bitcoin?"
+## 10. "Quando Vender Bitcoin?" — ferramenta em `/quando-vender/`
 
 > "Eu não preciso vender o topo. Eu só não quero assistir mais uma queda
 > de 70% sem tirar nada da mesa."
 
-Essa frase é a essência da próxima ferramenta em planejamento: um
-simulador de regras de realização parcial de lucro e rebalanceamento —
-sem prever topo, sem indicador proprietário, sem recomendação
-financeira. Em vez de o usuário escolher uma regra técnica, ele escolhe
-um perfil de investidor (Preservação, Equilíbrio ou Convicção) — cada
-perfil já é uma combinação fixa e documentada de regras testadas contra
-os 4 ciclos já congelados acima. Pesquisa de mercado, 23 regras
-candidatas, backtest real contra os dados deste repositório, os 3
-perfis e o critério de aceite de qualquer regra futura ("ela tiraria
-algo da mesa antes da queda de 2021 e antes da queda atual?") estão
-documentados em `docs/pesquisa-exit-strategy.md`,
-`docs/produto-quando-vender-bitcoin.md` e `docs/perfis-de-investidor.md`.
-A tela central do produto não é mais o backtest histórico — é o "Modo
-Ciclo Atual" (perfil, capital já recuperado, próximo gatilho, quanto
-falta), pensado para gerar recorrência de uso real em vez de uma
-calculadora de uso único; ver `docs/recorrencia-e-mvp-final.md`. A tese
-está aprovada — a especificação de interface (hero, headline, os 3
-perfis, onboarding, tela de resultado, tela Ciclo Atual, CTAs,
-hierarquia MVP/V1/V2 e o wireframe textual completo das duas telas
-principais) está em `docs/interface-quando-vender-bitcoin.md`.
+Essa frase é a essência desta ferramenta: um simulador de regras de
+realização parcial de lucro — sem prever topo, sem indicador
+proprietário, sem recomendação financeira. Em vez de o usuário escolher
+uma regra técnica, ele escolhe um perfil de investidor (Preservação,
+Equilíbrio ou Convicção) — cada perfil já é uma combinação fixa e
+documentada de regras testadas contra os 4 ciclos já congelados acima.
+Todo o histórico de pesquisa de mercado, as 23 regras candidatas, o
+backtest real, os 3 perfis, a auditoria de recorrência de uso e a
+especificação de interface (wireframe textual completo) estão em
+`docs/pesquisa-exit-strategy.md`, `docs/produto-quando-vender-bitcoin.md`,
+`docs/perfis-de-investidor.md`, `docs/recorrencia-e-mvp-final.md` e
+`docs/interface-quando-vender-bitcoin.md`. Funcionalidades futuras (o
+que exige login, banco de dados, ou pode continuar 100% estático) estão
+em `docs/roadmap-v2.md` — **não construídas nesta versão, só
+documentadas**, de propósito, para não perder a ideia sem inchar o MVP.
+
+**Arquitetura, para quem for mexer em `assets/js/quando-vender.js`:**
+o MVP só coleta 1 aporte do usuário (BTC atual + preço médio opcional),
+mas todo o motor de cálculo é escrito em cima de listas de
+aportes/vendas, nunca de uma variável única de "posição" — para que
+suportar múltiplos aportes, histórico de compras/vendas reais e preço
+médio dinâmico no futuro não exija reescrever o motor, só passar a
+alimentar essas listas com mais de 1 item. Ver `docs/roadmap-v2.md`.
+
+Mesmo padrão 100% local das outras ferramentas (sem API, sem backend) —
+única exceção é a captura de e-mail na Tela Ciclo Atual, que usa um
+formulário [Formspree](https://formspree.io) (mesmo serviço já usado no
+site). **Para ativar:** crie um formulário em formspree.io e troque
+`SEU_ID_AQUI` pelo ID gerado, em `quando-vender/index.html`, na linha
+`<form class="qvb-email-row" action="https://formspree.io/f/SEU_ID_AQUI" ...>`.
+No MVP, o envio do alerta em si (avisar quando o gatilho realmente
+disparar) ainda é manual — só a captura do e-mail já está pronta.
 
