@@ -205,3 +205,19 @@ realizado), e nosso critério (fundo→topo por preço) corresponde à
 segunda. Esta tabela está **congelada** — próximas mudanças exigem
 revisão proposital, não pesquisa automática.
 
+## 10. Próxima ferramenta planejada — "Quando Vender Bitcoin?"
+
+> "Eu não preciso vender o topo. Eu só não quero assistir mais uma queda
+> de 70% sem tirar nada da mesa."
+
+Essa frase é a essência da próxima ferramenta em planejamento: um
+simulador de regras de realização parcial de lucro e rebalanceamento —
+sem prever topo, sem indicador proprietário, sem recomendação
+financeira. O usuário escolhe a regra (ex.: "vender X% a cada Y% acima
+do ATH anterior"); a ferramenta só simula o que essa regra teria feito
+nos 4 ciclos já congelados acima. Pesquisa de mercado, 23 regras
+candidatas, backtest real contra os dados deste repositório, e o
+critério de aceite de qualquer regra futura ("ela tiraria algo da mesa
+antes da queda de 2021 e antes da queda atual?") estão documentados em
+`docs/pesquisa-exit-strategy.md` e `docs/produto-quando-vender-bitcoin.md`.
+
