@@ -107,7 +107,7 @@
 
 <section class="tool-hero">
   <div class="container container-wide">
-    <p class="eyebrow">ferramenta gratuita · sem indicador proprietário</p>
+    <p class="eyebrow">ferramenta gratuita</p>
     <h1>Quando vender Bitcoin?</h1>
     <p class="lead">Escolha o tipo de investidor que você é e veja a regra de realização de lucro que ele seguiria nos 4 ciclos reais do Bitcoin. Sem prever topo. Sem indicador complicado. Sem recomendação financeira.</p>
   </div>
@@ -171,7 +171,7 @@
   <div class="container container-wide">
     <div class="section-head">
       <p class="eyebrow">seu resultado</p>
-      <h2 id="qvb-resultado-frase"></h2>
+      <p class="lead" id="qvb-resultado-frase" style="color:var(--text-primary);font-weight:600;"></p>
     </div>
 
     <div class="stat-row">
@@ -185,7 +185,8 @@
       </div>
       <div class="stat stat--lg">
         <div class="num" id="qvb-stat-protecao">—</div>
-        <div class="label">Patrimônio no topo vs. HODL</div>
+        <div class="label">Proteção na queda seguinte, vs. HODL</div>
+        <div class="qvb-nota" id="qvb-stat-protecao-nota" style="margin-top:6px;"></div>
       </div>
     </div>
     <p class="qvb-nota">Assumimos que sua posição atual foi comprada no fundo daquele ciclo específico — não no seu preço médio real. É a forma de comparar perfis de forma justa entre ciclos de magnitudes muito diferentes.</p>
@@ -193,10 +194,14 @@
     <h3 style="margin-top:32px;">Como essa regra teria se saído nos outros ciclos</h3>
     <table class="qvb-tabela">
       <thead>
-        <tr><th>Ciclo</th><th>Capital recuperado</th><th>BTC exposto no topo</th><th>Patrimônio no topo vs. HODL</th></tr>
+        <tr><th>Ciclo</th><th>Capital recuperado</th><th>BTC exposto no topo</th><th>Proteção na queda seguinte</th></tr>
       </thead>
       <tbody id="qvb-outros-ciclos-corpo"></tbody>
     </table>
+
+    <div style="margin-top:28px;">
+      <button type="button" class="btn btn-primary" id="qvb-btn-ver-ciclo-atual">Ver meu Ciclo Atual</button>
+    </div>
   </div>
 </section>
 

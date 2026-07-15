@@ -79,7 +79,7 @@ function mesesEntre(d0, d1) {
   return (new Date(d1) - new Date(d0)) / 86400000 / 30.4375;
 }
 function fmtUSD(n) {
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n >= 1000 ? 0 : 2 });
+  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: Math.abs(n) >= 1000 ? 0 : 2 });
 }
 function fmtPct(n, casas = 0) {
   return `${n.toFixed(casas)}%`;
@@ -210,19 +210,29 @@ function simularPerfil(perfilKey, aporte, dataInicio, dataFim) {
 // necessária para comparar ciclos de magnitudes muito diferentes de
 // forma justa. ----------
 function rodarBacktestHistorico(perfilKey, btcAtual) {
-  return CICLOS.map(ciclo => {
+  return CICLOS.map((ciclo, i) => {
     const aporte = { btc: btcAtual, precoUsd: ciclo.fundo.preco };
     const r = simularPerfil(perfilKey, aporte, ciclo.fundo.data, ciclo.topo.data);
     const valorBtcRestante = r.btcRestante * ciclo.topo.preco;
     const patrimonioTopo = r.usdRealizado + valorBtcRestante;
-    const hodlTopo = btcAtual * ciclo.topo.preco;
+
+    // proteção nunca é medida NO topo — quem vende parcial sempre tem
+    // menos patrimônio que o HODL exatamente no pico (é a definição de
+    // vender antes do topo). O que importa é a queda que vem depois:
+    // por isso comparamos no fundo do ciclo SEGUINTE (ou em "hoje",
+    // quando esse fundo ainda não foi confirmado — ciclo em andamento).
+    const proximoCiclo = CICLOS[i + 1];
+    const precoComparacao = proximoCiclo ? proximoCiclo.fundo.preco : PRECOS[ULTIMA_DATA];
+    const provisorio = !proximoCiclo;
+    const protecao = (r.usdRealizado + r.btcRestante * precoComparacao) - (btcAtual * precoComparacao);
+
     return {
       ciclo: ciclo.id,
       capitalRecuperadoPct: r.usdRealizado / r.capital * 100,
       btcRestante: r.btcRestante,
       exposicaoPct: patrimonioTopo > 0 ? valorBtcRestante / patrimonioTopo * 100 : 0,
-      patrimonioTopo,
-      hodlTopo,
+      protecao,
+      provisorio,
     };
   });
 }
@@ -304,14 +314,15 @@ function renderResultado(btcAtual) {
   const principal = resultados[resultados.length - 1]; // ciclo mais recente confirmado (2022→2025)
 
   document.getElementById("qvb-resultado-frase").textContent =
-    `Se você tivesse seguido o perfil ${perfil.nome} desde o fundo do ciclo de 2022 até o topo de 2025, ` +
-    `teria recuperado ${fmtPct(principal.capitalRecuperadoPct)} do que investiu e ainda manteria ` +
-    `${fmtPct(principal.exposicaoPct)} do patrimônio em Bitcoin.`;
+    `Com o perfil ${perfil.nome} desde 2022, você teria recuperado ${fmtPct(principal.capitalRecuperadoPct)} ` +
+    `do investido e ainda manteria ${fmtPct(principal.exposicaoPct)} em Bitcoin.`;
 
   document.getElementById("qvb-stat-capital").textContent = fmtPct(principal.capitalRecuperadoPct);
   document.getElementById("qvb-stat-exposicao").textContent = fmtPct(principal.exposicaoPct);
-  const protecao = principal.patrimonioTopo - principal.hodlTopo;
-  document.getElementById("qvb-stat-protecao").textContent = `${protecao >= 0 ? "+" : ""}${fmtUSD(protecao)}`;
+  document.getElementById("qvb-stat-protecao").textContent = `${principal.protecao >= 0 ? "+" : ""}${fmtUSD(principal.protecao)}`;
+  document.getElementById("qvb-stat-protecao-nota").textContent = principal.provisorio
+    ? "comparado a hoje — a queda deste ciclo ainda está em andamento, sem fundo confirmado"
+    : "comparado ao fundo do ciclo seguinte";
 
   const outrosCorpo = document.getElementById("qvb-outros-ciclos-corpo");
   outrosCorpo.innerHTML = resultados.slice(0, -1).map(r => `
@@ -319,7 +330,7 @@ function renderResultado(btcAtual) {
       <td>${r.ciclo}</td>
       <td>${fmtPct(r.capitalRecuperadoPct)}</td>
       <td>${fmtPct(r.exposicaoPct)}</td>
-      <td>${(r.patrimonioTopo - r.hodlTopo) >= 0 ? "+" : ""}${fmtUSD(r.patrimonioTopo - r.hodlTopo)}</td>
+      <td>${r.protecao >= 0 ? "+" : ""}${fmtUSD(r.protecao)}</td>
     </tr>
   `).join("");
 }
@@ -331,16 +342,18 @@ function renderCicloAtual(btcAtual, precoMedio) {
   document.getElementById("qvb-ca-capital").textContent = fmtPct(r.capitalRecuperadoPct);
   document.getElementById("qvb-ca-exposicao").textContent = fmtPct(r.exposicaoPct);
 
-  // próximo gatilho — mostra preço e idade quando os dois existirem
+  // próximo gatilho — mostra preço e idade quando os dois existirem;
+  // números sempre arredondados (sem casa decimal) para não parecer um
+  // terminal de trader
   const blocos = [];
-  if (r.faltaAltaPct > 0.05) {
-    blocos.push(`<p><strong>Por preço:</strong> novo recorde histórico acima de ${fmtUSD(r.runningAth)} (faltam ${fmtPct(r.faltaAltaPct, 1)} de alta).</p>`);
+  if (r.faltaAltaPct > 0.5) {
+    blocos.push(`<p><strong>Por preço:</strong> um novo recorde histórico, acima de ${fmtUSD(r.runningAth)} (faltam ${fmtPct(r.faltaAltaPct)} de alta).</p>`);
   } else {
     blocos.push(`<p><strong>Por preço:</strong> qualquer novo recorde acima do preço de hoje (${fmtUSD(r.precoHoje)}) já dispara a regra.</p>`);
   }
   if (r.gatilhoIdade) {
-    const faltamMeses = r.gatilhoIdade.meses - r.idadeHoje;
-    blocos.push(`<p><strong>Por idade do ciclo:</strong> aos ${r.gatilhoIdade.meses} meses, sua regra realiza até ${fmtPct(r.gatilhoIdade.alvo * 100)} da posição original (faltam ${faltamMeses.toFixed(1)} meses).</p>`);
+    const faltamMeses = Math.round(r.gatilhoIdade.meses - r.idadeHoje);
+    blocos.push(`<p><strong>Por idade do ciclo:</strong> aos ${r.gatilhoIdade.meses} meses, sua regra realiza até ${fmtPct(r.gatilhoIdade.alvo * 100)} da posição original (faltam ${faltamMeses} ${faltamMeses === 1 ? "mês" : "meses"}).</p>`);
   } else {
     blocos.push(`<p><strong>Por idade do ciclo:</strong> nenhum piso adicional programado para este perfil.</p>`);
   }
@@ -348,7 +361,7 @@ function renderCicloAtual(btcAtual, precoMedio) {
 
   const ultimaEl = document.getElementById("qvb-ca-ultima-acao");
   if (r.ultimaAcao) {
-    ultimaEl.textContent = `${fmtData(r.ultimaAcao.data)} · preço ${fmtUSD(r.ultimaAcao.preco)} — ${motivoLabel(r.ultimaAcao.motivo)}, realizou ${fmtPct(r.ultimaAcao.btc / btcAtual * 100, 1)} da posição original.`;
+    ultimaEl.textContent = `${fmtData(r.ultimaAcao.data)} · preço ${fmtUSD(r.ultimaAcao.preco)} — ${motivoLabel(r.ultimaAcao.motivo)}, realizou ${fmtPct(r.ultimaAcao.btc / btcAtual * 100)} da posição original.`;
   } else {
     ultimaEl.textContent = "Nenhuma ação simulada ainda desde o fundo do ciclo de 2022.";
   }
@@ -372,4 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
   selecionarPerfil(perfilAtivo);
 
   document.getElementById("qvb-form-onboarding").addEventListener("submit", aoSubmeterOnboarding);
+  document.getElementById("qvb-btn-ver-ciclo-atual").addEventListener("click", () => {
+    document.getElementById("ciclo-atual").scrollIntoView({ behavior: "smooth" });
+  });
 });
