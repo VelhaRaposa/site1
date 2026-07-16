@@ -275,7 +275,7 @@ recalculado do dataset.
 | Halving | Data | Bloco | Recompensa (antes → depois) | Preço canônico | Fonte |
 |---|---|---|---|---|---|
 | 1º | 2012-11-28 | 210.000 | 50 → 25 BTC | US$ 12,35 | Figura mais repetida entre agregadores de histórico de halving (bitbo.io, pesquisa da CoinGecko, imprensa cripto) — mercado ainda muito ilíquido nessa época, mesma ressalva já feita pro fundo de 2011 na seção 9 |
-| 2º | 2016-07-09 | 420.000 | 25 → 12,5 BTC | US$ 650,00 | Consenso geral — fontes variam entre ~US$ 640 e ~US$ 670 nesse dia; US$ 650 é o valor redondo mais repetido |
+| 2º | 2016-07-09 | 420.000 | 25 → 12,5 BTC | US$ 647,78 | Citação específica (43% abaixo do topo de 2013, ~US$ 1.132) — trocado de um valor redondo (US$ 650) por essa figura mais precisa, revisão de validação pós-PR |
 | 3º | 2020-05-11 | 630.000 | 12,5 → 6,25 BTC | US$ 8.601,80 | Preço de fechamento citado por cobertura financeira do dia (ex: BitGo, "The Third Halvening") |
 | 4º | 2024-04-20 | 840.000 | 6,25 → 3,125 BTC | US$ 63.800,00 | Consenso geral de agregadores de halving; existe uma variante mais alta (~US$ 64.990, pico intradiário Bitstamp) que não foi usada — seguimos o preço de fechamento, mesmo critério do restante da tabela |
 

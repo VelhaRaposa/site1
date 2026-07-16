@@ -44,7 +44,7 @@ const HALVINGS = [
   {
     id: "2016",
     data: "2016-07-09",
-    preco: 650.00,
+    preco: 647.78,
     bloco: 420000,
     recompensaAntes: 25,
     recompensaDepois: 12.5,
