@@ -214,6 +214,29 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
   .hero-photo{max-width:280px;margin:24px auto 0;}
 }
 
+/* preview de produto no hero (recorte real de um gráfico) — mesma
+   moldura do .hero-photo, mas paisagem em vez de retrato, porque o
+   conteúdo agora é um gráfico, não um retrato. */
+.hero-photo.hero-preview{aspect-ratio:4/3;max-height:420px;}
+@media (max-width:860px){.hero-photo.hero-preview{max-width:520px;}}
+
+/* ---------- vitrine de ferramentas ---------- */
+.tool-card{display:flex;flex-direction:column;}
+.tool-card:hover{border-color:var(--accent);}
+.tool-question{font-size:.95rem;color:var(--text-secondary);line-height:1.5;margin:0 0 18px;}
+.tool-stat{margin-bottom:20px;}
+.tool-stat-value{display:block;font-family:var(--font-display);font-size:1.9rem;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+.tool-stat-label{display:block;font-size:.76rem;color:var(--text-tertiary);margin-top:4px;}
+.tool-cta{margin-top:auto;padding-top:4px;font-size:.88rem;font-weight:600;color:var(--text-primary);}
+.tool-card:hover .tool-cta{color:var(--accent);}
+
+/* ---------- zona de conteúdo (vídeos) — separada da zona de produto
+   por luminância mais clara e peso visual reduzido, não por rótulo */
+.home-content-zone{background:var(--bg-raised);}
+.section-head--sm h2{font-size:1.4rem;margin-bottom:.3em;}
+.section-sub-sm{font-size:.92rem;color:var(--text-tertiary);margin:0;}
+.home-content-zone .video-card{box-shadow:none;}
+
 /* hero compacta das páginas de ferramenta (Comparador, DCA, Ciclos) — a
    ferramenta em si (formulário/gráfico) é o conteúdo principal da página,
    então a introdução (tag + título + descrição) ocupa bem menos altura

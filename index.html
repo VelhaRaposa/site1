@@ -57,28 +57,16 @@
 <header id="site-header"></header>
 
 <section class="hero">
-  <svg class="hero-chart" viewBox="0 0 1100 340" preserveAspectRatio="none" aria-hidden="true">
-    <polyline points="0,260 90,240 180,270 270,210 360,230 450,160 540,190 630,120 720,150 810,90 900,120 990,60 1100,80"
-      fill="none" stroke="#F7931A" stroke-width="2" opacity="0.5"/>
-    <g stroke="#2B3448" stroke-width="1">
-      <line x1="0" y1="60" x2="1100" y2="60"/>
-      <line x1="0" y1="130" x2="1100" y2="130"/>
-      <line x1="0" y1="200" x2="1100" y2="200"/>
-      <line x1="0" y1="270" x2="1100" y2="270"/>
-    </g>
-  </svg>
   <div class="container container-wide hero-inner">
     <div>
-      <p class="eyebrow">bitcoin · economia · mercados</p>
-      <h1>Você não precisa adivinhar o próximo movimento do Bitcoin.</h1>
-      <p class="lead">E nem acompanhar o mercado o dia inteiro.<br>Entenda o que realmente importa para o Bitcoin.</p>
+      <h1>Bitcoin foi o melhor investimento dos últimos anos?</h1>
+      <p class="lead">Descubra como ele se saiu contra CDI, Ibovespa, ouro e S&amp;P 500.</p>
       <div class="hero-actions">
-        <a href="/calculadora/" class="btn btn-primary">Quanto eu teria em Bitcoin hoje?</a>
-        <a href="/guia-bitcoin/" class="btn btn-ghost">Onde comprar Bitcoin</a>
+        <a href="/comparador/" class="btn btn-primary">Comparar agora</a>
       </div>
     </div>
-    <div class="hero-photo">
-      <img src="/assets/img/perfil.jpg" alt="Caio Garé" width="800" height="800" style="width:100%;height:100%;object-fit:cover;">
+    <div class="hero-photo hero-preview">
+      <img src="/assets/img/hero-comparador-preview.png" alt="Gráfico do Comparador de Investimentos: Bitcoin ao lado de CDI, Ibovespa, Ouro e S&amp;P 500" width="1200" height="1000" style="width:100%;height:100%;object-fit:cover;object-position:top;">
     </div>
   </div>
 </section>
@@ -86,11 +74,48 @@
 <section class="section-border-top">
   <div class="container container-wide">
     <div class="section-head">
-      <p class="eyebrow">últimos vídeos</p>
-      <h2>O que está no ar essa semana</h2>
+      <h2>As ferramentas</h2>
+    </div>
+    <div class="grid grid-3">
+      <a class="card tool-card" href="/comparador/">
+        <h3>Comparador de Investimentos</h3>
+        <p class="tool-question">Bitcoin rendeu mais que CDI, Ibovespa, Ouro e S&amp;P 500?</p>
+        <div class="tool-stat" data-tool="comparador">
+          <span class="tool-stat-value">—</span>
+          <span class="tool-stat-label">carregando dado real…</span>
+        </div>
+        <span class="tool-cta">Comparar agora →</span>
+      </a>
+      <a class="card tool-card" href="/calculadora/">
+        <h3>DCA Bitcoin</h3>
+        <p class="tool-question">Quanto valeria hoje um aporte mensal em Bitcoin?</p>
+        <div class="tool-stat" data-tool="dca">
+          <span class="tool-stat-value">—</span>
+          <span class="tool-stat-label">carregando dado real…</span>
+        </div>
+        <span class="tool-cta">Simular meu aporte →</span>
+      </a>
+      <a class="card tool-card" href="/comparador-ciclos/">
+        <h3>Ciclos Bitcoin</h3>
+        <p class="tool-question">Em que fase do ciclo atual o Bitcoin está?</p>
+        <div class="tool-stat" data-tool="ciclos">
+          <span class="tool-stat-value">—</span>
+          <span class="tool-stat-label">carregando dado real…</span>
+        </div>
+        <span class="tool-cta">Ver o ciclo atual →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="section-border-top home-content-zone">
+  <div class="container container-wide">
+    <div class="section-head section-head--sm">
+      <h2>Do canal</h2>
+      <p class="section-sub-sm">Análises novas toda semana, ao vivo.</p>
     </div>
     <div class="grid grid-3" id="home-videos"></div>
-    <div style="margin-top:28px;">
+    <div style="margin-top:20px;">
       <a href="/agenda/" class="btn btn-ghost">Ver agenda completa →</a>
     </div>
   </div>
@@ -101,6 +126,8 @@
 <script src="/assets/js/content.js"></script>
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/nav.js"></script>
+<script src="/assets/js/utils.js"></script>
+<script src="/assets/js/home.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
   const wrap = document.getElementById("home-videos");

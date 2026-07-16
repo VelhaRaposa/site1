@@ -69,7 +69,7 @@ const CICLOS = [
     fundo: { data: "2022-11-21", preco: 15476 },
     topo:  { data: "2025-10-06", preco: 126296 } },
   { id: "atual", cor: "#F7931A",
-    fundo: { data: "2026-07-01", preco: 58534.28, provisorio: true },
+    fundo: { ...CICLO_ATUAL_FUNDO, provisorio: true }, // vem de utils.js — mesma fonte usada pelo preview da Home
     topo: null },
 ];
 

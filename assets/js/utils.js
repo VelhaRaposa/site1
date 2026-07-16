@@ -11,6 +11,12 @@
    arquivo próprio, de propósito — ver auditoria de estrutura).
    ========================================================= */
 
+// fundo do ciclo atual do Bitcoin (em formação, sem topo confirmado) —
+// fonte única usada pelo Comparador de Ciclos e pelo preview de dado
+// real da Home, pra nunca divergir entre os dois. Ver README, seção 9,
+// pra fonte do valor e critério de atualização.
+const CICLO_ATUAL_FUNDO = { data: "2026-07-01", preco: 58534.28 };
+
 function debounce(fn, ms) {
   let t;
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
