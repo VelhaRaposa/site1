@@ -81,16 +81,9 @@ function fmtUSD(n) {
 function anoDe(dataStr) {
   return dataStr.slice(0, 4);
 }
-function addDays(dateStr, days) {
-  const d = new Date(dateStr + "T00:00:00");
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
+// addDays e dotHtml vêm de assets/js/utils.js
 function diasEntre(d0, d1) {
   return Math.round((new Date(d1 + "T00:00:00") - new Date(d0 + "T00:00:00")) / 86400000);
-}
-function dotHtml(cor) {
-  return `<span class="legenda-dot" style="background:${cor}"></span>`;
 }
 
 /* ---------- dados ---------- */

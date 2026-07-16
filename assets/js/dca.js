@@ -46,21 +46,12 @@ const state = {
   periodoAnos: 1, // 1 | 3 | 5 | 10 | 0 (máximo) | null (personalizado)
 };
 
+// fmtDateBR, addDays e debounce vêm de assets/js/utils.js (carregado antes
+// deste arquivo). fmtBRL mantém wrapper local: esta calculadora mostra
+// centavos (2 casas decimais, o padrão do Intl para BRL), diferente do
+// Comparador de Investimentos, que arredonda pra inteiro.
 function fmtBRL(n) {
-  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-function fmtDateBR(dateStr) {
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}/${y}`;
-}
-function addDays(dateStr, days) {
-  const d = new Date(dateStr + "T00:00:00");
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-function debounce(fn, ms) {
-  let t;
-  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  return fmtBRLBase(n);
 }
 
 async function loadHistory() {
@@ -226,15 +217,7 @@ function mensagemCompartilhamento(r) {
   return `${corpoMensagem(r)}\n\n👇\n${LINK_CALCULADORA_VISIVEL}`;
 }
 
-async function copiarTexto(texto, feedbackEl, textoOriginal) {
-  try {
-    await navigator.clipboard.writeText(texto);
-    feedbackEl.textContent = "Copiado!";
-  } catch (e) {
-    feedbackEl.textContent = "Não foi possível copiar";
-  }
-  setTimeout(() => { feedbackEl.textContent = textoOriginal; }, 1800);
-}
+// copiarTexto vem de assets/js/utils.js
 
 /* ---------- render ---------- */
 function renderCards(el, r, fim) {

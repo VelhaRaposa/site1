@@ -84,10 +84,9 @@ function fmtUSD(n) {
 function fmtPct(n, casas = 0) {
   return `${n.toFixed(casas)}%`;
 }
-function fmtData(d) {
-  const [ano, mes, dia] = d.split("-");
-  return `${dia}/${mes}/${ano}`;
-}
+// mesmo formato de fmtDateBR em assets/js/utils.js (carregado antes deste
+// arquivo) — alias local pra não precisar renomear as chamadas abaixo.
+const fmtData = fmtDateBR;
 
 // ---------- carregamento dos dados históricos ----------
 let PRECOS = null;

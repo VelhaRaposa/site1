@@ -74,126 +74,33 @@
   ]
 }
 </script>
+<link rel="stylesheet" href="/assets/css/ferramentas.css">
 <style>
-  /* layout principal: controles à esquerda (~25%), gráfico dominante à direita (~75%) —
-     260px (não 250px) porque as 3 pills de Frequência (Mensal/Semanal/Diária)
-     precisam de ~252px pra caber numa linha só; com 250px "Diária" quebrava
-     pra uma segunda linha por pouco mais de 2px. */
-  .v5-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:start;}
-  @media (max-width:960px){.v5-layout{grid-template-columns:1fr;}}
+  /* específico desta página — layout/componentes compartilhados com a
+     Calculadora DCA (.v5-layout, .pills, .chart-frame, cards, menu de
+     compartilhar, cross-links, .seo-block) estão em
+     assets/css/ferramentas.css. */
 
-  .controle-grupo{margin-bottom:22px;}
-  .controle-label{
-    font-family:var(--font-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--text-tertiary);margin-bottom:9px;
-  }
-  .pills{display:flex;flex-wrap:wrap;gap:8px;}
-  .pill{
-    font-family:var(--font-mono);font-size:.8rem;padding:8px 14px;
-    border:1px solid var(--border-strong);border-radius:20px;background:transparent;
-    color:var(--text-secondary);cursor:pointer;
-  }
-  .pill:hover{border-color:var(--accent);color:var(--text-primary);}
-  .pill.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
-
-  .datas-exatas{display:none;margin-top:12px;}
-  /* datas empilhadas mas com respiro mínimo entre si — devem ler como um
-     único grupo (data inicial + data final), não duas seções separadas */
-  .datas-exatas .field-row{display:grid;grid-template-columns:1fr;gap:2px;}
-  .datas-exatas .field-row input[type="date"]{margin-bottom:8px;}
-  .datas-exatas .field-row > div:last-child input[type="date"]{margin-bottom:0;}
-  /* ícone nativo do seletor de data é preto por padrão e some no tema
-     escuro — inverte pra ficar na mesma família de cinza-claro do texto */
-  .datas-exatas input[type="date"]::-webkit-calendar-picker-indicator{
-    filter:invert(70%);cursor:pointer;
-  }
-
-  .data-info{font-size:.74rem;color:var(--text-tertiary);margin:8px 0 0;}
-  /* margem só quando há mensagem de erro de fato — vazia, a div não deve
-     empurrar o layout (o v5-layout já cuida do próprio espaçamento). */
-  #comparador-error:not(:empty){color:var(--red);font-size:.9rem;margin-bottom:16px;}
-
-  .legenda-ativos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:.8rem;}
+  /* legenda clicável (liga/desliga ativos) — diferente da legenda
+     estática da DCA */
   .legenda-item{
     display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-secondary);
     padding:5px 10px;border-radius:20px;border:1px solid var(--border);user-select:none;transition:opacity .15s ease;
   }
   .legenda-item:hover{border-color:var(--accent);}
   .legenda-item.inativo{opacity:.35;}
-  .legenda-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
 
-  /* moldura discreta em volta do gráfico — reforça que ele é o elemento
-     principal da ferramenta, sem virar um card chamativo. O padding fica
-     no frame (externo), não no wrap medido pelo Chart.js, então a altura
-     do gráfico continua exatamente a mesma de antes. */
-  .chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
-
-  /* o gráfico deve ocupar a maior parte da tela — nenhum componente compete com ele */
-  #comparador-chart-canvas-wrap{position:relative;height:460px;}
-  @media (max-width:960px){#comparador-chart-canvas-wrap{height:340px;}}
-
-  .comparativo-head{margin:36px 0 16px;}
-  .comparativo-head h2{font-size:1.2rem;margin-bottom:4px;}
-  .comparativo-head p{margin:0;font-size:.9rem;}
-
-  /* --n-cards é escrito via JS (renderCards) com o número real de cards
-     (3 a 6, conforme a legenda) — todos preenchem uma linha só, do mesmo
-     tamanho, nunca um sobrando sozinho na linha de baixo. */
-  .cards-comparativo{display:grid;grid-template-columns:repeat(var(--n-cards,6),1fr);gap:14px;}
-  @media (max-width:960px){.cards-comparativo{grid-template-columns:repeat(3,1fr);}}
-  @media (max-width:640px){.cards-comparativo{grid-template-columns:repeat(2,1fr);}}
-  .card-ativo{
-    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-    padding:20px 14px;text-align:center;
-  }
+  /* cards de resultado com dot de cor do ativo — a DCA não tem, é um único ativo */
   .card-ativo .nome{
     display:flex;align-items:center;justify-content:center;gap:6px;
     font-weight:600;font-size:.86rem;color:var(--text-primary);margin-bottom:10px;
   }
-  .card-ativo .pct{font-family:var(--font-display);font-size:1.5rem;font-weight:600;}
-  .card-ativo .valor{font-family:var(--font-mono);font-size:.76rem;color:var(--text-tertiary);margin-top:6px;}
 
   #comparador-nota-cambio{
     display:none;font-size:.8rem;color:var(--text-tertiary);background:var(--bg-card);
     border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-top:18px;text-align:center;
   }
 
-  .share-row{display:none;justify-content:center;margin-top:24px;}
-  #share-menu-wrap{position:relative;}
-  #share-menu{
-    display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
-    background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--radius-md);
-    padding:6px;min-width:220px;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.35);
-  }
-  #share-menu button{
-    display:block;width:100%;text-align:left;background:none;border:none;color:var(--text-primary);
-    padding:10px 12px;border-radius:6px;cursor:pointer;font-size:.85rem;white-space:nowrap;
-  }
-  #share-menu button:hover{background:var(--bg-card-hover);}
-
-  /* cards reais (não links horizontais): tile compacto e mais próximo de um
-     quadrado, ícone + título + descrição curta, centralizados como par —
-     não esticam para preencher a largura do conteúdo. */
-  .cross-links{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;margin-top:32px;}
-  .cross-link-card{
-    display:flex;flex-direction:column;align-items:flex-start;
-    width:230px;padding:24px;
-    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
-    cursor:pointer;transition:border-color .15s ease, background .15s ease, transform .15s ease;
-  }
-  @media (max-width:640px){.cross-link-card{width:100%;max-width:320px;}}
-  .cross-link-card:hover{border-color:var(--accent);background:var(--bg-card-hover);transform:translateY(-3px);}
-  .cross-link-card .icon{
-    width:44px;height:44px;border-radius:10px;
-    background:var(--accent-soft);color:var(--accent);
-    display:flex;align-items:center;justify-content:center;
-    font-size:1.3rem;font-weight:600;margin-bottom:18px;
-  }
-  .cross-link-card .tit{font-weight:600;font-size:1.02rem;margin-bottom:6px;color:var(--text-primary);}
-  .cross-link-card .sub{font-size:.85rem;color:var(--text-tertiary);line-height:1.45;}
-
-  .seo-block{max-width:var(--max-w-article);}
-  .seo-block h2{margin-top:0;}
   .ativos-glossario{display:flex;flex-direction:column;gap:16px;margin:20px 0;}
   .ativos-glossario dt{font-weight:600;color:var(--text-primary);}
   .ativos-glossario dd{margin:2px 0 0;color:var(--text-secondary);font-size:.95rem;}
@@ -338,6 +245,7 @@
 <script src="/assets/js/content.js"></script>
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/nav.js"></script>
+<script src="/assets/js/utils.js"></script>
 <script src="/assets/js/comparador.js"></script>
 </body>
 </html>
