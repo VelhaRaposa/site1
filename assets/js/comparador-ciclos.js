@@ -349,9 +349,10 @@ function renderChart(canvasEl) {
           ticks: {
             color: "#D7DCE5",
             font: { family: "JetBrains Mono", size: 10 },
-            callback: (v) => {
+            callback: (v, i, ticksArray) => {
+              const d = decimalsSemColisao(ticksArray, t => (t.value - 1) * 100);
               const pct = (v - 1) * 100;
-              return (pct >= 0 ? "+" : "") + Math.round(pct).toLocaleString("pt-BR") + "%";
+              return (pct >= 0 ? "+" : "") + pct.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d }) + "%";
             },
           },
           title: {

@@ -49,7 +49,7 @@
 /* moldura discreta em volta do gráfico. O padding fica no frame
    (externo), não no wrap medido pelo Chart.js, então a altura do
    gráfico continua exatamente a mesma. */
-.chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
+.chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;box-shadow:var(--elevation-sm);}
 
 /* o gráfico deve ocupar a maior parte da tela em ambas as ferramentas —
    altura por ALTURA de viewport, não só largura: 460px fixo deixava o
@@ -75,7 +75,7 @@
 @media (max-width:640px){.cards-comparativo{grid-template-columns:repeat(2,1fr);}}
 .card-ativo{
   background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-  padding:20px 14px;text-align:center;
+  padding:20px 14px;text-align:center;box-shadow:var(--elevation-sm);
   /* sem isso, o item de grid herda min-width:auto e é inflado pelo
      conteúdo (ex: "R$ 378.365,76" em .pct) além da largura da coluna —
      mesmo bug e mesma correção já documentados em .tool-layout > *
@@ -107,6 +107,7 @@
   display:flex;flex-direction:column;align-items:flex-start;
   width:230px;padding:24px;
   background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  box-shadow:var(--elevation-sm);
   cursor:pointer;transition:border-color .15s ease, background .15s ease, transform .15s ease;
 }
 @media (max-width:640px){.cross-link-card{width:100%;max-width:320px;}}

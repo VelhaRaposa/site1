@@ -36,6 +36,25 @@ function fmtBRLBase(n, maximumFractionDigits) {
   return n.toLocaleString("pt-BR", opts);
 }
 
+// acha o menor número de casas decimais (0 a 2) que faz os ticks de um eixo
+// não colidirem no rótulo formatado — evita duplicatas tipo "R$ 3 mil" duas
+// vezes seguidas quando dois ticks arredondam pro mesmo valor exibido
+function decimalsSemColisao(ticksArray, valueToNumber) {
+  if (!ticksArray || ticksArray.length < 2) return 0;
+  // ticks com o mesmo valor bruto (comum em escala log, onde o topo de uma
+  // década e a base da próxima coincidem) sempre vão colidir, com qualquer
+  // número de casas decimais — não contam como colisão real, só o tick
+  // duplicado some no autoSkip do próprio Chart.js
+  const vistos = new Set();
+  const ticksUnicos = ticksArray.filter(t => (vistos.has(t.value) ? false : vistos.add(t.value)));
+  if (ticksUnicos.length < 2) return 0;
+  for (let d = 0; d <= 2; d++) {
+    const labels = ticksUnicos.map(t => valueToNumber(t).toFixed(d));
+    if (new Set(labels).size === labels.length) return d;
+  }
+  return 2;
+}
+
 function dotHtml(cor) {
   return `<span class="legenda-dot" style="background:${cor}"></span>`;
 }
