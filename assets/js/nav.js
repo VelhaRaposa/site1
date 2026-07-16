@@ -166,6 +166,22 @@ function renderCookieBanner(){
   });
 }
 
+/* ---------- placeholder de thumbnail para vídeo sem imagem ----------
+   Usado quando a API do YouTube não retorna thumbnail (thumb: "") — em
+   vez de deixar um retângulo vazio, mostra um estado com ícone de play,
+   gradiente e o título do vídeo, para parecer decisão de design. */
+function videoThumbHtml(v){
+  if (v.thumb) return `<img src="${v.thumb}" alt="">`;
+  return `
+    <div class="video-thumb-placeholder">
+      <span class="video-thumb-play">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l10-5.5z"/></svg>
+      </span>
+      <span class="video-thumb-label">${v.titulo}</span>
+    </div>
+  `;
+}
+
 /* ---------- busca automática dos vídeos recentes do YouTube ----------
    Usa o feed RSS público do canal (sem precisar de chave de API paga).
    Se SITE.youtubeChannelId estiver vazio ou a busca falhar, usa a

@@ -49,11 +49,19 @@
 /* moldura discreta em volta do gráfico. O padding fica no frame
    (externo), não no wrap medido pelo Chart.js, então a altura do
    gráfico continua exatamente a mesma. */
-.chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
+.chart-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;box-shadow:var(--elevation-sm);}
 
-/* o gráfico deve ocupar a maior parte da tela em ambas as ferramentas */
-#dca-chart-canvas-wrap, #comparador-chart-canvas-wrap{position:relative;height:460px;}
-@media (max-width:960px){#dca-chart-canvas-wrap, #comparador-chart-canvas-wrap{height:340px;}}
+/* o gráfico deve ocupar a maior parte da tela em ambas as ferramentas —
+   altura por ALTURA de viewport, não só largura: 460px fixo deixava o
+   gráfico cortado (precisando rolar) em notebooks comuns de 768px de
+   altura, e desperdiçava até 680px de sobra num monitor 2K. Mesma
+   escala de faixas usada em comparador-ciclos, pra as 3 ferramentas
+   terem a mesma sensação de proporção entre si. */
+#dca-chart-canvas-wrap, #comparador-chart-canvas-wrap{position:relative;height:600px;}
+@media (max-height:800px){#dca-chart-canvas-wrap, #comparador-chart-canvas-wrap{height:380px;}}
+@media (min-height:801px) and (max-height:950px){#dca-chart-canvas-wrap, #comparador-chart-canvas-wrap{height:520px;}}
+@media (min-height:1301px){#dca-chart-canvas-wrap, #comparador-chart-canvas-wrap{height:760px;}}
+@media (max-width:960px){#dca-chart-canvas-wrap, #comparador-chart-canvas-wrap{height:360px;}}
 
 .comparativo-head{margin:36px 0 16px;}
 .comparativo-head h2{font-size:1.2rem;margin-bottom:4px;}
@@ -67,7 +75,13 @@
 @media (max-width:640px){.cards-comparativo{grid-template-columns:repeat(2,1fr);}}
 .card-ativo{
   background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
-  padding:20px 14px;text-align:center;
+  padding:20px 14px;text-align:center;box-shadow:var(--elevation-sm);
+  /* sem isso, o item de grid herda min-width:auto e é inflado pelo
+     conteúdo (ex: "R$ 378.365,76" em .pct) além da largura da coluna —
+     mesmo bug e mesma correção já documentados em .tool-layout > *
+     (assets/css/style.css); aqui causava overflow horizontal da página
+     inteira em telas de ~360px. */
+  min-width:0;
 }
 .card-ativo .pct{font-family:var(--font-display);font-size:1.5rem;font-weight:600;}
 .card-ativo .valor{font-family:var(--font-mono);font-size:.76rem;color:var(--text-tertiary);margin-top:6px;}
@@ -93,6 +107,7 @@
   display:flex;flex-direction:column;align-items:flex-start;
   width:230px;padding:24px;
   background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  box-shadow:var(--elevation-sm);
   cursor:pointer;transition:border-color .15s ease, background .15s ease, transform .15s ease;
 }
 @media (max-width:640px){.cross-link-card{width:100%;max-width:320px;}}
