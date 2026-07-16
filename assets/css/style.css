@@ -189,36 +189,17 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
 }
 .mobile-menu-links a.active{color:var(--accent);}
 
-/* ---------- hero ---------- */
-.hero{
-  position:relative;
-  padding:52px 0 44px;
-  overflow:hidden;
-  border-bottom:1px solid var(--border);
-}
-.hero-chart{
-  position:absolute;inset:0;z-index:0;opacity:.35;
-  pointer-events:none;
-}
-.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.5fr .6fr;gap:48px;align-items:center;}
+/* ---------- hero ----------
+   Faixa institucional, não vitrine de produto: só posiciona o site
+   (Bitcoin / economia / mercados), sem prometer nenhuma ferramenta
+   específica e sem CTA — quem vende ferramenta agora é o território do
+   Comparador, logo abaixo. Por isso a altura é baixa de propósito: em
+   monitores comuns (1366×768 a 1440×900), uma fatia real do território
+   do Comparador já aparece sem rolar a página. */
+.hero{padding:30px 0 26px; border-bottom:1px solid var(--border);}
+.hero h1{font-size:clamp(1.6rem,2.8vw,2.15rem); margin-bottom:.3em;}
+.hero .lead{font-size:1rem; margin:0; max-width:52ch;}
 .hero-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;}
-.hero-photo{
-  border-radius:var(--radius-lg);
-  overflow:hidden;border:1px solid var(--border-strong);
-  aspect-ratio:4/5;max-height:320px;background:var(--bg-card);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--text-muted);font-family:var(--font-mono);font-size:.8rem;text-align:center;
-}
-@media (max-width:860px){
-  .hero-inner{grid-template-columns:1fr;}
-  .hero-photo{max-width:280px;margin:24px auto 0;}
-}
-
-/* preview de produto no hero (recorte real de um gráfico) — mesma
-   moldura do .hero-photo, mas paisagem em vez de retrato, porque o
-   conteúdo agora é um gráfico, não um retrato. */
-.hero-photo.hero-preview{aspect-ratio:4/3;max-height:420px;}
-@media (max-width:860px){.hero-photo.hero-preview{max-width:520px;}}
 
 /* ---------- territórios de ferramenta ----------
    Cada ferramenta É a seção, não um objeto dentro de uma seção: sem
