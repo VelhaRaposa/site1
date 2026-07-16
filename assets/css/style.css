@@ -8,19 +8,11 @@
 
 :root{
   --bg:            #0A0E17;
-  --bg-card:       #121724;
-  --bg-card-hover: #181F30;
-  --bg-raised:     #151B29;
-  --border:        #242E45;
-  --border-strong: #34405C;
-
-  /* elevação real (não só cor de fundo): sombra de contato + sombra
-     ambiente mais larga, e um fio de luz de 1px no topo simulando uma
-     superfície que se ergue do fundo — é o que faz um card parecer
-     software (Linear/Vercel/GitHub dark) em vez de uma caixa desenhada
-     só com borda. Usado em todo componente de superfície (cards, stats,
-     chart-frame, schedule-row). */
-  --elevation-sm: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px -8px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
+  --bg-card:       #10141F;
+  --bg-card-hover: #161B29;
+  --bg-raised:     #141926;
+  --border:        #1F2634;
+  --border-strong: #2B3448;
 
   /* hierarquia construída a partir do branco (reduzindo luminosidade a cada
      nível), não a partir de cinza escuro — mesmo o nível mais apagado
@@ -189,95 +181,30 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
 }
 .mobile-menu-links a.active{color:var(--accent);}
 
-/* ---------- hero ----------
-   Faixa institucional, não vitrine de produto: só posiciona o site
-   (Bitcoin / economia / mercados), sem prometer nenhuma ferramenta
-   específica e sem CTA — quem vende ferramenta agora é o território do
-   Comparador, logo abaixo. Por isso a altura é baixa de propósito: em
-   monitores comuns (1366×768 a 1440×900), uma fatia real do território
-   do Comparador já aparece sem rolar a página. */
-.hero{padding:28px 0 24px; border-bottom:1px solid var(--border);}
-.hero h1{font-size:clamp(1.6rem,2.8vw,2.15rem); margin-bottom:.22em;}
-/* subtítulo com peso visual real (não legenda) — perto de metade da
-   importância do título, largura livre pra caber numa linha só */
-.hero .lead{font-size:clamp(1.15rem,2.1vw,1.5rem); font-weight:600; line-height:1.3; margin:0; max-width:none;}
+/* ---------- hero ---------- */
+.hero{
+  position:relative;
+  padding:52px 0 44px;
+  overflow:hidden;
+  border-bottom:1px solid var(--border);
+}
+.hero-chart{
+  position:absolute;inset:0;z-index:0;opacity:.35;
+  pointer-events:none;
+}
+.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.5fr .6fr;gap:48px;align-items:center;}
 .hero-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;}
-
-/* ---------- territórios de ferramenta ----------
-   Cada ferramenta É a seção, não um objeto dentro de uma seção: sem
-   .container, sem max-width, full-bleed de borda a borda da viewport.
-   O gráfico (renderizado por home.js) preenche o território inteiro;
-   nome e pergunta viram legenda pequena; o número real nasce perto do
-   fim da linha do próprio gráfico; o CTA é reforço, não o elemento
-   principal — a área inteira já é o link. */
-.ferramentas-territorios{display:flex;flex-direction:column;}
-.territorio{position:relative;display:block;overflow:hidden;color:inherit;}
-.territorio canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
-
-.territorio-cap{position:absolute;top:26px;left:28px;z-index:3;max-width:60%;}
-.territorio-cap-row{display:flex;align-items:center;gap:8px;}
-.territorio-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.territorio-nome{font-family:var(--font-display);font-weight:600;font-size:1.05rem;color:var(--text-primary);}
-.territorio-pergunta{font-size:.82rem;color:var(--text-tertiary);margin:4px 0 0;line-height:1.4;}
-
-.territorio-cta{
-  position:absolute;bottom:24px;right:28px;z-index:3;
-  font-size:.85rem;font-weight:600;color:var(--text-secondary);
-  border-bottom:1px solid transparent;padding-bottom:1px;
-  transition:color .15s ease, border-color .15s ease;
+.hero-photo{
+  border-radius:var(--radius-lg);
+  overflow:hidden;border:1px solid var(--border-strong);
+  aspect-ratio:4/5;max-height:320px;background:var(--bg-card);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);font-family:var(--font-mono);font-size:.8rem;text-align:center;
 }
-.territorio:hover .territorio-cta{color:var(--accent);border-color:var(--accent);}
-
-.tool-stat{position:absolute;z-index:3;text-align:right;}
-.tool-stat-value{
-  display:block;font-family:var(--font-mono);font-weight:700;
-  font-variant-numeric:tabular-nums;filter:drop-shadow(0 2px 10px rgba(0,0,0,.45));
+@media (max-width:860px){
+  .hero-inner{grid-template-columns:1fr;}
+  .hero-photo{max-width:280px;margin:24px auto 0;}
 }
-.tool-stat-label{display:block;font-size:.68rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;}
-
-.territorio--comparador{
-  height:560px;
-  background:radial-gradient(130% 120% at 80% 15%, var(--accent-soft), transparent 60%), var(--bg);
-}
-.territorio--comparador .territorio-dot{background:var(--accent);}
-.territorio--comparador .tool-stat{top:27%;right:5%;}
-.territorio--comparador .tool-stat-value{font-size:2.5rem;color:var(--accent);}
-@media (max-height:800px){.territorio--comparador{height:420px;}}
-@media (min-height:1301px){.territorio--comparador{height:680px;}}
-
-.territorio-linha{display:flex;}
-.territorio-linha .territorio{flex:1;height:360px;}
-@media (max-height:800px){.territorio-linha .territorio{height:300px;}}
-@media (min-height:1301px){.territorio-linha .territorio{height:440px;}}
-
-.territorio--dca{background:radial-gradient(140% 140% at 25% 85%, rgba(63,199,184,.12), transparent 60%), var(--bg);}
-.territorio--dca .territorio-dot{background:#3FC7B8;}
-.territorio--dca .tool-stat{bottom:22%;right:6%;}
-.territorio--dca .tool-stat-value{font-size:1.55rem;color:#3FC7B8;}
-
-.territorio--ciclos{background:radial-gradient(140% 140% at 75% 20%, rgba(155,127,212,.12), transparent 60%), var(--bg);}
-.territorio--ciclos .territorio-dot{background:#9B7FD4;}
-.territorio--ciclos .tool-stat{top:22%;right:6%;}
-.territorio--ciclos .tool-stat-value{font-size:1.55rem;color:#9B7FD4;}
-
-@media (max-width:760px){
-  .territorio-linha{flex-direction:column;}
-  .territorio--comparador{height:380px;}
-  /* em coluna, height vira o eixo principal do flex — flex:1 (flex-basis:0%)
-     ignoraria a altura explícita e colapsaria pra 0; flex:none faz a altura
-     declarada valer de verdade */
-  .territorio-linha .territorio{flex:none;height:280px;}
-  .territorio-cap{top:18px;left:18px;max-width:75%;}
-  .territorio-cta{bottom:16px;right:18px;font-size:.78rem;}
-  .territorio--comparador .tool-stat-value{font-size:2rem;}
-}
-
-/* ---------- zona de conteúdo (vídeos) — separada da zona de produto
-   por luminância mais clara e peso visual reduzido, não por rótulo */
-.home-content-zone{background:var(--bg-raised);}
-.section-head--sm h2{font-size:1.4rem;margin-bottom:.3em;}
-.section-sub-sm{font-size:.92rem;color:var(--text-tertiary);margin:0;}
-.home-content-zone .video-card{box-shadow:none;}
 
 /* hero compacta das páginas de ferramenta (Comparador, DCA, Ciclos) — a
    ferramenta em si (formulário/gráfico) é o conteúdo principal da página,
@@ -310,7 +237,6 @@ section{padding:44px 0;}
   border:1px solid var(--border);
   border-radius:var(--radius-md);
   padding:28px;
-  box-shadow:var(--elevation-sm);
   transition:border-color .15s ease, transform .15s ease;
 }
 .card:hover{border-color:var(--border-strong);}
@@ -358,22 +284,6 @@ section{padding:44px 0;}
   position:relative;overflow:hidden;
 }
 .video-thumb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.video-thumb-placeholder{
-  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-  background:linear-gradient(135deg,var(--bg-raised) 0%,var(--bg-card) 60%,var(--accent-soft) 145%);
-}
-.video-thumb-play{
-  width:38px;height:38px;border-radius:50%;flex-shrink:0;
-  background:rgba(255,255,255,.06);border:1px solid var(--border-strong);
-  display:flex;align-items:center;justify-content:center;color:var(--text-secondary);
-}
-.video-thumb-play svg{margin-left:2px;}
-.video-thumb-label{
-  position:absolute;left:0;right:0;bottom:0;padding:20px 10px 8px;
-  font-size:.72rem;line-height:1.35;color:var(--text-secondary);text-align:center;
-  background:linear-gradient(to top,rgba(0,0,0,.55),rgba(0,0,0,0));
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-}
 .video-title{font-size:.94rem;font-weight:600;margin-bottom:4px;color:var(--text-primary);}
 .video-meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-tertiary);}
 
@@ -385,7 +295,7 @@ section{padding:44px 0;}
 }
 
 /* stat */
-.stat{padding:20px;min-width:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--elevation-sm);}
+.stat{padding:20px;min-width:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);}
 .stat .num{
   font-family:var(--font-display);font-size:var(--num-md);color:var(--accent);
   font-variant-numeric:tabular-nums;overflow-wrap:break-word;
@@ -441,7 +351,7 @@ section{padding:44px 0;}
 .schedule-row{
   display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
   padding:24px;border:1px solid var(--border);border-radius:var(--radius-md);
-  background:var(--bg-card);box-shadow:var(--elevation-sm);
+  background:var(--bg-card);
 }
 .schedule-row .day{font-family:var(--font-display);font-weight:600;font-size:1.15rem;}
 .schedule-row .time{font-family:var(--font-mono);color:var(--accent);font-size:1.3rem;font-weight:600;}

@@ -89,17 +89,12 @@
   }
   .legenda-item:hover{border-color:var(--accent);}
   .legenda-item.inativo{opacity:.35;}
-  /* Bitcoin é o ativo central da ferramenta — precisa ser identificável
-     sem depender da legenda de cores */
-  .legenda-item.destaque{border-color:var(--accent-dark);color:var(--text-primary);font-weight:600;}
-  .legenda-item.destaque:hover{border-color:var(--accent);}
 
   /* cards de resultado com dot de cor do ativo — a DCA não tem, é um único ativo */
   .card-ativo .nome{
     display:flex;align-items:center;justify-content:center;gap:6px;
     font-weight:600;font-size:.86rem;color:var(--text-primary);margin-bottom:10px;
   }
-  .card-ativo.destaque{border-color:var(--accent-dark);}
 
   #comparador-nota-cambio{
     display:none;font-size:.8rem;color:var(--text-tertiary);background:var(--bg-card);
@@ -116,6 +111,7 @@
 
 <section class="tool-hero">
   <div class="container container-wide">
+    <p class="eyebrow">ferramenta</p>
     <h1>Onde seu dinheiro teria rendido mais?</h1>
     <p class="lead">Compare o mesmo valor investido, no mesmo período, em Bitcoin, CDI, Ibovespa, S&amp;P 500 e Ouro — com preços históricos reais, calculado direto no seu navegador.</p>
   </div>

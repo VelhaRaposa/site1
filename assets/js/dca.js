@@ -306,10 +306,7 @@ function renderChart(canvasEl, r) {
           ticks: {
             color: "#D7DCE5",
             font: { family: "JetBrains Mono", size: 10 },
-            callback: (v, i, ticksArray) => {
-              const d = decimalsSemColisao(ticksArray, t => t.value / 1000);
-              return "R$ " + (v / 1000).toFixed(d) + " mil";
-            },
+            callback: (v) => "R$ " + (v / 1000).toFixed(0) + " mil",
           },
         },
       },

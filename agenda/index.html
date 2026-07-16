@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const videos = await getLatestVideos(6);
   wrap.innerHTML = videos.map(v => `
     <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
-      <div class="video-thumb">${videoThumbHtml(v)}</div>
+      <div class="video-thumb">${v.thumb ? `<img src="${v.thumb}" alt="">` : "▶"}</div>
       ${v.pilar ? `<span class="tag">${v.pilar}</span>` : ""}
       <div class="video-title">${v.titulo}</div>
       ${v.views ? `<div class="video-meta">${v.views}</div>` : ""}
