@@ -254,3 +254,48 @@ esse formulário. No MVP, o envio do alerta em si (avisar quando o
 gatilho realmente disparar) ainda é manual — só a captura do e-mail já
 está pronta.
 
+## 11. Halvings canônicos — definição única para todo o projeto (não editar sem revisão)
+
+Preparação para o novo modo **"Ciclo Completo"** do Comparador de Ciclos
+(e para uma futura metodologia de alinhamento por Halving, além de uso
+em "Quando Vender Bitcoin?" e outras ferramentas de ciclo): os 4
+halvings já ocorridos estão congelados em `assets/js/halvings.js`
+(array `HALVINGS`), com a **mesma filosofia** já usada pra fundos/topo
+de ciclo (seção 9 acima) — cada halving tem uma **data canônica** e um
+**preço canônico** definidos manualmente, não calculados a partir de
+`assets/data/btc-history-usd.json`.
+
+**O que é objetivo vs. o que é decisão editorial:** a data e o bloco de
+cada halving são fatos on-chain, sem ambiguidade (o halving acontece
+exatamente a cada 210.000 blocos). Só o **preço** do dia tem a mesma
+ambiguidade de fonte que já existia pra fundos/topo — por isso recebe o
+mesmo tratamento: valor único, escolhido por consenso de mercado, não
+recalculado do dataset.
+
+| Halving | Data | Bloco | Recompensa (antes → depois) | Preço canônico | Fonte |
+|---|---|---|---|---|---|
+| 1º | 2012-11-28 | 210.000 | 50 → 25 BTC | US$ 12,35 | Figura mais repetida entre agregadores de histórico de halving (bitbo.io, pesquisa da CoinGecko, imprensa cripto) — mercado ainda muito ilíquido nessa época, mesma ressalva já feita pro fundo de 2011 na seção 9 |
+| 2º | 2016-07-09 | 420.000 | 25 → 12,5 BTC | US$ 650,00 | Consenso geral — fontes variam entre ~US$ 640 e ~US$ 670 nesse dia; US$ 650 é o valor redondo mais repetido |
+| 3º | 2020-05-11 | 630.000 | 12,5 → 6,25 BTC | US$ 8.601,80 | Preço de fechamento citado por cobertura financeira do dia (ex: BitGo, "The Third Halvening") |
+| 4º | 2024-04-20 | 840.000 | 6,25 → 3,125 BTC | US$ 63.800,00 | Consenso geral de agregadores de halving; existe uma variante mais alta (~US$ 64.990, pico intradiário Bitstamp) que não foi usada — seguimos o preço de fechamento, mesmo critério do restante da tabela |
+
+**Auditoria de fontes:** assim como a tabela de CICLOS (seção 9), esta
+pesquisa foi feita por busca cruzada em agregadores e imprensa
+financeira, não por acesso direto a uma única exchange histórica — o
+ambiente de desenvolvimento não tem acesso a terminais de dados pagos.
+Se uma fonte primária (ex: exportação direta da Bitstamp/CoinDesk BPI
+pra aquele dia exato) for encontrada depois, os valores podem ser
+revisados — propositalmente, não automaticamente.
+
+**5º halving:** ainda não ocorrido na data de hoje usada pelo projeto.
+Não existe entrada estimada em `HALVINGS` — só será adicionado quando
+o bloco 1.050.000 for minerado de fato e um preço puder ser congelado
+com o mesmo critério acima.
+
+**Este arquivo não está ligado a nenhuma página ainda** — `halvings.js`
+só define os dados; nenhum `<script>` foi adicionado a nenhum HTML
+nesta rodada. Quando "Ciclo Completo" (ou qualquer outro consumidor da
+lista no topo do arquivo) for implementado, carregue-o via
+`<script src="/assets/js/halvings.js">` antes do script da ferramenta,
+no mesmo padrão já usado com `assets/js/utils.js`.
+
