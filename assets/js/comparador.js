@@ -57,21 +57,12 @@ const state = {
   ativosAtivos: new Set(ATIVOS.map(a => a.id)),
 };
 
+// fmtDateBR, addDays e debounce vêm de assets/js/utils.js (carregado antes
+// deste arquivo). fmtBRL mantém wrapper local porque este comparador
+// arredonda pra inteiro (0 casas decimais) — decisão específica desta
+// ferramenta, diferente da Calculadora DCA.
 function fmtBRL(n) {
-  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
-}
-function fmtDateBR(dateStr) {
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}/${y}`;
-}
-function addDays(dateStr, days) {
-  const d = new Date(dateStr + "T00:00:00");
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-function debounce(fn, ms) {
-  let t;
-  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  return fmtBRLBase(n, 0);
 }
 
 async function loadHistorico(url) {
@@ -181,9 +172,7 @@ function ordenarResultados(resultadosPorAtivo, ids) {
     .map(id => ({ ...resultadosPorAtivo[id], ativo: ATIVOS.find(a => a.id === id) }))
     .sort((a, b) => b.valorFinal - a.valorFinal);
 }
-function dotHtml(cor) {
-  return `<span class="legenda-dot" style="background:${cor}"></span>`;
-}
+// dotHtml vem de assets/js/utils.js
 
 // insere "Total Investido" (retorno sempre 0%) na mesma ordenação dos ativos —
 // responde de cara "ganhei dinheiro ou teria sido igual só guardar o valor?"
@@ -380,15 +369,7 @@ function mensagemCompartilhamento(ordenado, totalInvestido) {
   return `${corpoMensagem(ordenado, totalInvestido)}\n\n👇\n${LINK_COMPARADOR_VISIVEL}`;
 }
 
-async function copiarTexto(texto, feedbackEl, textoOriginal) {
-  try {
-    await navigator.clipboard.writeText(texto);
-    feedbackEl.textContent = "Copiado!";
-  } catch (e) {
-    feedbackEl.textContent = "Não foi possível copiar";
-  }
-  setTimeout(() => { feedbackEl.textContent = textoOriginal; }, 1800);
-}
+// copiarTexto vem de assets/js/utils.js
 
 /* ---------- boot ---------- */
 document.addEventListener("DOMContentLoaded", async () => {
