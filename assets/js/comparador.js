@@ -192,7 +192,7 @@ function renderCards(el, ordenadoComTotal) {
   // do mesmo tamanho, sem nenhum sobrando sozinho na linha de baixo.
   el.style.setProperty("--n-cards", ordenadoComTotal.length);
   el.innerHTML = ordenadoComTotal.map(r => `
-    <div class="card-ativo ${r.ativo.id === 'btc' ? 'destaque' : ''}">
+    <div class="card-ativo">
       <div class="nome">${dotHtml(r.ativo.cor)}${r.ativo.nome}</div>
       <div class="pct" style="color:${r.lucroPct >= 0 ? 'var(--green)' : 'var(--red)'}">${r.lucroPct > 0 ? '+' : ''}${r.lucroPct.toFixed(1)}%</div>
       <div class="valor">${fmtBRL(r.valorFinal)}</div>
@@ -203,7 +203,7 @@ function renderCards(el, ordenadoComTotal) {
 function renderLegenda(el, onToggle) {
   const disponiveis = ATIVOS.filter(a => historicos[a.id] && historicos[a.id].length > 0);
   el.innerHTML = disponiveis.map(a => `
-    <span class="legenda-item ${a.id === 'btc' ? 'destaque' : ''} ${state.ativosAtivos.has(a.id) ? '' : 'inativo'}" data-id="${a.id}" role="button" tabindex="0">
+    <span class="legenda-item ${state.ativosAtivos.has(a.id) ? '' : 'inativo'}" data-id="${a.id}" role="button" tabindex="0">
       ${dotHtml(a.cor)}${a.nome}
     </span>
   `).join("");
@@ -224,20 +224,15 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
   const labels = idx.map(i => fmtDateBR(datas[i]));
   const datasets = idsSelecionados.map(id => {
     const ativo = ATIVOS.find(a => a.id === id);
-    // Bitcoin é o ativo central da ferramenta — mesmo padrão de destaque
-    // (linha mais espessa + prioridade de desenho) já usado no Comparador
-    // de Ciclos para o ciclo em andamento (ver comparador-ciclos.js).
-    const isBtc = id === "btc";
     return {
       label: ativo.nome,
       data: idx.map(i => seriePorAtivo[id][i].valor),
       borderColor: ativo.cor,
       backgroundColor: ativo.cor, // sólido — usado pelo marcador (círculo preenchido) do tooltip, não pela área do gráfico (fill:false)
-      borderWidth: isBtc ? 3.4 : 1.7,
+      borderWidth: 2.2,
       pointRadius: 0,
       pointBackgroundColor: ativo.cor,
       tension: 0.12,
-      order: isBtc ? 0 : 1,
     };
   });
   datasets.push({
@@ -251,7 +246,6 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
     pointRadius: 0,
     fill: false,
     tension: 0,
-    order: 2,
   });
 
   chartInstance = new Chart(ctx, {
@@ -271,10 +265,7 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
           ticks: {
             color: "#D7DCE5",
             font: { family: "JetBrains Mono", size: 10 },
-            callback: (v, i, ticksArray) => {
-              const d = decimalsSemColisao(ticksArray, t => t.value / 1000);
-              return "R$ " + (v / 1000).toFixed(d) + " mil";
-            },
+            callback: (v) => "R$ " + (v / 1000).toFixed(0) + " mil",
           },
         },
       },

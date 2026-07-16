@@ -57,62 +57,40 @@
 <header id="site-header"></header>
 
 <section class="hero">
-  <div class="container container-wide">
-    <h1>Bitcoin. Economia. Mercados.</h1>
-    <p class="lead">O Bitcoin é a consequência.</p>
+  <svg class="hero-chart" viewBox="0 0 1100 340" preserveAspectRatio="none" aria-hidden="true">
+    <polyline points="0,260 90,240 180,270 270,210 360,230 450,160 540,190 630,120 720,150 810,90 900,120 990,60 1100,80"
+      fill="none" stroke="#F7931A" stroke-width="2" opacity="0.5"/>
+    <g stroke="#2B3448" stroke-width="1">
+      <line x1="0" y1="60" x2="1100" y2="60"/>
+      <line x1="0" y1="130" x2="1100" y2="130"/>
+      <line x1="0" y1="200" x2="1100" y2="200"/>
+      <line x1="0" y1="270" x2="1100" y2="270"/>
+    </g>
+  </svg>
+  <div class="container container-wide hero-inner">
+    <div>
+      <p class="eyebrow">bitcoin · economia · mercados</p>
+      <h1>Você não precisa adivinhar o próximo movimento do Bitcoin.</h1>
+      <p class="lead">E nem acompanhar o mercado o dia inteiro.<br>Entenda o que realmente importa para o Bitcoin.</p>
+      <div class="hero-actions">
+        <a href="/calculadora/" class="btn btn-primary">Quanto eu teria em Bitcoin hoje?</a>
+        <a href="/guia-bitcoin/" class="btn btn-ghost">Onde comprar Bitcoin</a>
+      </div>
+    </div>
+    <div class="hero-photo">
+      <img src="/assets/img/perfil.jpg" alt="Caio Garé" width="800" height="800" style="width:100%;height:100%;object-fit:cover;">
+    </div>
   </div>
 </section>
 
-<section class="ferramentas-territorios">
-  <a class="territorio territorio--comparador" href="/comparador/">
-    <canvas id="chart-comparador"></canvas>
-    <div class="territorio-cap">
-      <div class="territorio-cap-row"><span class="territorio-dot"></span><span class="territorio-nome">Comparador de Investimentos</span></div>
-      <p class="territorio-pergunta">Bitcoin rendeu mais que CDI, Ibovespa, Ouro e S&amp;P 500?</p>
-    </div>
-    <div class="tool-stat" data-tool="comparador">
-      <span class="tool-stat-value">—</span>
-      <span class="tool-stat-label">carregando dado real…</span>
-    </div>
-    <span class="territorio-cta">Comparar agora →</span>
-  </a>
-
-  <div class="territorio-linha">
-    <a class="territorio territorio--dca" href="/calculadora/">
-      <canvas id="chart-dca"></canvas>
-      <div class="territorio-cap">
-        <div class="territorio-cap-row"><span class="territorio-dot"></span><span class="territorio-nome">DCA Bitcoin</span></div>
-        <p class="territorio-pergunta">Quanto valeria hoje um aporte mensal em Bitcoin?</p>
-      </div>
-      <div class="tool-stat" data-tool="dca">
-        <span class="tool-stat-value">—</span>
-        <span class="tool-stat-label">carregando dado real…</span>
-      </div>
-      <span class="territorio-cta">Simular meu aporte →</span>
-    </a>
-    <a class="territorio territorio--ciclos" href="/comparador-ciclos/">
-      <canvas id="chart-ciclos"></canvas>
-      <div class="territorio-cap">
-        <div class="territorio-cap-row"><span class="territorio-dot"></span><span class="territorio-nome">Ciclos Bitcoin</span></div>
-        <p class="territorio-pergunta">Em que fase do ciclo atual o Bitcoin está?</p>
-      </div>
-      <div class="tool-stat" data-tool="ciclos">
-        <span class="tool-stat-value">—</span>
-        <span class="tool-stat-label">carregando dado real…</span>
-      </div>
-      <span class="territorio-cta">Ver o ciclo atual →</span>
-    </a>
-  </div>
-</section>
-
-<section class="section-border-top home-content-zone">
+<section class="section-border-top">
   <div class="container container-wide">
-    <div class="section-head section-head--sm">
-      <h2>Do canal</h2>
-      <p class="section-sub-sm">Análises novas toda semana, ao vivo.</p>
+    <div class="section-head">
+      <p class="eyebrow">últimos vídeos</p>
+      <h2>O que está no ar essa semana</h2>
     </div>
     <div class="grid grid-3" id="home-videos"></div>
-    <div style="margin-top:20px;">
+    <div style="margin-top:28px;">
       <a href="/agenda/" class="btn btn-ghost">Ver agenda completa →</a>
     </div>
   </div>
@@ -123,9 +101,6 @@
 <script src="/assets/js/content.js"></script>
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/nav.js"></script>
-<script src="/assets/js/utils.js"></script>
-<script src="/assets/js/vendor/chart.umd.min.js"></script>
-<script src="/assets/js/home.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
   const wrap = document.getElementById("home-videos");
@@ -133,7 +108,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const videos = await getLatestVideos(3);
   wrap.innerHTML = videos.map(v => `
     <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
-      <div class="video-thumb">${videoThumbHtml(v)}</div>
+      <div class="video-thumb">${v.thumb ? `<img src="${v.thumb}" alt="">` : "▶"}</div>
       ${v.pilar ? `<span class="tag">${v.pilar}</span>` : ""}
       <div class="video-title">${v.titulo}</div>
       ${v.views ? `<div class="video-meta">${v.views}</div>` : ""}
