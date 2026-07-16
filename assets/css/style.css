@@ -220,15 +220,74 @@ p{margin:0 0 1em;color:var(--text-secondary);font-size:1.0625rem;line-height:1.7
 .hero-photo.hero-preview{aspect-ratio:4/3;max-height:420px;}
 @media (max-width:860px){.hero-photo.hero-preview{max-width:520px;}}
 
-/* ---------- vitrine de ferramentas ---------- */
-.tool-card{display:flex;flex-direction:column;}
-.tool-card:hover{border-color:var(--accent);}
-.tool-question{font-size:.95rem;color:var(--text-secondary);line-height:1.5;margin:0 0 18px;}
-.tool-stat{margin-bottom:20px;}
-.tool-stat-value{display:block;font-family:var(--font-display);font-size:1.9rem;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
-.tool-stat-label{display:block;font-size:.76rem;color:var(--text-tertiary);margin-top:4px;}
-.tool-cta{margin-top:auto;padding-top:4px;font-size:.88rem;font-weight:600;color:var(--text-primary);}
-.tool-card:hover .tool-cta{color:var(--accent);}
+/* ---------- territórios de ferramenta ----------
+   Cada ferramenta É a seção, não um objeto dentro de uma seção: sem
+   .container, sem max-width, full-bleed de borda a borda da viewport.
+   O gráfico (renderizado por home.js) preenche o território inteiro;
+   nome e pergunta viram legenda pequena; o número real nasce perto do
+   fim da linha do próprio gráfico; o CTA é reforço, não o elemento
+   principal — a área inteira já é o link. */
+.ferramentas-territorios{display:flex;flex-direction:column;}
+.territorio{position:relative;display:block;overflow:hidden;color:inherit;}
+.territorio canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
+
+.territorio-cap{position:absolute;top:26px;left:28px;z-index:3;max-width:60%;}
+.territorio-cap-row{display:flex;align-items:center;gap:8px;}
+.territorio-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.territorio-nome{font-family:var(--font-display);font-weight:600;font-size:1.05rem;color:var(--text-primary);}
+.territorio-pergunta{font-size:.82rem;color:var(--text-tertiary);margin:4px 0 0;line-height:1.4;}
+
+.territorio-cta{
+  position:absolute;bottom:24px;right:28px;z-index:3;
+  font-size:.85rem;font-weight:600;color:var(--text-secondary);
+  border-bottom:1px solid transparent;padding-bottom:1px;
+  transition:color .15s ease, border-color .15s ease;
+}
+.territorio:hover .territorio-cta{color:var(--accent);border-color:var(--accent);}
+
+.tool-stat{position:absolute;z-index:3;text-align:right;}
+.tool-stat-value{
+  display:block;font-family:var(--font-mono);font-weight:700;
+  font-variant-numeric:tabular-nums;filter:drop-shadow(0 2px 10px rgba(0,0,0,.45));
+}
+.tool-stat-label{display:block;font-size:.68rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;}
+
+.territorio--comparador{
+  height:560px;
+  background:radial-gradient(130% 120% at 80% 15%, var(--accent-soft), transparent 60%), var(--bg);
+}
+.territorio--comparador .territorio-dot{background:var(--accent);}
+.territorio--comparador .tool-stat{top:27%;right:5%;}
+.territorio--comparador .tool-stat-value{font-size:2.5rem;color:var(--accent);}
+@media (max-height:800px){.territorio--comparador{height:420px;}}
+@media (min-height:1301px){.territorio--comparador{height:680px;}}
+
+.territorio-linha{display:flex;}
+.territorio-linha .territorio{flex:1;height:360px;}
+@media (max-height:800px){.territorio-linha .territorio{height:300px;}}
+@media (min-height:1301px){.territorio-linha .territorio{height:440px;}}
+
+.territorio--dca{background:radial-gradient(140% 140% at 25% 85%, rgba(63,199,184,.12), transparent 60%), var(--bg);}
+.territorio--dca .territorio-dot{background:#3FC7B8;}
+.territorio--dca .tool-stat{bottom:22%;right:6%;}
+.territorio--dca .tool-stat-value{font-size:1.55rem;color:#3FC7B8;}
+
+.territorio--ciclos{background:radial-gradient(140% 140% at 75% 20%, rgba(155,127,212,.12), transparent 60%), var(--bg);}
+.territorio--ciclos .territorio-dot{background:#9B7FD4;}
+.territorio--ciclos .tool-stat{top:22%;right:6%;}
+.territorio--ciclos .tool-stat-value{font-size:1.55rem;color:#9B7FD4;}
+
+@media (max-width:760px){
+  .territorio-linha{flex-direction:column;}
+  .territorio--comparador{height:380px;}
+  /* em coluna, height vira o eixo principal do flex — flex:1 (flex-basis:0%)
+     ignoraria a altura explícita e colapsaria pra 0; flex:none faz a altura
+     declarada valer de verdade */
+  .territorio-linha .territorio{flex:none;height:280px;}
+  .territorio-cap{top:18px;left:18px;max-width:75%;}
+  .territorio-cta{bottom:16px;right:18px;font-size:.78rem;}
+  .territorio--comparador .tool-stat-value{font-size:2rem;}
+}
 
 /* ---------- zona de conteúdo (vídeos) — separada da zona de produto
    por luminância mais clara e peso visual reduzido, não por rótulo */

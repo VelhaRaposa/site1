@@ -1,5 +1,5 @@
 /* =========================================================
-   HOME.JS — números reais dos cards da vitrine de ferramentas
+   HOME.JS — números e gráficos reais dos territórios de ferramenta
    =========================================================
    Não inclui comparador.js/dca.js/comparador-ciclos.js diretamente:
    cada um termina num bloco DOMContentLoaded que já parte pra
@@ -8,10 +8,17 @@
    tentasse usar um elemento que não existe na Home.
 
    Este arquivo replica só o mínimo de metodologia necessário pra
-   mostrar um número real (mesmos arquivos de dado, mesmos parâmetros
-   padrão de cada ferramenta — ver comparador.js/dca.js/
+   mostrar um número e um gráfico reais (mesmos arquivos de dado, mesmos
+   parâmetros padrão de cada ferramenta — ver comparador.js/dca.js/
    comparador-ciclos.js pra a versão completa e documentada de cada
    cálculo). fmtBRLBase e CICLO_ATUAL_FUNDO vêm de utils.js.
+
+   Os gráficos aqui são decorativos, não analíticos: sem eixo, sem
+   legenda, sem tooltip, sem interação própria (o território inteiro já
+   é um link — um gráfico interativo por baixo ia disputar o clique com
+   o próprio link). O papel dele é só dar corpo visual ao território,
+   não deixar o visitante ler valores nele — pra isso existem as
+   ferramentas de verdade.
    ========================================================= */
 
 async function carregarJSON(url) {
@@ -47,14 +54,16 @@ function simularAporte(hist, { valorInicial = 0, aporte, inicio, fim }) {
   if (datas[datas.length - 1] !== fim) datas.push(fim);
 
   let unidades = 0, totalInvestido = 0;
+  const serie = [];
   datas.forEach((data, i) => {
     const preco = precoAte(data, hist);
     const aporteDoDia = i === 0 ? valorInicial + aporte : aporte;
     unidades += aporteDoDia / preco;
     totalInvestido += aporteDoDia;
+    serie.push(unidades * preco);
   });
-  const valorFinal = unidades * precoAte(fim, hist);
-  return { totalInvestido, valorFinal, lucroPct: (valorFinal - totalInvestido) / totalInvestido * 100 };
+  const valorFinal = serie[serie.length - 1];
+  return { totalInvestido, valorFinal, lucroPct: (valorFinal - totalInvestido) / totalInvestido * 100, serie };
 }
 
 function setStat(tool, value, label) {
@@ -62,6 +71,37 @@ function setStat(tool, value, label) {
   if (!el) return;
   el.querySelector(".tool-stat-value").textContent = value;
   el.querySelector(".tool-stat-label").textContent = label;
+}
+
+// gráfico decorativo full-bleed do território — área preenchida, sem
+// eixo/legenda/tooltip/interação (ver nota no topo do arquivo)
+function renderTerritorioChart(canvasId, serie, cor) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !serie || serie.length < 2) return;
+  new Chart(canvas.getContext("2d"), {
+    type: "line",
+    data: {
+      labels: serie.map((_, i) => i),
+      datasets: [{
+        data: serie,
+        borderColor: cor,
+        backgroundColor: cor + "35",
+        borderWidth: 3,
+        fill: true,
+        pointRadius: 0,
+        tension: 0.15,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      events: [],
+      layout: { padding: 0 },
+      scales: { x: { display: false }, y: { display: false } },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    },
+  });
 }
 
 // Comparador: mesmo padrão da ferramenta — R$1.000 + R$200/mês,
@@ -81,6 +121,7 @@ async function preencherComparador() {
   const sinal = rBtc.lucroPct >= 0 ? "+" : "";
   setStat("comparador", sinal + rBtc.lucroPct.toFixed(0) + "%",
     `Bitcoin no último ano · CDI: ${rCdi.lucroPct >= 0 ? "+" : ""}${rCdi.lucroPct.toFixed(0)}%`);
+  renderTerritorioChart("chart-comparador", rBtc.serie, "#F7931A");
 }
 
 // DCA: mesmo padrão da ferramenta — R$200/mês, período padrão de 1 ano
@@ -93,6 +134,7 @@ async function preencherDca() {
   const r = simularAporte(btc, { valorInicial: 0, aporte: 200, inicio, fim });
   const sinal = r.lucroPct >= 0 ? "+" : "";
   setStat("dca", fmtBRLBase(r.valorFinal, 0), `hoje, com R$200/mês no último ano (${sinal}${r.lucroPct.toFixed(0)}%)`);
+  renderTerritorioChart("chart-dca", r.serie, "#3FC7B8");
 }
 
 // Ciclos: variação desde o fundo do ciclo em formação (CICLO_ATUAL_FUNDO,
@@ -104,6 +146,8 @@ async function preencherCiclos() {
   const mult = (precoAtual / CICLO_ATUAL_FUNDO.preco - 1) * 100;
   const sinal = mult >= 0 ? "+" : "";
   setStat("ciclos", sinal + mult.toFixed(0) + "%", "desde o fundo do ciclo atual");
+  const serie = dados.filter(d => d.date >= CICLO_ATUAL_FUNDO.data).map(d => d.price);
+  renderTerritorioChart("chart-ciclos", serie, "#9B7FD4");
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -71,40 +71,45 @@
   </div>
 </section>
 
-<section class="section-border-top">
-  <div class="container container-wide">
-    <div class="section-head">
-      <h2>As ferramentas</h2>
+<section class="ferramentas-territorios">
+  <a class="territorio territorio--comparador" href="/comparador/">
+    <canvas id="chart-comparador"></canvas>
+    <div class="territorio-cap">
+      <div class="territorio-cap-row"><span class="territorio-dot"></span><span class="territorio-nome">Comparador de Investimentos</span></div>
+      <p class="territorio-pergunta">Bitcoin rendeu mais que CDI, Ibovespa, Ouro e S&amp;P 500?</p>
     </div>
-    <div class="grid grid-3">
-      <a class="card tool-card" href="/comparador/">
-        <h3>Comparador de Investimentos</h3>
-        <p class="tool-question">Bitcoin rendeu mais que CDI, Ibovespa, Ouro e S&amp;P 500?</p>
-        <div class="tool-stat" data-tool="comparador">
-          <span class="tool-stat-value">—</span>
-          <span class="tool-stat-label">carregando dado real…</span>
-        </div>
-        <span class="tool-cta">Comparar agora →</span>
-      </a>
-      <a class="card tool-card" href="/calculadora/">
-        <h3>DCA Bitcoin</h3>
-        <p class="tool-question">Quanto valeria hoje um aporte mensal em Bitcoin?</p>
-        <div class="tool-stat" data-tool="dca">
-          <span class="tool-stat-value">—</span>
-          <span class="tool-stat-label">carregando dado real…</span>
-        </div>
-        <span class="tool-cta">Simular meu aporte →</span>
-      </a>
-      <a class="card tool-card" href="/comparador-ciclos/">
-        <h3>Ciclos Bitcoin</h3>
-        <p class="tool-question">Em que fase do ciclo atual o Bitcoin está?</p>
-        <div class="tool-stat" data-tool="ciclos">
-          <span class="tool-stat-value">—</span>
-          <span class="tool-stat-label">carregando dado real…</span>
-        </div>
-        <span class="tool-cta">Ver o ciclo atual →</span>
-      </a>
+    <div class="tool-stat" data-tool="comparador">
+      <span class="tool-stat-value">—</span>
+      <span class="tool-stat-label">carregando dado real…</span>
     </div>
+    <span class="territorio-cta">Comparar agora →</span>
+  </a>
+
+  <div class="territorio-linha">
+    <a class="territorio territorio--dca" href="/calculadora/">
+      <canvas id="chart-dca"></canvas>
+      <div class="territorio-cap">
+        <div class="territorio-cap-row"><span class="territorio-dot"></span><span class="territorio-nome">DCA Bitcoin</span></div>
+        <p class="territorio-pergunta">Quanto valeria hoje um aporte mensal em Bitcoin?</p>
+      </div>
+      <div class="tool-stat" data-tool="dca">
+        <span class="tool-stat-value">—</span>
+        <span class="tool-stat-label">carregando dado real…</span>
+      </div>
+      <span class="territorio-cta">Simular meu aporte →</span>
+    </a>
+    <a class="territorio territorio--ciclos" href="/comparador-ciclos/">
+      <canvas id="chart-ciclos"></canvas>
+      <div class="territorio-cap">
+        <div class="territorio-cap-row"><span class="territorio-dot"></span><span class="territorio-nome">Ciclos Bitcoin</span></div>
+        <p class="territorio-pergunta">Em que fase do ciclo atual o Bitcoin está?</p>
+      </div>
+      <div class="tool-stat" data-tool="ciclos">
+        <span class="tool-stat-value">—</span>
+        <span class="tool-stat-label">carregando dado real…</span>
+      </div>
+      <span class="territorio-cta">Ver o ciclo atual →</span>
+    </a>
   </div>
 </section>
 
@@ -127,6 +132,7 @@
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/nav.js"></script>
 <script src="/assets/js/utils.js"></script>
+<script src="/assets/js/vendor/chart.umd.min.js"></script>
 <script src="/assets/js/home.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
