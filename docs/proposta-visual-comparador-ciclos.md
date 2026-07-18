@@ -78,10 +78,33 @@ elemento novo:
 
 ![Toolbar proposto — legenda aproximada dos controles Fundo/Halving](img/comparador-ciclos-toolbar-proposto.png)
 
+## Rodada 3 — implementação
+
+Aprovado: posição da legenda + intensidade de 4%. Implementado:
+
+- **Legenda:** `comparador-ciclos/index.html` — `.ciclos-toolbar` trocou
+  `justify-content:space-between` por `flex-start`. Uma linha de CSS,
+  nenhuma mudança de estrutura/markup/breakpoints.
+- **Marca d'água:** `assets/js/chart-watermark.js` (novo) — plugin
+  Chart.js reutilizável, opt-in via `options.plugins.watermark = {
+  enabled: true, opacity: 0.04 }` no config de qualquer gráfico. Usa
+  sempre `/favicon.svg` (a marca oficial validada), desenha só dentro
+  de `chart.chartArea` (a área de plotagem do Chart.js já exclui eixos,
+  títulos e legenda por definição) e roda em `beforeDatasetsDraw`, ou
+  seja, atrás das linhas de dados. Habilitado em
+  `assets/js/comparador-ciclos.js`; ainda não ligado nas outras
+  ferramentas (Comparador de Investimentos, Calculadora DCA) — é
+  opt-in de um `options.plugins.watermark` cada, quando for a vez
+  delas.
+
+**Cor da marca d'água — recomendação:** ver explicação enviada
+separadamente antes do merge.
+
 ## Entrega desta PR
 
 Rodada 1: Screenshot 1 (validação da logo), Screenshot 2 (toolbar
 atual) e Screenshot 3 (toolbar com legenda reposicionada).
 Rodada 2: Screenshot 1 (marca d'água 2%) e Screenshot 2 (marca d'água
-4%), mesma posição, sobre o gráfico real. Nada além disso — sem PR,
-sem alteração de código.
+4%), mesma posição, sobre o gráfico real.
+Rodada 3: implementação da legenda + componente de marca d'água
+reutilizável, habilitado no Comparador de Ciclos.

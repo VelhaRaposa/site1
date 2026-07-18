@@ -363,6 +363,7 @@ function renderChart(canvasEl) {
       },
       plugins: {
         legend: { display: false },
+        watermark: { enabled: true, opacity: 0.04 },
         tooltip: {
           usePointStyle: true, pointStyle: "circle", boxWidth: 8, boxHeight: 8,
           backgroundColor: "#10141F", borderColor: "#2B3448", borderWidth: 1,
