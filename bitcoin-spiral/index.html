@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin Spiral — o ciclo do Bitcoin em espiral | Caio Garé</title>
+<!-- Favicons — Caio Garé -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0B2138">
+<meta name="description" content="O preço histórico do Bitcoin em espiral: ângulo é tempo ou blocos, raio é preço em escala logarítmica. Halvings, topos e fundos reais, dado real desde 2010.">
+<link rel="canonical" href="https://caiogare.com.br/bitcoin-spiral/">
+<meta property="og:title" content="Bitcoin Spiral | Caio Garé">
+<meta property="og:description" content="O preço histórico do Bitcoin em espiral: ângulo é tempo ou blocos, raio é preço em escala log — halvings, topos e fundos reais.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://caiogare.com.br/bitcoin-spiral/">
+<meta property="og:image" content="https://caiogare.com.br/assets/img/bitcoin-spiral-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bitcoin Spiral | Caio Garé">
+<meta name="twitter:description" content="O preço histórico do Bitcoin em espiral: ângulo é tempo ou blocos, raio é preço em escala log — halvings, topos e fundos reais.">
+<meta name="twitter:image" content="https://caiogare.com.br/assets/img/bitcoin-spiral-og.png">
+<link rel="stylesheet" href="/assets/css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "O que é o Bitcoin Spiral?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Uma forma de olhar pro histórico de preço do Bitcoin em coordenadas polares: o ângulo representa a posição dentro de um ciclo (tempo ou blocos, conforme o modo escolhido) e o raio representa o preço em escala logarítmica. O resultado é uma espiral que cresce pra fora a cada ciclo, porque o Bitcoin valeu mais a cada era."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Qual a diferença entre o modo Tempo e o modo Blocos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No modo Tempo, cada volta representa 4 anos corridos no calendário — os halvings não caem exatamente no mesmo ângulo a cada volta, porque 210.000 blocos raramente fecham em exatos 4 anos. No modo Blocos, cada volta representa exatamente 210.000 blocos, e os halvings caem sempre no mesmo ângulo — é a própria definição da volta."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Como os topos e fundos são definidos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Os topos e os fundos de ciclos já encerrados usam os mesmos marcos canônicos do Comparador de Ciclos. O fundo do ciclo em andamento é calculado automaticamente como o menor preço registrado desde o último topo confirmado — sem categoria de 'fundo provisório': se o preço cair mais amanhã, o marcador se move sozinho."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  .spiral-toolbar{
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-bottom:16px;
+  }
+  .spiral-alin{display:flex;align-items:center;gap:14px;font-family:var(--font-mono);font-size:.82rem;}
+  .spiral-alin-opt{display:inline-flex;align-items:center;gap:7px;cursor:pointer;color:var(--text-tertiary);}
+  .spiral-alin-opt:hover{color:var(--text-secondary);}
+  .spiral-alin-opt.ativa{color:var(--text-primary);}
+  .spiral-alin-opt input{position:absolute;opacity:0;width:1px;height:1px;}
+  .spiral-alin-dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--border-strong);flex-shrink:0;position:relative;display:inline-block;}
+  .spiral-alin-opt.ativa .spiral-alin-dot{border-color:var(--accent);}
+  .spiral-alin-opt.ativa .spiral-alin-dot::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:var(--accent);}
+  .spiral-hint{font-family:var(--font-mono);font-size:.76rem;color:var(--text-tertiary);}
+
+  .spiral-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:40px;}
+  .spiral-stage{
+    position:relative;width:min(100%, 72vh, 720px);aspect-ratio:1/1;margin:0 auto;
+    cursor:crosshair;
+  }
+  #bitcoin-spiral-canvas{display:block;width:100%;height:100%;}
+
+  .spiral-legend{
+    position:absolute;top:14px;left:14px;
+    font-family:var(--font-mono);font-size:.68rem;color:var(--text-tertiary);
+    display:flex;flex-direction:column;gap:5px;pointer-events:none;
+  }
+  .spiral-legend .li{display:flex;align-items:center;gap:6px;}
+  .spiral-legend .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
+
+  .spiral-tooltip{
+    position:absolute;top:0;left:0;pointer-events:none;opacity:0;transition:opacity .08s ease;
+    background:var(--bg-raised);border:1px solid var(--border-strong);border-radius:6px;
+    padding:7px 10px;font-family:var(--font-mono);font-size:.74rem;color:var(--text-secondary);
+    line-height:1.5;white-space:nowrap;z-index:5;
+  }
+  .spiral-tooltip b{color:var(--text-primary);}
+  .spiral-tooltip-muted{color:var(--text-tertiary);}
+
+  .seo-block{max-width:var(--max-w-article);}
+  .seo-block h2{margin-top:0;}
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+
+<section class="tool-hero">
+  <div class="container container-wide">
+    <p class="eyebrow">ferramenta</p>
+    <h1>Bitcoin Spiral</h1>
+    <p class="lead">O preço histórico do Bitcoin em espiral — ângulo é tempo (ou blocos), raio é preço em escala logarítmica.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container container-wide">
+
+    <div class="spiral-toolbar">
+      <div class="spiral-alin" id="spiral-alin">
+        <label class="spiral-alin-opt ativa" data-modo="tempo">
+          <input type="radio" name="spiral-modo" checked><span class="spiral-alin-dot"></span>Tempo
+        </label>
+        <label class="spiral-alin-opt" data-modo="blocos">
+          <input type="radio" name="spiral-modo"><span class="spiral-alin-dot"></span>Blocos
+        </label>
+      </div>
+      <span class="spiral-hint" id="spiral-hint">1 volta ≈ 4 anos · ancorado em 2009</span>
+    </div>
+
+    <div class="spiral-frame">
+      <div class="spiral-stage">
+        <canvas id="bitcoin-spiral-canvas"></canvas>
+        <div class="spiral-legend">
+          <span class="li"><span class="dot" style="background:#F7931A"></span>Bitcoin</span>
+          <span class="li"><span class="dot" style="background:#4CAF7D"></span>Halving</span>
+          <span class="li"><span class="dot" style="background:#4DA3FF"></span>Topo</span>
+          <span class="li"><span class="dot" style="background:#FF5A5F"></span>Fundo</span>
+        </div>
+        <div class="spiral-tooltip" id="spiral-tooltip"></div>
+      </div>
+    </div>
+
+    <div class="cross-links">
+      <a href="/comparador-ciclos/" class="cross-link-card">
+        <div class="icon" aria-hidden="true">₿</div>
+        <div class="tit">Comparador de Ciclos</div>
+        <div class="sub">Compare o ciclo atual com os anteriores, lado a lado</div>
+      </a>
+      <a href="/comparador/" class="cross-link-card">
+        <div class="icon" aria-hidden="true">₿</div>
+        <div class="tit">Comparador de Investimentos</div>
+        <div class="sub">Bitcoin, CDI, Ibovespa, S&amp;P 500 e Ouro lado a lado</div>
+      </a>
+      <a href="/calculadora/" class="cross-link-card">
+        <div class="icon" aria-hidden="true">₿</div>
+        <div class="tit">Calculadora DCA Bitcoin</div>
+        <div class="sub">Compare aportes recorrentes com aporte único</div>
+      </a>
+    </div>
+
+    <div class="disclaimer-box">
+      <strong>Sobre esta ferramenta:</strong> mostra o histórico real de preço do Bitcoin em dólar, projetado em coordenadas polares (ângulo = tempo ou blocos, raio = preço em escala log). Halvings, topos e fundos usam os mesmos marcos canônicos do Comparador de Ciclos; o fundo do ciclo em andamento é recalculado automaticamente. A conversão de data para altura de bloco no modo Blocos é uma estimativa (interpolação entre halvings reais), não um dado on-chain exato. Não é recomendação de investimento nem previsão de topo.
+    </div>
+
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container seo-block">
+    <h2>Como funciona o cálculo</h2>
+    <p>Cada dia do histórico de preço vira um ponto: o ângulo é a posição desse dia dentro do ciclo atual (uma fração de 4 anos no modo Tempo, ou uma fração de 210.000 blocos no modo Blocos) e o raio é o preço daquele dia, em escala logarítmica, com piso em $1 — preços abaixo de $1 colapsam pro centro. Não há suavização: a linha conecta os pontos reais da série, sem média móvel nem interpolação de curva. O efeito de "espiral crescendo pra fora" a cada volta é inteiramente consequência do Bitcoin ter valido mais a cada ciclo — não é um artifício de desenho.</p>
+
+    <h2>Tempo vs. Blocos</h2>
+    <p>No modo Tempo, cada volta é ancorada no calendário (2009, 2013, 2017...) — como 210.000 blocos raramente fecham em exatos 4 anos, os halvings aparecem levemente deslocados a cada volta. No modo Blocos, cada volta é exatamente 210.000 blocos, e os halvings caem sempre no mesmo ângulo, no topo do círculo — é a própria definição da volta, sem nenhum deslocamento.</p>
+
+    <h2>Topos, fundos e halvings</h2>
+    <p>Halvings vêm de datas e alturas de bloco canônicas (mesma tabela usada em todo o site). Topos e fundos de ciclos já encerrados usam os mesmos marcos canônicos do Comparador de Ciclos. O fundo do ciclo em andamento não tem categoria especial: é sempre "o menor preço registrado desde o último topo confirmado", recalculado a cada carregamento — se amanhã o preço cair mais, o marcador se move sozinho, sem virar um estado visual diferente.</p>
+
+    <h2>O que essa ferramenta não considera</h2>
+    <p>A altura de bloco por data no modo Blocos é uma estimativa (interpolação linear entre os 4 halvings reais, com extrapolação a ~144 blocos/dia depois do mais recente) — não um dado on-chain exato dia a dia. A ferramenta não usa indicadores on-chain, liquidez global, DXY ou M2; é só preço histórico real, sem previsão.</p>
+
+    <h2>FAQ</h2>
+    <p><strong>O que é o Bitcoin Spiral?</strong> Uma forma de olhar pro histórico de preço do Bitcoin em coordenadas polares — ângulo é posição no ciclo, raio é preço em escala log.</p>
+    <p><strong>Qual a diferença entre Tempo e Blocos?</strong> Tempo alinha por calendário (halvings escorregam um pouco); Blocos alinha pela emissão programada (halvings sempre no mesmo ângulo).</p>
+    <p><strong>Como os topos e fundos são definidos?</strong> Marcos canônicos pros ciclos encerrados; o fundo do ciclo atual é automático — menor preço desde o último topo, sem categoria "provisório".</p>
+
+    <p style="margin-top:32px;">Quer comparar o ciclo atual lado a lado com os anteriores? Veja o <a href="/comparador-ciclos/">Comparador de Ciclos</a>. Para simular aportes recorrentes, veja a <a href="/calculadora/">Calculadora DCA</a>.</p>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="/assets/js/content.js"></script>
+<script src="/assets/js/analytics.js"></script>
+<script src="/assets/js/nav.js"></script>
+<script src="/assets/js/utils.js"></script>
+<script src="/assets/js/halvings.js"></script>
+<script src="/assets/js/bitcoin-spiral.js"></script>
+</body>
+</html>
