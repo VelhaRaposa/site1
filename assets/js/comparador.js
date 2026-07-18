@@ -271,6 +271,7 @@ function renderChart(canvasEl, datas, seriePorAtivo, idsSelecionados, totalInves
       },
       plugins: {
         legend: { display: false }, // legenda própria (clicável) fica fora do canvas
+        watermark: { enabled: true, opacity: 0.04 },
         tooltip: {
           usePointStyle: true,
           pointStyle: "circle",
