@@ -37,15 +37,27 @@ sem edição, ao lado do arquivo fonte — confirma que é a mesma marca. O
 arquivo antigo (`assets/img/favicon.svg`) aparece riscado na parte de
 baixo, para deixar claro por que foi descartado.
 
-## Passo 3 — marca d'água (adiada)
+## Passo 3 — marca d'água: intensidade (2% vs. 4%)
 
-Fora do escopo desta rodada até a logo acima ser confirmada. Quando
-aprovada, o componente de marca d'água deve nascer genérico (não
-exclusivo do Comparador de Ciclos) para reaproveitar em Comparador de
-Investimentos, Calculadora DCA e ferramentas futuras — provavelmente
-como um helper compartilhado em `assets/js/utils.js` ou um plugin
-Chart.js reaproveitável entre as três ferramentas, em vez de código
-duplicado em cada uma.
+Logo aprovada no Passo 1/2. Nesta rodada, só a intensidade — mesma
+posição (centralizada, atrás das linhas), mesmo tamanho, único ponto de
+comparação é a opacidade. Aplicada sobre o gráfico real (dados reais,
+não uma réplica), capturando a ferramenta rodando localmente.
+
+**Mockup A — opacidade 2%:**
+
+![Marca d'água a 2% de opacidade, sobre o gráfico real](img/comparador-ciclos-marca-dagua-2pct.png)
+
+**Mockup B — opacidade 4%:**
+
+![Marca d'água a 4% de opacidade, sobre o gráfico real](img/comparador-ciclos-marca-dagua-4pct.png)
+
+As duas capturas usam exatamente o mesmo elemento de marca, na mesma
+posição — a única diferença entre os dois arquivos é `style.opacity`
+(`0.02` vs `0.04`), aplicado via DOM na página carregada só para o
+screenshot. Tamanho e posicionamento definitivos (e o componente
+genérico reaproveitável em Comparador de Investimentos, Calculadora
+DCA etc.) ficam para quando a intensidade for aprovada.
 
 ## Passo 4 — legenda: reposicionamento mínimo
 
@@ -68,6 +80,8 @@ elemento novo:
 
 ## Entrega desta PR
 
-Screenshot 1 (validação da logo), Screenshot 2 (toolbar atual) e
-Screenshot 3 (toolbar com legenda reposicionada) — nada além disso.
-Aguardando confirmação da logo antes de retomar a marca d'água.
+Rodada 1: Screenshot 1 (validação da logo), Screenshot 2 (toolbar
+atual) e Screenshot 3 (toolbar com legenda reposicionada).
+Rodada 2: Screenshot 1 (marca d'água 2%) e Screenshot 2 (marca d'água
+4%), mesma posição, sobre o gráfico real. Nada além disso — sem PR,
+sem alteração de código.
