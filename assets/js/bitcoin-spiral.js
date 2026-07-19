@@ -175,6 +175,17 @@ function desenhar() {
   ctx.moveTo(cx - rExt - 10, cy); ctx.lineTo(cx + rExt + 10, cy);
   ctx.moveTo(cx, cy - rExt - 10); ctx.lineTo(cx, cy + rExt + 10);
   ctx.stroke();
+  // raios intermediários (45/135/225/315) — completam os 8 setores,
+  // do limite externo até o centro, igual à cruz principal acima,
+  // só que sem rótulo (apenas grade, como pedido)
+  ctx.strokeStyle = corGrade;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx - (rExt + 10) * Math.SQRT1_2, cy - (rExt + 10) * Math.SQRT1_2);
+  ctx.lineTo(cx + (rExt + 10) * Math.SQRT1_2, cy + (rExt + 10) * Math.SQRT1_2);
+  ctx.moveTo(cx - (rExt + 10) * Math.SQRT1_2, cy + (rExt + 10) * Math.SQRT1_2);
+  ctx.lineTo(cx + (rExt + 10) * Math.SQRT1_2, cy - (rExt + 10) * Math.SQRT1_2);
+  ctx.stroke();
 
   // rótulos — escala de preço com um pouco mais de contraste (decidido
   // na rodada final), rótulos angulares (ano/bloco) mais recuados
@@ -188,7 +199,15 @@ function desenhar() {
   });
   ctx.font = fontSize + "px 'JetBrains Mono', monospace";
   ctx.fillStyle = "rgba(139,147,167,0.4)";
-  const yearLabels = modo === "tempo" ? ["2009", "2010", "2011", "2012"] : ["0", "52.5k", "105k", "157.5k"];
+  // modo Tempo: cada quadrante lista os anos das 5 voltas que caem
+  // nele — só o topo usa o ano por extenso, os outros três já
+  // começam abreviados. Uma linha só, sempre, na mesma posição (fora
+  // da área útil) que os rótulos já usavam antes — sem empilhar, sem
+  // fallback: a mesma regra simples do rótulo do topo, replicada
+  // pros outros três lados.
+  const yearLabels = modo === "tempo"
+    ? ["2009, '13, '17, '21, '25", "'10, '14, '18, '22, '26", "'11, '15, '19, '23, '27", "'12, '16, '20, '24, '28"]
+    : ["0", "52.5k", "105k", "157.5k"];
   const pos = [
     { x: cx, y: Math.max(cy - rExt - 16, fontSize + 2), align: "center" },
     { x: Math.min(cx + rExt + 16, W - 4), y: cy + 4, align: "right" },
