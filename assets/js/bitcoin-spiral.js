@@ -175,6 +175,17 @@ function desenhar() {
   ctx.moveTo(cx - rExt - 10, cy); ctx.lineTo(cx + rExt + 10, cy);
   ctx.moveTo(cx, cy - rExt - 10); ctx.lineTo(cx, cy + rExt + 10);
   ctx.stroke();
+  // raios intermediários (45/135/225/315) — completam os 8 setores,
+  // do limite externo até o centro, igual à cruz principal acima,
+  // só que sem rótulo (apenas grade, como pedido)
+  ctx.strokeStyle = corGrade;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx - (rExt + 10) * Math.SQRT1_2, cy - (rExt + 10) * Math.SQRT1_2);
+  ctx.lineTo(cx + (rExt + 10) * Math.SQRT1_2, cy + (rExt + 10) * Math.SQRT1_2);
+  ctx.moveTo(cx - (rExt + 10) * Math.SQRT1_2, cy + (rExt + 10) * Math.SQRT1_2);
+  ctx.lineTo(cx + (rExt + 10) * Math.SQRT1_2, cy - (rExt + 10) * Math.SQRT1_2);
+  ctx.stroke();
 
   // rótulos — escala de preço com um pouco mais de contraste (decidido
   // na rodada final), rótulos angulares (ano/bloco) mais recuados
@@ -188,14 +199,37 @@ function desenhar() {
   });
   ctx.font = fontSize + "px 'JetBrains Mono', monospace";
   ctx.fillStyle = "rgba(139,147,167,0.4)";
-  const yearLabels = modo === "tempo" ? ["2009", "2010", "2011", "2012"] : ["0", "52.5k", "105k", "157.5k"];
+  // modo Tempo: cada quadrante lista os anos das 5 voltas que caem
+  // nele (só o topo usa o ano por extenso na primeira posição — os
+  // outros três já começam abreviados, igual à referência)
+  const yearLabels = modo === "tempo"
+    ? ["2009, '13, '17, '21, '25", "'10, '14, '18, '22, '26", "'11, '15, '19, '23, '27", "'12, '16, '20, '24, '28"]
+    : ["0", "52.5k", "105k", "157.5k"];
   const pos = [
     { x: cx, y: Math.max(cy - rExt - 16, fontSize + 2), align: "center" },
     { x: Math.min(cx + rExt + 16, W - 4), y: cy + 4, align: "right" },
     { x: cx, y: Math.min(cy + rExt + 24, H - 4), align: "center" },
     { x: Math.max(cx - rExt - 16, 4), y: cy + 4, align: "left" },
   ];
-  yearLabels.forEach((l, i) => { ctx.textAlign = pos[i].align; ctx.fillText(l, pos[i].x, pos[i].y); });
+  yearLabels.forEach((l, i) => {
+    ctx.textAlign = pos[i].align;
+    // laterais (direita/esquerda): se a lista de anos não couber
+    // numa linha só no espaço disponível (telas estreitas), empilha
+    // um ano por linha em vez de vazar pra fora do canvas — mesma
+    // fonte, cor e ponto-âncora de sempre, só a disposição muda
+    const lateral = i === 1 || i === 3;
+    if (lateral) {
+      const budget = pos[i].align === "left" ? (W - 4 - pos[i].x) : (pos[i].x - 4);
+      if (ctx.measureText(l).width > budget) {
+        const anos = l.split(", ");
+        const lh = fontSize * 1.3;
+        const yStart = pos[i].y - ((anos.length - 1) * lh) / 2;
+        anos.forEach((ano, j) => ctx.fillText(ano, pos[i].x, yStart + j * lh));
+        return;
+      }
+    }
+    ctx.fillText(l, pos[i].x, pos[i].y);
+  });
   ctx.textAlign = "left";
 
   // linha principal — traço ponto a ponto, dado real, sem suavização.
