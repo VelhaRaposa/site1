@@ -199,16 +199,18 @@ function desenhar() {
   });
   // modo Tempo: cada quadrante lista os anos das 5 voltas que caem
   // nele — só o topo usa o ano por extenso, os outros três já
-  // começam abreviados. Modo Blocos: como a posição angular é exata
-  // e se repete idêntica a cada volta (definição do próprio modo),
-  // cada rótulo mostra a contagem de blocos daquele ângulo — topo
-  // lista o início de cada volta (0, 210k, 420k...), os demais são
-  // os marcos intermediários de uma volta (a grade de 8 raios já
-  // desenhada no canvas). Sem "Halving N" — os pontos verdes já
-  // marcam isso visualmente.
+  // começam abreviados.
+  //
+  // modo Blocos: uma volta completa = 1 halving = 210.000 blocos, e
+  // o círculo já tem 8 raios desenhados (4 cardeais + 4 diagonais).
+  // Cada um dos 8 raios recebe seu valor individual (210k/8=26.25k
+  // por raio) — sem agrupar, sem "Halving N" (os pontos verdes já
+  // marcam isso). Só o raio do topo é especial: como ele também é o
+  // início de cada volta, lista os múltiplos de 210k das voltas
+  // desenhadas, igual ao rótulo do topo no modo Tempo.
   const yearLabels = modo === "tempo"
     ? ["2009, '13, '17, '21, '25", "'10, '14, '18, '22, '26", "'11, '15, '19, '23, '27", "'12, '16, '20, '24, '28"]
-    : ["0 · 210k · 420k · 630k · 840k blocos", "26.25k · 52.5k · 78.75k", "105k", "183.75k · 157.5k · 131.25k"];
+    : ["0 · 210k · 420k · 630k · 840k blocos", "52.5k", "105k", "157.5k"];
   posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt);
 
   // linha principal — traço ponto a ponto, dado real, sem suavização.
@@ -303,6 +305,30 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
     elEsq.style.right = (frameRect.width - circleLeftEdge + GAP) + "px";
     elEsq.style.left = "auto";
   }
+
+  // modo Blocos, fora do mobile: os 4 raios diagonais (45/135/225/315°)
+  // ganham seu próprio rótulo, centralizado exatamente na ponta do
+  // raio (mesmo raio rExt+GAP usado pelos 4 cardeais, mesma fonte —
+  // só a âncora é o ponto, não uma borda). No modo Tempo, ou no
+  // mobile, ficam escondidos (o desenho aprovado não tem diagonais).
+  const raioLabel = rExt + GAP;
+  const diagonais = [
+    { id: "spiral-ray-45", grausDoTopo: 45, valor: "26.25k" },
+    { id: "spiral-ray-135", grausDoTopo: 135, valor: "78.75k" },
+    { id: "spiral-ray-225", grausDoTopo: 225, valor: "131.25k" },
+    { id: "spiral-ray-315", grausDoTopo: 315, valor: "183.75k" },
+  ];
+  const mostrarDiagonais = modo === "blocos" && !empilhar;
+  diagonais.forEach(d => {
+    const el = document.getElementById(d.id);
+    if (!el) return;
+    if (!mostrarDiagonais) { el.style.display = "none"; return; }
+    const rad = (d.grausDoTopo * Math.PI / 180) - Math.PI / 2;
+    el.innerHTML = d.valor;
+    el.style.display = "block";
+    el.style.left = (originX + cx + Math.cos(rad) * raioLabel) + "px";
+    el.style.top = (originY + cy + Math.sin(rad) * raioLabel) + "px";
+  });
 
   // legenda/modo seguem os rótulos laterais fora do mobile — no
   // mobile (<768px) o CSS já tira os dois de cima do gráfico e os
