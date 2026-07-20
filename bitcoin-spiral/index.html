@@ -148,6 +148,24 @@
   .spiral-tooltip b{color:var(--text-primary);}
   .spiral-tooltip-muted{color:var(--text-tertiary);}
 
+  .cross-links{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;margin-top:8px;}
+  .cross-link-card{
+    display:flex;flex-direction:column;align-items:flex-start;
+    width:230px;padding:24px;
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+    cursor:pointer;transition:border-color .15s ease, background .15s ease, transform .15s ease;
+  }
+  @media (max-width:640px){.cross-link-card{width:100%;max-width:320px;}}
+  .cross-link-card:hover{border-color:var(--accent);background:var(--bg-card-hover);transform:translateY(-3px);}
+  .cross-link-card .icon{
+    width:44px;height:44px;border-radius:10px;
+    background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;font-weight:600;margin-bottom:18px;
+  }
+  .cross-link-card .tit{font-weight:600;font-size:1.02rem;margin-bottom:6px;color:var(--text-primary);}
+  .cross-link-card .sub{font-size:.85rem;color:var(--text-tertiary);line-height:1.45;}
+
   .seo-block{max-width:var(--max-w-article);}
   .seo-block h2{margin-top:0;}
 </style>
@@ -157,7 +175,6 @@
 
 <section class="tool-hero">
   <div class="container container-wide">
-    <p class="eyebrow">ferramenta</p>
     <h1>Bitcoin Spiral</h1>
   </div>
 </section>
@@ -209,6 +226,11 @@
         <div class="icon" aria-hidden="true">₿</div>
         <div class="tit">Calculadora DCA Bitcoin</div>
         <div class="sub">Compare aportes recorrentes com aporte único</div>
+      </a>
+      <a href="/guia-bitcoin/" class="cross-link-card">
+        <div class="icon" aria-hidden="true">⚙</div>
+        <div class="tit">Guia Bitcoin</div>
+        <div class="sub">O caminho que eu seguiria se estivesse começando hoje</div>
       </a>
     </div>
 
