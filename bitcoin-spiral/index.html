@@ -86,27 +86,46 @@
 
   /* legenda e controle de modo moram no frame (não no stage), para
      poderem se alinhar ao início/fim dos rótulos laterais — mesmo
-     sistema de coordenadas usado pelos rótulos temporais */
+     sistema de coordenadas usado pelos rótulos temporais. Valores
+     exatos pedidos: 14px/500 pros dois, dots de 8px, gap de 10px. */
   .spiral-legend{
     position:absolute;top:14px;left:14px;
-    font-family:var(--font-mono);font-size:.74rem;color:var(--text-secondary);
-    display:flex;flex-direction:column;gap:6px;pointer-events:none;
+    font-family:var(--font-mono);font-size:14px;font-weight:500;color:var(--text-secondary);
+    display:flex;flex-direction:column;gap:10px;pointer-events:none;
   }
-  .spiral-legend .li{display:flex;align-items:center;gap:6px;}
+  .spiral-legend .li{display:flex;align-items:center;gap:8px;}
   .spiral-legend .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
 
   .spiral-modo{
     position:absolute;top:14px;right:14px;
-    display:flex;align-items:center;gap:12px;
-    font-family:var(--font-mono);font-size:.74rem;
+    display:flex;align-items:center;gap:14px;
+    font-family:var(--font-mono);font-size:14px;font-weight:500;
   }
-  .spiral-modo-opt{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-tertiary);}
+  .spiral-modo-opt{display:inline-flex;align-items:center;gap:7px;cursor:pointer;color:var(--text-tertiary);}
   .spiral-modo-opt:hover{color:var(--text-secondary);}
   .spiral-modo-opt.ativa{color:var(--text-primary);}
   .spiral-modo-opt input{position:absolute;opacity:0;width:1px;height:1px;}
   .spiral-modo-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--border-strong);flex-shrink:0;position:relative;display:inline-block;}
   .spiral-modo-opt.ativa .spiral-modo-dot{border-color:var(--accent);}
   .spiral-modo-opt.ativa .spiral-modo-dot::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--accent);}
+
+  /* mobile (<768px): a legenda e o controle de modo saem de cima do
+     gráfico e passam a ficar abaixo dele, em fluxo normal — nunca
+     mais sobrepostos ao canvas. Os rótulos temporais (topo/base/
+     esquerda/direita) continuam exatamente como estão, presos ao
+     gráfico via posição absoluta. */
+  @media (max-width:767px){
+    .spiral-frame{display:flex;flex-direction:column;}
+    .spiral-stage{order:1;}
+    .spiral-legend{
+      position:static;order:2;margin-top:18px;
+      flex-direction:row;flex-wrap:wrap;justify-content:center;
+    }
+    .spiral-modo{
+      position:static;order:3;margin-top:12px;
+      justify-content:center;
+    }
+  }
 
   .spiral-tooltip{
     position:absolute;top:0;left:0;pointer-events:none;opacity:0;transition:opacity .08s ease;

@@ -259,7 +259,7 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   }
 
   const GAP = 18;
-  const empilhar = window.innerWidth <= 640;
+  const empilhar = window.innerWidth < 768;
   const frameEl = canvasEl.closest(".spiral-frame");
   const frameRect = frameEl.getBoundingClientRect();
   const canvasRect = canvasEl.getBoundingClientRect();
@@ -298,11 +298,11 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   }
   elEsq.style.display = elDir.style.display = "block";
 
-  // legenda/modo só seguem os rótulos laterais fora do empilhamento
-  // mobile. No mobile, o rótulo do topo ocupa a mesma faixa estreita
-  // que o topo do frame — a legenda cabe (toque de 2px, invisível),
-  // mas o controle de modo precisa descer pra abaixo do rótulo do
-  // topo pra não sobrepor o texto.
+  // legenda/modo só seguem os rótulos laterais fora do mobile — no
+  // mobile (<768px) o CSS já tira os dois de cima do gráfico e os
+  // coloca abaixo, em fluxo normal (ver media query em index.html),
+  // então aqui basta limpar qualquer posição inline herdada do modo
+  // desktop.
   if (elLegenda) {
     if (empilhar) {
       elLegenda.style.left = "";
@@ -314,8 +314,7 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   if (elModo) {
     if (empilhar) {
       elModo.style.right = "";
-      const topRect = elTopo.getBoundingClientRect();
-      elModo.style.top = Math.round(topRect.bottom - frameRect.top + 8) + "px";
+      elModo.style.top = "";
     } else {
       elModo.style.top = "";
       const dirRect = elDir.getBoundingClientRect();
