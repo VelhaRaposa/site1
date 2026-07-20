@@ -59,19 +59,6 @@
 }
 </script>
 <style>
-  .spiral-toolbar{
-    display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-bottom:16px;
-  }
-  .spiral-alin{display:flex;align-items:center;gap:14px;font-family:var(--font-mono);font-size:.82rem;}
-  .spiral-alin-opt{display:inline-flex;align-items:center;gap:7px;cursor:pointer;color:var(--text-tertiary);}
-  .spiral-alin-opt:hover{color:var(--text-secondary);}
-  .spiral-alin-opt.ativa{color:var(--text-primary);}
-  .spiral-alin-opt input{position:absolute;opacity:0;width:1px;height:1px;}
-  .spiral-alin-dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--border-strong);flex-shrink:0;position:relative;display:inline-block;}
-  .spiral-alin-opt.ativa .spiral-alin-dot{border-color:var(--accent);}
-  .spiral-alin-opt.ativa .spiral-alin-dot::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:var(--accent);}
-  .spiral-hint{font-family:var(--font-mono);font-size:.76rem;color:var(--text-tertiary);}
-
   .spiral-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:40px;position:relative;}
   .spiral-stage{
     position:relative;width:min(100%, 72vh, 720px);aspect-ratio:1/1;margin:0 auto;
@@ -79,27 +66,66 @@
   }
   #bitcoin-spiral-canvas{display:block;width:100%;height:100%;}
 
-  /* rótulos esquerdo/direito da escala temporal: o texto (5 anos) não
-     cabe desenhado dentro do canvas a poucos px do círculo — por isso
-     ficam fora dele, como elementos HTML posicionados via JS a partir
-     da posição real do círculo e do eixo (ver desenhar() em
-     bitcoin-spiral.js). No mobile viram uma coluna empilhada. */
-  .spiral-year-side{
-    display:none;position:absolute;transform:translateY(-50%);
+  /* rótulos temporais (topo/base/esquerda/direita): mesmo sistema
+     visual nos 4 — fonte, tamanho, peso e cor idênticos — como
+     elementos HTML fora do canvas, porque o texto não cabe desenhado
+     dentro da margem fixa entre o círculo (rExt) e a borda do canvas.
+     Posição calculada via medição real do DOM (ver desenhar() em
+     bitcoin-spiral.js), sempre a GAP px do círculo, ancorados no eixo.
+     No mobile, esquerda/direita viram coluna empilhada. */
+  .spiral-year-label{
+    display:none;position:absolute;
     font-family:var(--font-mono);font-size:.76rem;color:rgba(139,147,167,0.7);
     white-space:nowrap;pointer-events:none;text-align:center;line-height:1.5;
   }
-  .spiral-year-side.empilhado{top:50%;}
-  .spiral-year-side.esq.empilhado{left:2px;}
-  .spiral-year-side.dir.empilhado{right:2px;}
+  .spiral-year-label.topo,.spiral-year-label.base{transform:translateX(-50%);}
+  .spiral-year-label.esq,.spiral-year-label.dir{transform:translateY(-50%);}
+  .spiral-year-label.empilhado{transform:translateY(-50%);top:50%;}
+  .spiral-year-label.esq.empilhado{left:2px;}
+  .spiral-year-label.dir.empilhado{right:2px;}
 
+  /* legenda e controle de modo moram no frame (não no stage), para
+     poderem se alinhar ao início/fim dos rótulos laterais — mesmo
+     sistema de coordenadas usado pelos rótulos temporais. Valores
+     exatos pedidos: 14px/500 pros dois, dots de 8px, gap de 10px. */
   .spiral-legend{
     position:absolute;top:14px;left:14px;
-    font-family:var(--font-mono);font-size:.68rem;color:var(--text-tertiary);
-    display:flex;flex-direction:column;gap:5px;pointer-events:none;
+    font-family:var(--font-mono);font-size:14px;font-weight:500;color:var(--text-secondary);
+    display:flex;flex-direction:column;gap:10px;pointer-events:none;
   }
-  .spiral-legend .li{display:flex;align-items:center;gap:6px;}
-  .spiral-legend .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
+  .spiral-legend .li{display:flex;align-items:center;gap:8px;}
+  .spiral-legend .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+
+  .spiral-modo{
+    position:absolute;top:14px;right:14px;
+    display:flex;align-items:center;gap:14px;
+    font-family:var(--font-mono);font-size:14px;font-weight:500;
+  }
+  .spiral-modo-opt{display:inline-flex;align-items:center;gap:7px;cursor:pointer;color:var(--text-tertiary);}
+  .spiral-modo-opt:hover{color:var(--text-secondary);}
+  .spiral-modo-opt.ativa{color:var(--text-primary);}
+  .spiral-modo-opt input{position:absolute;opacity:0;width:1px;height:1px;}
+  .spiral-modo-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--border-strong);flex-shrink:0;position:relative;display:inline-block;}
+  .spiral-modo-opt.ativa .spiral-modo-dot{border-color:var(--accent);}
+  .spiral-modo-opt.ativa .spiral-modo-dot::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--accent);}
+
+  /* mobile (<768px): a legenda e o controle de modo saem de cima do
+     gráfico e passam a ficar abaixo dele, em fluxo normal — nunca
+     mais sobrepostos ao canvas. Os rótulos temporais (topo/base/
+     esquerda/direita) continuam exatamente como estão, presos ao
+     gráfico via posição absoluta. */
+  @media (max-width:767px){
+    .spiral-frame{display:flex;flex-direction:column;}
+    .spiral-stage{order:1;}
+    .spiral-legend{
+      position:static;order:2;margin-top:18px;
+      flex-direction:row;flex-wrap:wrap;justify-content:center;
+    }
+    .spiral-modo{
+      position:static;order:3;margin-top:12px;
+      justify-content:center;
+    }
+  }
 
   .spiral-tooltip{
     position:absolute;top:0;left:0;pointer-events:none;opacity:0;transition:opacity .08s ease;
@@ -127,29 +153,27 @@
 <section class="section-border-top">
   <div class="container container-wide">
 
-    <div class="spiral-toolbar">
-      <div class="spiral-alin" id="spiral-alin">
-        <label class="spiral-alin-opt ativa" data-modo="tempo">
-          <input type="radio" name="spiral-modo" checked><span class="spiral-alin-dot"></span>Tempo
+    <div class="spiral-frame">
+      <div class="spiral-legend" id="spiral-legend">
+        <span class="li"><span class="dot" style="background:#F7931A"></span>Bitcoin</span>
+        <span class="li"><span class="dot" style="background:#4CAF7D"></span>Halving</span>
+        <span class="li"><span class="dot" style="background:#4DA3FF"></span>Topo</span>
+        <span class="li"><span class="dot" style="background:#FF5A5F"></span>Fundo</span>
+      </div>
+      <div class="spiral-modo" id="spiral-modo">
+        <label class="spiral-modo-opt ativa" data-modo="tempo">
+          <input type="radio" name="spiral-modo" checked><span class="spiral-modo-dot"></span>Tempo
         </label>
-        <label class="spiral-alin-opt" data-modo="blocos">
-          <input type="radio" name="spiral-modo"><span class="spiral-alin-dot"></span>Blocos
+        <label class="spiral-modo-opt" data-modo="blocos">
+          <input type="radio" name="spiral-modo"><span class="spiral-modo-dot"></span>Blocos
         </label>
       </div>
-      <span class="spiral-hint" id="spiral-hint">1 volta ≈ 4 anos · ancorado em 2009</span>
-    </div>
-
-    <div class="spiral-frame">
-      <span class="spiral-year-side esq" id="spiral-year-left"></span>
-      <span class="spiral-year-side dir" id="spiral-year-right"></span>
+      <span class="spiral-year-label topo" id="spiral-year-top"></span>
+      <span class="spiral-year-label base" id="spiral-year-bottom"></span>
+      <span class="spiral-year-label esq" id="spiral-year-left"></span>
+      <span class="spiral-year-label dir" id="spiral-year-right"></span>
       <div class="spiral-stage">
         <canvas id="bitcoin-spiral-canvas"></canvas>
-        <div class="spiral-legend">
-          <span class="li"><span class="dot" style="background:#F7931A"></span>Bitcoin</span>
-          <span class="li"><span class="dot" style="background:#4CAF7D"></span>Halving</span>
-          <span class="li"><span class="dot" style="background:#4DA3FF"></span>Topo</span>
-          <span class="li"><span class="dot" style="background:#FF5A5F"></span>Fundo</span>
-        </div>
         <div class="spiral-tooltip" id="spiral-tooltip"></div>
       </div>
     </div>
