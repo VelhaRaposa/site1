@@ -199,10 +199,11 @@ function desenhar() {
   });
   // modo Tempo: cada quadrante lista os anos das 5 voltas que caem
   // nele — só o topo usa o ano por extenso, os outros três já
-  // começam abreviados.
-  const yearLabels = modo === "tempo"
-    ? ["2009, '13, '17, '21, '25", "'10, '14, '18, '22, '26", "'11, '15, '19, '23, '27", "'12, '16, '20, '24, '28"]
-    : ["0", "52.5k", "105k", "157.5k"];
+  // começam abreviados. Modo Blocos não tem rótulo temporal
+  // equivalente — os 4 elementos ficam com o mesmo conteúdo/posição
+  // do modo Tempo sempre (ver posicionarSistemaVisual) e só viram
+  // invisíveis, pra legenda/controle nunca mudarem de lugar.
+  const yearLabels = ["2009, '13, '17, '21, '25", "'10, '14, '18, '22, '26", "'11, '15, '19, '23, '27", "'12, '16, '20, '24, '28"];
   posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt);
 
   // linha principal — traço ponto a ponto, dado real, sem suavização.
@@ -242,6 +243,14 @@ function desenhar() {
 // partir deles, alinha a legenda de eventos (início = início do
 // rótulo esquerdo) e o controle de modo (fim = fim do rótulo direito)
 // — todos medidos ao vivo no DOM, relativos ao .spiral-frame.
+//
+// IMPORTANTE: a geometria dos 4 rótulos é calculada SEMPRE, igual nos
+// dois modos — só a visibilidade (visibility, não display) muda com
+// o modo. É isso que garante que legenda e controle nunca mudem de
+// lugar entre Tempo e Blocos: eles são medidos a partir da posição
+// real de elEsq/elDir, que existe e não se move mesmo quando
+// invisível. Trocar de modo não deve recalcular layout nenhum —
+// só esconder o texto do ano.
 function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   const elTopo = document.getElementById("spiral-year-top");
   const elBase = document.getElementById("spiral-year-bottom");
@@ -250,13 +259,6 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   const elLegenda = document.getElementById("spiral-legend");
   const elModo = document.getElementById("spiral-modo");
   if (!elTopo || !elBase || !elEsq || !elDir) return;
-
-  if (modo !== "tempo") {
-    [elTopo, elBase, elEsq, elDir].forEach(el => el.style.display = "none");
-    if (elLegenda) elLegenda.style.left = "";
-    if (elModo) elModo.style.right = "";
-    return;
-  }
 
   const GAP = 18;
   const empilhar = window.innerWidth < 768;
@@ -268,12 +270,12 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
 
   elTopo.innerHTML = yearLabels[0];
   elBase.innerHTML = yearLabels[2];
+  elTopo.style.display = elBase.style.display = elEsq.style.display = elDir.style.display = "block";
   elTopo.style.left = elBase.style.left = (originX + cx) + "px";
   elTopo.style.top = "auto";
   elTopo.style.bottom = (frameRect.height - (originY + cy - rExt - GAP)) + "px";
   elBase.style.top = (originY + cy + rExt + GAP) + "px";
   elBase.style.bottom = "auto";
-  elTopo.style.display = elBase.style.display = "block";
 
   if (empilhar) {
     elEsq.innerHTML = yearLabels[3].split(", ").join("<br>");
@@ -296,13 +298,13 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
     elEsq.style.right = (frameRect.width - circleLeftEdge + GAP) + "px";
     elEsq.style.left = "auto";
   }
-  elEsq.style.display = elDir.style.display = "block";
 
-  // legenda/modo só seguem os rótulos laterais fora do mobile — no
+  const visivel = modo === "tempo" ? "visible" : "hidden";
+  elTopo.style.visibility = elBase.style.visibility = elEsq.style.visibility = elDir.style.visibility = visivel;
+
+  // legenda/modo seguem os rótulos laterais fora do mobile — no
   // mobile (<768px) o CSS já tira os dois de cima do gráfico e os
-  // coloca abaixo, em fluxo normal (ver media query em index.html),
-  // então aqui basta limpar qualquer posição inline herdada do modo
-  // desktop.
+  // coloca abaixo, em fluxo normal (ver media query em index.html).
   if (elLegenda) {
     if (empilhar) {
       elLegenda.style.left = "";
