@@ -116,6 +116,22 @@
   .disclaimer-box summary::after{content:'▾';margin-left:auto;color:var(--text-muted);transition:transform .15s ease;}
   .disclaimer-box[open] summary::after{transform:rotate(180deg);}
   .disclaimer-box .disclaimer-content{padding:0 20px 18px;}
+
+  /* bloco educativo longo (metodologia, FAQ etc.) some atrás de um
+     accordion próprio, fechado por padrão — mesmo texto de antes, só a
+     apresentação muda. Não mexe no accordion "Sobre esta ferramenta". */
+  .seo-accordion{
+    border:1px solid var(--border);border-radius:var(--radius-md);
+    background:var(--bg-card);
+  }
+  .seo-accordion > summary{
+    display:flex;align-items:center;gap:8px;list-style:none;cursor:pointer;
+    padding:18px 20px;font-weight:600;color:var(--text-primary);
+  }
+  .seo-accordion > summary::-webkit-details-marker{display:none;}
+  .seo-accordion > summary::after{content:'▾';margin-left:auto;color:var(--text-muted);transition:transform .15s ease;}
+  .seo-accordion[open] > summary::after{transform:rotate(180deg);}
+  .seo-accordion-content{padding:20px 20px 24px;border-top:1px solid var(--border);}
 </style>
 </head>
 <body>
@@ -235,27 +251,32 @@
 
 <section class="section-border-top">
   <div class="container seo-block">
-    <h2>Como funciona o cálculo</h2>
-    <p>Para cada ativo selecionado, o comparador aplica o valor inicial e os aportes recorrentes nas mesmas datas de calendário, usando o preço de fechamento histórico de cada ativo naquele dia. Em dias sem pregão de um ativo específico (fins de semana e feriados de cada mercado), usa-se o último preço conhecido — assim, o valor total investido é sempre idêntico entre os ativos comparados, em qualquer período ou frequência escolhida.</p>
+    <details class="seo-accordion">
+      <summary>Guia da ferramenta</summary>
+      <div class="seo-accordion-content">
+        <h2>Como funciona o cálculo</h2>
+        <p>Para cada ativo selecionado, o comparador aplica o valor inicial e os aportes recorrentes nas mesmas datas de calendário, usando o preço de fechamento histórico de cada ativo naquele dia. Em dias sem pregão de um ativo específico (fins de semana e feriados de cada mercado), usa-se o último preço conhecido — assim, o valor total investido é sempre idêntico entre os ativos comparados, em qualquer período ou frequência escolhida.</p>
 
-    <h2>O que é cada ativo</h2>
-    <dl class="ativos-glossario">
-      <div><dt>Bitcoin</dt><dd>Ativo digital descentralizado, negociado todos os dias do ano, inclusive fins de semana. Preço em reais via preços de mercado.</dd></div>
-      <div><dt>CDI</dt><dd>Certificado de Depósito Interbancário — referência de rentabilidade da renda fixa brasileira, próxima da taxa Selic. Usado aqui como um índice acumulado, calculado a partir da taxa diária divulgada pelo Banco Central.</dd></div>
-      <div><dt>Ibovespa</dt><dd>Principal índice de ações da bolsa brasileira (B3), reúne as empresas mais negociadas do mercado.</dd></div>
-      <div><dt>Ouro</dt><dd>Metal precioso usado historicamente como reserva de valor, cotado internacionalmente em dólar por onça-troy e convertido aqui para reais por grama.</dd></div>
-      <div><dt>S&amp;P 500</dt><dd>Principal índice de ações dos Estados Unidos, reúne 500 das maiores empresas listadas em bolsa americana. Cotado em dólar e convertido aqui para reais.</dd></div>
-    </dl>
+        <h2>O que é cada ativo</h2>
+        <dl class="ativos-glossario">
+          <div><dt>Bitcoin</dt><dd>Ativo digital descentralizado, negociado todos os dias do ano, inclusive fins de semana. Preço em reais via preços de mercado.</dd></div>
+          <div><dt>CDI</dt><dd>Certificado de Depósito Interbancário — referência de rentabilidade da renda fixa brasileira, próxima da taxa Selic. Usado aqui como um índice acumulado, calculado a partir da taxa diária divulgada pelo Banco Central.</dd></div>
+          <div><dt>Ibovespa</dt><dd>Principal índice de ações da bolsa brasileira (B3), reúne as empresas mais negociadas do mercado.</dd></div>
+          <div><dt>Ouro</dt><dd>Metal precioso usado historicamente como reserva de valor, cotado internacionalmente em dólar por onça-troy e convertido aqui para reais por grama.</dd></div>
+          <div><dt>S&amp;P 500</dt><dd>Principal índice de ações dos Estados Unidos, reúne 500 das maiores empresas listadas em bolsa americana. Cotado em dólar e convertido aqui para reais.</dd></div>
+        </dl>
 
-    <h2>O que essa simulação não considera</h2>
-    <p>Impostos (Imposto de Renda), taxas de corretagem ou custódia, e o spread de compra e venda de cada ativo. O resultado mostrado é bruto, antes desses custos, e usa preços de fechamento — não o preço exato que você conseguiria numa compra ou venda real. Rentabilidade passada não garante rentabilidade futura.</p>
+        <h2>O que essa simulação não considera</h2>
+        <p>Impostos (Imposto de Renda), taxas de corretagem ou custódia, e o spread de compra e venda de cada ativo. O resultado mostrado é bruto, antes desses custos, e usa preços de fechamento — não o preço exato que você conseguiria numa compra ou venda real. Rentabilidade passada não garante rentabilidade futura.</p>
 
-    <h2>FAQ</h2>
-    <p><strong>Bitcoin rende mais que o CDI no longo prazo?</strong> Em boa parte dos períodos históricos de longo prazo o Bitcoin teve valorização maior que o CDI, mas também com volatilidade muito mais alta. Teste o período que te interessa acima para ver o resultado exato.</p>
-    <p><strong>Como comparar o retorno do Ibovespa com o do S&amp;P 500 em reais?</strong> O S&amp;P 500 é cotado em dólar, então o retorno em reais inclui a valorização do índice e a variação cambial no período — o comparador já faz essa conversão automaticamente.</p>
-    <p><strong>Rentabilidade passada garante rentabilidade futura?</strong> Não. Esta ferramenta usa exclusivamente dados históricos reais para mostrar o que já aconteceu — não é uma previsão nem uma recomendação de investimento.</p>
+        <h2>FAQ</h2>
+        <p><strong>Bitcoin rende mais que o CDI no longo prazo?</strong> Em boa parte dos períodos históricos de longo prazo o Bitcoin teve valorização maior que o CDI, mas também com volatilidade muito mais alta. Teste o período que te interessa acima para ver o resultado exato.</p>
+        <p><strong>Como comparar o retorno do Ibovespa com o do S&amp;P 500 em reais?</strong> O S&amp;P 500 é cotado em dólar, então o retorno em reais inclui a valorização do índice e a variação cambial no período — o comparador já faz essa conversão automaticamente.</p>
+        <p><strong>Rentabilidade passada garante rentabilidade futura?</strong> Não. Esta ferramenta usa exclusivamente dados históricos reais para mostrar o que já aconteceu — não é uma previsão nem uma recomendação de investimento.</p>
 
-    <p style="margin-top:32px;">Quer simular só Bitcoin, comparando DCA (aportes recorrentes) com Lump Sum (aporte único)? Veja a <a href="/calculadora/">calculadora dedicada</a>. Para corretoras e carteiras, veja o <a href="/guia-bitcoin/">guia de ferramentas</a>.</p>
+        <p style="margin-top:32px;">Quer simular só Bitcoin, comparando DCA (aportes recorrentes) com Lump Sum (aporte único)? Veja a <a href="/calculadora/">calculadora dedicada</a>. Para corretoras e carteiras, veja o <a href="/guia-bitcoin/">guia de ferramentas</a>.</p>
+      </div>
+    </details>
   </div>
 </section>
 
