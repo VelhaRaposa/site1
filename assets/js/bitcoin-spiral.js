@@ -197,65 +197,13 @@ function desenhar() {
     const label = v >= 1000000 ? "$1M" : v >= 1000 ? ("$" + (v / 1000) + "k") : ("$" + v);
     ctx.fillText(label, cx + 4, cy - r - 2);
   });
-  ctx.font = fontSize + "px 'JetBrains Mono', monospace";
-  ctx.fillStyle = "rgba(139,147,167,0.4)";
   // modo Tempo: cada quadrante lista os anos das 5 voltas que caem
   // nele — só o topo usa o ano por extenso, os outros três já
-  // começam abreviados. Uma linha só, sempre, na mesma posição (fora
-  // da área útil) que os rótulos já usavam antes — sem empilhar, sem
-  // fallback: a mesma regra simples do rótulo do topo, replicada
-  // pros outros três lados.
+  // começam abreviados.
   const yearLabels = modo === "tempo"
     ? ["2009, '13, '17, '21, '25", "'10, '14, '18, '22, '26", "'11, '15, '19, '23, '27", "'12, '16, '20, '24, '28"]
     : ["0", "52.5k", "105k", "157.5k"];
-  const pos = [
-    { x: cx, y: Math.max(cy - rExt - 16, fontSize + 2), align: "center" },
-    { x: cx, y: Math.min(cy + rExt + 24, H - 4), align: "center" },
-  ];
-  // topo/base ficam no canvas, como sempre
-  ctx.textAlign = pos[0].align; ctx.fillText(yearLabels[0], pos[0].x, pos[0].y);
-  ctx.textAlign = pos[1].align; ctx.fillText(yearLabels[2], pos[1].x, pos[1].y);
-  ctx.textAlign = "left";
-  // esquerda/direita: o texto (5 anos) não cabe desenhado dentro do
-  // canvas a poucos px do círculo — ficam fora dele, como elementos
-  // HTML posicionados por medição real do DOM, ancorados no eixo
-  // horizontal (y=cy) e a GAP px do círculo externo. No mobile viram
-  // uma coluna empilhada na mesma margem estreita.
-  const elEsq = document.getElementById("spiral-year-left");
-  const elDir = document.getElementById("spiral-year-right");
-  if (elEsq && elDir) {
-    if (modo === "tempo") {
-      const GAP = 18;
-      const empilhar = window.innerWidth <= 640;
-      if (empilhar) {
-        elEsq.innerHTML = yearLabels[3].split(", ").join("<br>");
-        elDir.innerHTML = yearLabels[1].split(", ").join("<br>");
-        elEsq.style.left = elEsq.style.right = elEsq.style.top = "";
-        elDir.style.left = elDir.style.right = elDir.style.top = "";
-        elEsq.classList.add("empilhado");
-        elDir.classList.add("empilhado");
-      } else {
-        elEsq.innerHTML = yearLabels[3];
-        elDir.innerHTML = yearLabels[1];
-        elEsq.classList.remove("empilhado");
-        elDir.classList.remove("empilhado");
-        const frameEl = canvasEl.closest(".spiral-frame");
-        const frameRect = frameEl.getBoundingClientRect();
-        const canvasRect = canvasEl.getBoundingClientRect();
-        const axisTop = canvasRect.top - frameRect.top + cy;
-        const circleRightEdge = canvasRect.left - frameRect.left + cx + rExt;
-        const circleLeftEdge = canvasRect.left - frameRect.left + cx - rExt;
-        elDir.style.top = elEsq.style.top = axisTop + "px";
-        elDir.style.left = (circleRightEdge + GAP) + "px";
-        elDir.style.right = "auto";
-        elEsq.style.right = (frameRect.width - circleLeftEdge + GAP) + "px";
-        elEsq.style.left = "auto";
-      }
-      elEsq.style.display = elDir.style.display = "block";
-    } else {
-      elEsq.style.display = elDir.style.display = "none";
-    }
-  }
+  posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt);
 
   // linha principal — traço ponto a ponto, dado real, sem suavização.
   // Espessura final validada: base × 1,7.
@@ -290,10 +238,90 @@ function desenhar() {
   TOPOS.forEach(t => marcador(t.data, t.preco, "#4DA3FF", raioMarcador));
 }
 
-function atualizarHint(hintEl) {
-  hintEl.textContent = state.modo === "tempo"
-    ? "1 volta ≈ 4 anos · ancorado em 2009"
-    : "1 volta = 210.000 blocos · sempre exato";
+// posiciona os 4 rótulos temporais (topo/base/esquerda/direita) e, a
+// partir deles, alinha a legenda de eventos (início = início do
+// rótulo esquerdo) e o controle de modo (fim = fim do rótulo direito)
+// — todos medidos ao vivo no DOM, relativos ao .spiral-frame.
+function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
+  const elTopo = document.getElementById("spiral-year-top");
+  const elBase = document.getElementById("spiral-year-bottom");
+  const elEsq = document.getElementById("spiral-year-left");
+  const elDir = document.getElementById("spiral-year-right");
+  const elLegenda = document.getElementById("spiral-legend");
+  const elModo = document.getElementById("spiral-modo");
+  if (!elTopo || !elBase || !elEsq || !elDir) return;
+
+  if (modo !== "tempo") {
+    [elTopo, elBase, elEsq, elDir].forEach(el => el.style.display = "none");
+    if (elLegenda) elLegenda.style.left = "";
+    if (elModo) elModo.style.right = "";
+    return;
+  }
+
+  const GAP = 18;
+  const empilhar = window.innerWidth <= 640;
+  const frameEl = canvasEl.closest(".spiral-frame");
+  const frameRect = frameEl.getBoundingClientRect();
+  const canvasRect = canvasEl.getBoundingClientRect();
+  const originX = canvasRect.left - frameRect.left;
+  const originY = canvasRect.top - frameRect.top;
+
+  elTopo.innerHTML = yearLabels[0];
+  elBase.innerHTML = yearLabels[2];
+  elTopo.style.left = elBase.style.left = (originX + cx) + "px";
+  elTopo.style.top = "auto";
+  elTopo.style.bottom = (frameRect.height - (originY + cy - rExt - GAP)) + "px";
+  elBase.style.top = (originY + cy + rExt + GAP) + "px";
+  elBase.style.bottom = "auto";
+  elTopo.style.display = elBase.style.display = "block";
+
+  if (empilhar) {
+    elEsq.innerHTML = yearLabels[3].split(", ").join("<br>");
+    elDir.innerHTML = yearLabels[1].split(", ").join("<br>");
+    elEsq.style.left = elEsq.style.right = elEsq.style.top = "";
+    elDir.style.left = elDir.style.right = elDir.style.top = "";
+    elEsq.classList.add("empilhado");
+    elDir.classList.add("empilhado");
+  } else {
+    elEsq.innerHTML = yearLabels[3];
+    elDir.innerHTML = yearLabels[1];
+    elEsq.classList.remove("empilhado");
+    elDir.classList.remove("empilhado");
+    const axisTop = originY + cy;
+    const circleRightEdge = originX + cx + rExt;
+    const circleLeftEdge = originX + cx - rExt;
+    elDir.style.top = elEsq.style.top = axisTop + "px";
+    elDir.style.left = (circleRightEdge + GAP) + "px";
+    elDir.style.right = "auto";
+    elEsq.style.right = (frameRect.width - circleLeftEdge + GAP) + "px";
+    elEsq.style.left = "auto";
+  }
+  elEsq.style.display = elDir.style.display = "block";
+
+  // legenda/modo só seguem os rótulos laterais fora do empilhamento
+  // mobile. No mobile, o rótulo do topo ocupa a mesma faixa estreita
+  // que o topo do frame — a legenda cabe (toque de 2px, invisível),
+  // mas o controle de modo precisa descer pra abaixo do rótulo do
+  // topo pra não sobrepor o texto.
+  if (elLegenda) {
+    if (empilhar) {
+      elLegenda.style.left = "";
+    } else {
+      const esqRect = elEsq.getBoundingClientRect();
+      elLegenda.style.left = Math.round(esqRect.left - frameRect.left) + "px";
+    }
+  }
+  if (elModo) {
+    if (empilhar) {
+      elModo.style.right = "";
+      const topRect = elTopo.getBoundingClientRect();
+      elModo.style.top = Math.round(topRect.bottom - frameRect.top + 8) + "px";
+    } else {
+      elModo.style.top = "";
+      const dirRect = elDir.getBoundingClientRect();
+      elModo.style.right = Math.round(frameRect.right - dirRect.right) + "px";
+    }
+  }
 }
 
 function attachTooltip(tooltipEl) {
@@ -320,24 +348,21 @@ function attachTooltip(tooltipEl) {
 document.addEventListener("DOMContentLoaded", async () => {
   canvasEl = document.getElementById("bitcoin-spiral-canvas");
   const tooltipEl = document.getElementById("spiral-tooltip");
-  const hintEl = document.getElementById("spiral-hint");
 
   btcSerie = await carregarHistorico();
   fundos = [...FUNDOS_FECHADOS, fundoEraAberta(btcSerie)].filter(Boolean);
 
   attachTooltip(tooltipEl);
-  atualizarHint(hintEl);
   desenhar();
 
-  document.querySelectorAll(".spiral-alin-opt").forEach(opt => {
+  document.querySelectorAll(".spiral-modo-opt").forEach(opt => {
     opt.addEventListener("click", () => {
       state.modo = opt.dataset.modo;
-      document.querySelectorAll(".spiral-alin-opt").forEach(o => {
+      document.querySelectorAll(".spiral-modo-opt").forEach(o => {
         const ativo = o === opt;
         o.classList.toggle("ativa", ativo);
         o.querySelector("input").checked = ativo;
       });
-      atualizarHint(hintEl);
       desenhar();
     });
   });
