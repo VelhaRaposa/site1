@@ -199,11 +199,18 @@ function desenhar() {
   });
   // modo Tempo: cada quadrante lista os anos das 5 voltas que caem
   // nele — só o topo usa o ano por extenso, os outros três já
-  // começam abreviados. Modo Blocos não tem rótulo temporal
-  // equivalente — os 4 elementos ficam com o mesmo conteúdo/posição
-  // do modo Tempo sempre (ver posicionarSistemaVisual) e só viram
-  // invisíveis, pra legenda/controle nunca mudarem de lugar.
-  const yearLabels = ["2009, '13, '17, '21, '25", "'10, '14, '18, '22, '26", "'11, '15, '19, '23, '27", "'12, '16, '20, '24, '28"];
+  // começam abreviados.
+  //
+  // modo Blocos: uma volta completa = 1 halving = 210.000 blocos, e
+  // o círculo já tem 8 raios desenhados (4 cardeais + 4 diagonais).
+  // Cada um dos 8 raios recebe seu valor individual (210k/8=26.25k
+  // por raio) — sem agrupar, sem "Halving N" (os pontos verdes já
+  // marcam isso). Só o raio do topo é especial: como ele também é o
+  // início de cada volta, lista os múltiplos de 210k das voltas
+  // desenhadas, igual ao rótulo do topo no modo Tempo.
+  const yearLabels = modo === "tempo"
+    ? ["2009, '13, '17, '21, '25", "'10, '14, '18, '22, '26", "'11, '15, '19, '23, '27", "'12, '16, '20, '24, '28"]
+    : ["0 · 210k · 420k · 630k · 840k blocos", "52.5k", "105k", "157.5k"];
   posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt);
 
   // linha principal — traço ponto a ponto, dado real, sem suavização.
@@ -244,13 +251,11 @@ function desenhar() {
 // rótulo esquerdo) e o controle de modo (fim = fim do rótulo direito)
 // — todos medidos ao vivo no DOM, relativos ao .spiral-frame.
 //
-// IMPORTANTE: a geometria dos 4 rótulos é calculada SEMPRE, igual nos
-// dois modos — só a visibilidade (visibility, não display) muda com
-// o modo. É isso que garante que legenda e controle nunca mudem de
-// lugar entre Tempo e Blocos: eles são medidos a partir da posição
-// real de elEsq/elDir, que existe e não se move mesmo quando
-// invisível. Trocar de modo não deve recalcular layout nenhum —
-// só esconder o texto do ano.
+// IMPORTANTE: a geometria (posição, fonte, cor, opacidade) é a mesma
+// SEMPRE, nos dois modos — só o conteúdo do texto muda (anos no modo
+// Tempo, contagem de blocos no modo Blocos). Legenda e controle são
+// medidos a partir da posição real de elEsq/elDir, então continuam
+// alinhados corretamente em ambos os modos.
 function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   const elTopo = document.getElementById("spiral-year-top");
   const elBase = document.getElementById("spiral-year-bottom");
@@ -262,6 +267,7 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
 
   const GAP = 18;
   const empilhar = window.innerWidth < 768;
+  const separador = modo === "tempo" ? ", " : " · ";
   const frameEl = canvasEl.closest(".spiral-frame");
   const frameRect = frameEl.getBoundingClientRect();
   const canvasRect = canvasEl.getBoundingClientRect();
@@ -271,6 +277,7 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   elTopo.innerHTML = yearLabels[0];
   elBase.innerHTML = yearLabels[2];
   elTopo.style.display = elBase.style.display = elEsq.style.display = elDir.style.display = "block";
+  elTopo.style.visibility = elBase.style.visibility = elEsq.style.visibility = elDir.style.visibility = "visible";
   elTopo.style.left = elBase.style.left = (originX + cx) + "px";
   elTopo.style.top = "auto";
   elTopo.style.bottom = (frameRect.height - (originY + cy - rExt - GAP)) + "px";
@@ -278,8 +285,8 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   elBase.style.bottom = "auto";
 
   if (empilhar) {
-    elEsq.innerHTML = yearLabels[3].split(", ").join("<br>");
-    elDir.innerHTML = yearLabels[1].split(", ").join("<br>");
+    elEsq.innerHTML = yearLabels[3].split(separador).join("<br>");
+    elDir.innerHTML = yearLabels[1].split(separador).join("<br>");
     elEsq.style.left = elEsq.style.right = elEsq.style.top = "";
     elDir.style.left = elDir.style.right = elDir.style.top = "";
     elEsq.classList.add("empilhado");
@@ -299,8 +306,29 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
     elEsq.style.left = "auto";
   }
 
-  const visivel = modo === "tempo" ? "visible" : "hidden";
-  elTopo.style.visibility = elBase.style.visibility = elEsq.style.visibility = elDir.style.visibility = visivel;
+  // modo Blocos, fora do mobile: os 4 raios diagonais (45/135/225/315°)
+  // ganham seu próprio rótulo, centralizado exatamente na ponta do
+  // raio (mesmo raio rExt+GAP usado pelos 4 cardeais, mesma fonte —
+  // só a âncora é o ponto, não uma borda). No modo Tempo, ou no
+  // mobile, ficam escondidos (o desenho aprovado não tem diagonais).
+  const raioLabel = rExt + GAP;
+  const diagonais = [
+    { id: "spiral-ray-45", grausDoTopo: 45, valor: "26.25k" },
+    { id: "spiral-ray-135", grausDoTopo: 135, valor: "78.75k" },
+    { id: "spiral-ray-225", grausDoTopo: 225, valor: "131.25k" },
+    { id: "spiral-ray-315", grausDoTopo: 315, valor: "183.75k" },
+  ];
+  const mostrarDiagonais = modo === "blocos" && !empilhar;
+  diagonais.forEach(d => {
+    const el = document.getElementById(d.id);
+    if (!el) return;
+    if (!mostrarDiagonais) { el.style.display = "none"; return; }
+    const rad = (d.grausDoTopo * Math.PI / 180) - Math.PI / 2;
+    el.innerHTML = d.valor;
+    el.style.display = "block";
+    el.style.left = (originX + cx + Math.cos(rad) * raioLabel) + "px";
+    el.style.top = (originY + cy + Math.sin(rad) * raioLabel) + "px";
+  });
 
   // legenda/modo seguem os rótulos laterais fora do mobile — no
   // mobile (<768px) o CSS já tira os dois de cima do gráfico e os

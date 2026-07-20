@@ -90,6 +90,12 @@
   .spiral-year-label.esq.empilhado{left:2px;}
   .spiral-year-label.dir.empilhado{right:2px;}
 
+  /* modo Blocos: 8 raios rotulados (os 4 cardeais acima + estes 4
+     diagonais), cada um com um valor só, centralizado na ponta do
+     seu raio — mesma fonte/geometria de .spiral-year-label, só a
+     âncora muda (ponto exato, não borda). */
+  .spiral-year-label.raio{transform:translate(-50%,-50%);}
+
   /* legenda e controle de modo moram no frame (não no stage), para
      poderem se alinhar ao início/fim dos rótulos laterais — mesmo
      sistema de coordenadas usado pelos rótulos temporais. Valores
@@ -178,6 +184,10 @@
       <span class="spiral-year-label base" id="spiral-year-bottom"></span>
       <span class="spiral-year-label esq" id="spiral-year-left"></span>
       <span class="spiral-year-label dir" id="spiral-year-right"></span>
+      <span class="spiral-year-label raio" id="spiral-ray-45"></span>
+      <span class="spiral-year-label raio" id="spiral-ray-135"></span>
+      <span class="spiral-year-label raio" id="spiral-ray-225"></span>
+      <span class="spiral-year-label raio" id="spiral-ray-315"></span>
       <div class="spiral-stage">
         <canvas id="bitcoin-spiral-canvas"></canvas>
         <div class="spiral-tooltip" id="spiral-tooltip"></div>
