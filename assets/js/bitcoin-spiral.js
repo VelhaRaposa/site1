@@ -333,24 +333,35 @@ function posicionarSistemaVisual(yearLabels, modo, cx, cy, rExt) {
   // legenda/modo seguem os rótulos laterais fora do mobile — no
   // mobile (<768px) o CSS já tira os dois de cima do gráfico e os
   // coloca abaixo, em fluxo normal (ver media query em index.html).
-  if (elLegenda) {
-    if (empilhar) {
-      elLegenda.style.left = "";
-    } else {
+  //
+  // A referência é SEMPRE o texto do modo Tempo, nunca o texto do
+  // modo ativo no momento: o modo Blocos usa valores mais curtos
+  // ("52.5k"/"157.5k") que renderizam com largura diferente da lista
+  // de anos, e isso fazia legenda/controle "pularem" de posição ao
+  // trocar de modo. Pra herdar exatamente a mesma coordenada do modo
+  // Tempo, mede-se temporariamente elEsq/elDir com o conteúdo do
+  // Tempo (a borda ancorada — right do direita, left do esquerda —
+  // não muda com o conteúdo, só a ponta oposta, que é o que legenda/
+  // controle usam como referência) e depois o conteúdo real do modo
+  // ativo é restaurado.
+  if ((elLegenda || elModo) && !empilhar) {
+    const conteudoEsqAtual = elEsq.innerHTML, conteudoDirAtual = elDir.innerHTML;
+    elEsq.innerHTML = "'12, '16, '20, '24, '28";
+    elDir.innerHTML = "'10, '14, '18, '22, '26";
+    if (elLegenda) {
       const esqRect = elEsq.getBoundingClientRect();
       elLegenda.style.left = Math.round(esqRect.left - frameRect.left) + "px";
     }
-  }
-  if (elModo) {
-    if (empilhar) {
-      elModo.style.right = "";
-      elModo.style.top = "";
-    } else {
+    if (elModo) {
       elModo.style.top = "";
       const dirRect = elDir.getBoundingClientRect();
       elModo.style.right = Math.round(frameRect.right - dirRect.right) + "px";
     }
+    elEsq.innerHTML = conteudoEsqAtual;
+    elDir.innerHTML = conteudoDirAtual;
   }
+  if (elLegenda && empilhar) elLegenda.style.left = "";
+  if (elModo && empilhar) { elModo.style.right = ""; elModo.style.top = ""; }
 }
 
 function attachTooltip(tooltipEl) {
