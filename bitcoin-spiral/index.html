@@ -59,6 +59,12 @@
 }
 </script>
 <style>
+  /* Sem subtítulo no hero desta ferramenta, o espaçamento padrão de
+     .tool-hero + .section-border-top (28px, pensado pra hero COM
+     lead) sobra como espaço morto antes do gráfico. Reduz só nesta
+     página — outras ferramentas com subtítulo mantêm o valor global. */
+  .tool-hero + .section-border-top{padding-top:24px;}
+
   .spiral-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:40px;position:relative;}
   .spiral-stage{
     position:relative;width:min(100%, 72vh, 720px);aspect-ratio:1/1;margin:0 auto;
