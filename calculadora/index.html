@@ -89,27 +89,9 @@
 
   /* "Sobre esta ferramenta" volta a ser um bloco informativo simples
      (não é mais accordion) — fica na mesma área informativa do "Guia da
-     ferramenta" logo abaixo, sem separação de seção entre os dois. */
-
-  /* "Guia da ferramenta" concentra o conteúdo educativo longo (FAQ, DCA x
-     Lump Sum etc.) atrás de um accordion, fechado por padrão, logo abaixo
-     do "Sobre esta ferramenta" — mesma largura do conteúdo principal da
-     página. O detalhamento dos aportes (resultado, controlado por JS)
-     fica fora do accordion. */
-  .seo-accordion{
-    margin-top:14px;
-    border:1px solid var(--border);border-radius:var(--radius-md);
-    background:var(--bg-card);
-  }
-  .seo-accordion > summary{
-    display:flex;align-items:center;gap:8px;list-style:none;cursor:pointer;
-    padding:18px 20px;font-weight:600;color:var(--text-primary);
-  }
-  .seo-accordion > summary::-webkit-details-marker{display:none;}
-  .seo-accordion > summary::after{content:'▾';margin-left:auto;color:var(--text-muted);transition:transform .15s ease;}
-  .seo-accordion[open] > summary::after{transform:rotate(180deg);}
-  .seo-accordion-content{padding:20px 20px 24px;border-top:1px solid var(--border);}
-  .seo-accordion-content h2{margin-top:0;}
+     ferramenta" logo abaixo, sem separação de seção entre os dois.
+     O accordion do "Guia da ferramenta" (.seo-accordion) é compartilhado
+     entre as ferramentas — ver assets/css/ferramentas.css. */
 </style>
 </head>
 <body>
