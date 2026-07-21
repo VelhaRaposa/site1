@@ -4,9 +4,8 @@
    Investimentos, Calculadora DCA, futuras) — não é código específico
    de uma página.
 
-   Desenha a marca oficial (SEMPRE /favicon.svg — nunca
-   assets/img/favicon.svg, que é um asset antigo/órfão) centralizada
-   dentro da área de plotagem do gráfico (chart.chartArea), atrás dos
+   Desenha a marca oficial (SEMPRE /favicon.svg) centralizada dentro
+   da área de plotagem do gráfico (chart.chartArea), atrás dos
    datasets. Nunca sobre toolbar, eixos, títulos, legenda ou tooltip —
    isso é garantido de graça por só desenhar dentro de chartArea, que no
    Chart.js já exclui eixos/títulos/legenda por definição.
