@@ -121,8 +121,8 @@ site, vá em **Actions → "Atualizar dados de mercado (comparador)" →
 Run workflow** uma vez, manualmente. Os scripts detectam que os
 arquivos estão vazios e buscam o histórico completo desde 2015
 automaticamente (isso pode levar alguns minutos, dependendo da
-quantidade de dias). Depois dessa primeira vez, o robô semanal
-(`.github/workflows/update-market-history.yml`, toda segunda-feira)
+quantidade de dias). Depois dessa primeira vez, o robô diário
+(`.github/workflows/update-market-history.yml`, todo dia às 09:20 UTC)
 cuida sozinho de manter tudo atualizado, buscando só os dias novos —
 mesmo modelo de "Permissão de escrita para o robô" descrito na seção 7
 acima, que também precisa estar ativa para este workflow.

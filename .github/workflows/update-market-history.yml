@@ -1,16 +1,16 @@
 name: Atualizar dados de mercado (comparador)
 
-# Roda automaticamente toda segunda-feira às 06:20 (horário de Brasília
-# é UTC-3, então 09:20 UTC — 20 minutos depois do robô do Bitcoin, para
-# não disputar o mesmo commit), e também pode ser disparado manualmente
-# na aba "Actions" do GitHub, botão "Run workflow".
+# Roda automaticamente todo dia às 06:20 (horário de Brasília é UTC-3,
+# então 09:20 UTC — 20 minutos depois do robô do Bitcoin, para não
+# disputar o mesmo commit), e também pode ser disparado manualmente na
+# aba "Actions" do GitHub, botão "Run workflow".
 #
 # Na primeira vez que rodar, os arquivos assets/data/*-history.json
 # começam vazios: os scripts detectam isso e buscam o histórico
 # completo desde 2015 (backfill), não só os dias que faltam.
 on:
   schedule:
-    - cron: "20 9 * * 1"
+    - cron: "20 9 * * *"
   workflow_dispatch: {}
 
 permissions:
