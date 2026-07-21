@@ -14,7 +14,7 @@
 3. Envie todos os arquivos desta pasta para esse repositório (dá pra arrastar e soltar os arquivos direto pelo site do GitHub, em "Add file → Upload files").
 4. No repositório, vá em **Settings → Pages**.
 5. Em "Branch", selecione `main` e clique em **Save**.
-6. Em "Custom domain", digite `www.caiogare.com.br` e salve — o GitHub cria automaticamente o arquivo `CNAME` (já incluí um pronto nesta pasta também).
+6. Em "Custom domain", digite `caiogare.com.br` e salve — o GitHub cria automaticamente o arquivo `CNAME` (já incluí um pronto nesta pasta também).
 7. No painel onde você comprou o domínio (registro.br ou outro), configure o DNS apontando para o GitHub Pages:
    - Um registro CNAME: `www` → `SEUUSUARIO.github.io`
    - Registros A no domínio raiz (`caiogare.com.br` sem www) apontando para:
@@ -41,7 +41,7 @@ Os cards de "vídeos recentes" da Home e da Agenda são atualizados uma vez por 
 ## 4. Ativar relatório de cliques de parceiros (Google Analytics — gratuito)
 
 1. Crie conta em [analytics.google.com](https://analytics.google.com)
-2. Crie uma propriedade para `www.caiogare.com.br`
+2. Crie uma propriedade para `caiogare.com.br`
 3. Copie o ID que começa com `G-`
 4. Abra `assets/js/analytics.js` e cole no lugar de `G-XXXXXXXXXX`
 5. Depois de publicado, os cliques em parceiros aparecem no GA4 em
