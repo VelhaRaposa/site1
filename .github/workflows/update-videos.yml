@@ -1,0 +1,41 @@
+name: Atualizar vídeos recentes (Home e Agenda)
+
+# Roda automaticamente todo dia às 09:40 (horário de Brasília é UTC-3,
+# então 09:40 UTC — 40 minutos depois do robô do Bitcoin, para não
+# disputar o mesmo commit), e também pode ser disparado manualmente na
+# aba "Actions" do GitHub, botão "Run workflow".
+#
+# Busca o feed RSS público do YouTube direto (sem proxy de terceiro) e
+# reescreve só o trecho entre os marcadores <!-- videos:start -->/
+# <!-- videos:end --> em index.html e agenda/index.html — o resto de
+# cada arquivo nunca é tocado. Ver scripts/update_videos.py.
+on:
+  schedule:
+    - cron: "40 9 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-videos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Buscar vídeos recentes e atualizar Home/Agenda
+        run: python3 scripts/update_videos.py
+
+      - name: Commitar alterações (se houver algo novo)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html agenda/index.html
+          git diff --cached --quiet && echo "Nada novo para commitar." || git commit -m "Atualiza vídeos recentes da Home e Agenda (automático)"
+          git push

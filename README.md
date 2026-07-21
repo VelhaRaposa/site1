@@ -3,7 +3,7 @@
 ## Como o site é organizado
 
 - Cada página vive numa pasta com `index.html` dentro (ex: `agenda/index.html`), exceto a Home (`index.html` na raiz) — isso gera URLs limpas como `/agenda/`, sem `.html`.
-- `assets/js/content.js` → **único arquivo que você mexe no dia a dia**: vídeos, agenda, parceiros, cursos.
+- `assets/js/content.js` → **único arquivo que você mexe no dia a dia**: parceiros, cursos, ticker. (Vídeos recentes da Home/Agenda são atualizados sozinhos por `scripts/update_videos.py`, um robô que roda uma vez por dia — ver seção 2.1. O horário fixo das lives em `agenda/index.html` é só texto direto no HTML, editado à mão.)
 - `assets/js/analytics.js` → onde você cola seu ID do Google Analytics.
 - `assets/css/style.css` → cores e estilo visual (só mexer se quiser mudar o design).
 
@@ -21,11 +21,15 @@
      `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
 8. Aguarde algumas horas para o DNS propagar. O GitHub emite HTTPS automaticamente.
 
-## 2. Editar conteúdo (vídeos, parceiros, cursos, agenda)
+## 2. Editar conteúdo (parceiros, cursos, ticker)
 
 Abra `assets/js/content.js` em qualquer editor de texto simples (ou direto no GitHub, clicando no lápis ✎ do arquivo).
 Troque os textos entre aspas. Para adicionar um item novo, copie um bloco `{ ... }` inteiro e cole abaixo do último, editando os textos.
 Salve (Commit changes) — o site atualiza sozinho em 1–2 minutos.
+
+### 2.1. Vídeos recentes (Home e Agenda) — automático
+
+Os cards de "vídeos recentes" da Home e da Agenda são atualizados uma vez por dia por um robô (`scripts/update_videos.py`, disparado por `.github/workflows/update-videos.yml`), do mesmo jeito que o histórico de preço do Bitcoin já é. Ele busca os últimos vídeos do canal (ID em `SITE.youtubeChannelId`, em `content.js`) e escreve os cards direto em `index.html`/`agenda/index.html`. Não precisa fazer nada — só troque `youtubeChannelId` se um dia mudar de canal. Pra forçar uma atualização na hora, use a aba **Actions → Atualizar vídeos recentes (Home e Agenda) → Run workflow**.
 
 ## 3. Ativar o formulário de contato (Formspree — gratuito)
 

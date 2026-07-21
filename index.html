@@ -89,7 +89,13 @@
       <p class="eyebrow">últimos vídeos</p>
       <h2>O que está no ar essa semana</h2>
     </div>
-    <div class="grid grid-3" id="home-videos"></div>
+    <div class="grid grid-3" id="home-videos">
+      <!-- videos:start -->
+      <a class="card video-card" href="https://www.youtube.com/@caiogare/videos" target="_blank" rel="noopener"><div class="video-thumb">▶</div><span class="tag">Bitcoin</span><div class="video-title">Bitcoin NÃO é o que te contaram</div></a>
+      <a class="card video-card" href="https://www.youtube.com/@caiogare/videos" target="_blank" rel="noopener"><div class="video-thumb">▶</div><span class="tag">Macro</span><div class="video-title">Banco Central quer travar as stablecoins</div></a>
+      <a class="card video-card" href="https://www.youtube.com/@caiogare/videos" target="_blank" rel="noopener"><div class="video-thumb">▶</div><span class="tag">Geopolítica</span><div class="video-title">PETRÓLEO EXPLODE: guerra trava o Fed</div></a>
+      <!-- videos:end -->
+    </div>
     <div style="margin-top:28px;">
       <a href="/agenda/" class="btn btn-ghost">Ver agenda completa →</a>
     </div>
@@ -101,20 +107,5 @@
 <script src="/assets/js/content.js"></script>
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/nav.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const wrap = document.getElementById("home-videos");
-  wrap.innerHTML = `<p style="color:var(--text-tertiary);">Carregando vídeos…</p>`;
-  const videos = await getLatestVideos(3);
-  wrap.innerHTML = videos.map(v => `
-    <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
-      <div class="video-thumb">${v.thumb ? `<img src="${v.thumb}" alt="">` : "▶"}</div>
-      ${v.pilar ? `<span class="tag">${v.pilar}</span>` : ""}
-      <div class="video-title">${v.titulo}</div>
-      ${v.views ? `<div class="video-meta">${v.views}</div>` : ""}
-    </a>
-  `).join("");
-});
-</script>
 </body>
 </html>

@@ -32,13 +32,12 @@ const SITE = {
   spotifyUrl: "https://open.spotify.com/show/3sBJa8iCt2POBsdVbHaIfO?si=Ii1vu6JfSEydfdBc-GJ5BQ",
   emailContato: "caiogare.contato@gmail.com",
 
-  // ---------- AUTOMAÇÃO DE VÍDEOS (opcional, recomendado) ----------
-  // Preencha com o ID do seu canal (começa com "UC...") para o site
-  // buscar sozinho, todo dia, os vídeos mais recentes do YouTube —
-  // sem você precisar colar link nenhum.
-  // Como pegar: acesse youtube.com/account_advanced (logado na conta
-  // do canal) e copie o "ID do canal".
-  // Deixando em branco, o site usa a lista manual "videos" abaixo.
+  // ---------- ID DO CANAL (usado pelo robô de vídeos) ----------
+  // scripts/update_videos.py lê este valor uma vez por dia (GitHub
+  // Actions, ver .github/workflows/update-videos.yml) para buscar os
+  // vídeos recentes do canal e atualizar os cards da Home e da
+  // Agenda diretamente no HTML — o navegador do visitante não faz
+  // mais essa busca. Trocar de canal um dia? só mudar aqui.
   youtubeChannelId: "UCxL_cyAp4LyN9a8dFsjuKuw",
 
   // ---------- CHAVE DA COINGECKO (não é mais usada) ----------
@@ -54,35 +53,9 @@ const SITE = {
   cdi: "14,15%",
 
   // ---------- AGENDA DE LIVES ----------
-  agenda: [
-    { dia: "Segunda, quarta e sexta", horario: "14h", titulo: "Bitcoin, macroeconomia e mercados" },
-  ],
-
-  // ---------- VÍDEOS EM DESTAQUE (usado se youtubeChannelId estiver vazio) ----------
-  // pilar: "Bitcoin" | "Macro" | "Geopolítica" | "Segurança"
-  videos: [
-    {
-      titulo: "Bitcoin NÃO é o que te contaram",
-      pilar: "Bitcoin",
-      views: "",
-      url: "https://www.youtube.com/@caiogare/videos",
-      thumb: "",
-    },
-    {
-      titulo: "Banco Central quer travar as stablecoins",
-      pilar: "Macro",
-      views: "",
-      url: "https://www.youtube.com/@caiogare/videos",
-      thumb: "",
-    },
-    {
-      titulo: "PETRÓLEO EXPLODE: guerra trava o Fed",
-      pilar: "Geopolítica",
-      views: "",
-      url: "https://www.youtube.com/@caiogare/videos",
-      thumb: "",
-    },
-  ],
+  // Os dias fixos mudam raramente, por isso não são mais gerados por
+  // JS: o texto vive direto em agenda/index.html (bloco #agenda-list).
+  // Mudou o horário ou os dias? edite lá, não aqui.
 
   // ---------- FERRAMENTAS PARA BITCOIN ----------
   // Organizado por necessidade do usuário (comprar, acumular, guardar,
