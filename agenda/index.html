@@ -39,7 +39,13 @@
   <div class="container container-wide">
     <div class="card" style="max-width:760px;margin:0 auto;">
       <h2 style="font-size:1.2rem;">Dias fixos</h2>
-      <div id="agenda-list"></div>
+      <div id="agenda-list">
+        <div class="schedule-row">
+          <span class="day">Segunda, quarta e sexta</span>
+          <span class="time">14h</span>
+          <span class="title">Bitcoin, macroeconomia e mercados</span>
+        </div>
+      </div>
       <p style="margin-top:20px;font-size:.85rem;color:var(--text-tertiary);">Assista ao vivo no YouTube. Reprises disponíveis no Spotify.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
         <a href="https://www.youtube.com/@caiogare" target="_blank" rel="noopener" class="btn btn-primary">Ir para o YouTube</a>
@@ -52,7 +58,13 @@
 <section class="section-border-top">
   <div class="container container-wide">
     <h2>Vídeos recentes</h2>
-    <div class="grid grid-3" id="agenda-videos"></div>
+    <div class="grid grid-3" id="agenda-videos">
+      <!-- videos:start -->
+      <a class="card video-card" href="https://www.youtube.com/@caiogare/videos" target="_blank" rel="noopener"><div class="video-thumb">▶</div><span class="tag">Bitcoin</span><div class="video-title">Bitcoin NÃO é o que te contaram</div></a>
+      <a class="card video-card" href="https://www.youtube.com/@caiogare/videos" target="_blank" rel="noopener"><div class="video-thumb">▶</div><span class="tag">Macro</span><div class="video-title">Banco Central quer travar as stablecoins</div></a>
+      <a class="card video-card" href="https://www.youtube.com/@caiogare/videos" target="_blank" rel="noopener"><div class="video-thumb">▶</div><span class="tag">Geopolítica</span><div class="video-title">PETRÓLEO EXPLODE: guerra trava o Fed</div></a>
+      <!-- videos:end -->
+    </div>
   </div>
 </section>
 
@@ -60,28 +72,5 @@
 <script src="/assets/js/content.js"></script>
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/nav.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  document.getElementById("agenda-list").innerHTML = SITE.agenda.map(a => `
-    <div class="schedule-row">
-      <span class="day">${a.dia}</span>
-      <span class="time">${a.horario}</span>
-      <span class="title">${a.titulo}</span>
-    </div>
-  `).join("");
-
-  const wrap = document.getElementById("agenda-videos");
-  wrap.innerHTML = `<p style="color:var(--text-tertiary);">Carregando vídeos…</p>`;
-  const videos = await getLatestVideos(6);
-  wrap.innerHTML = videos.map(v => `
-    <a class="card video-card" href="${v.url}" target="_blank" rel="noopener">
-      <div class="video-thumb">${v.thumb ? `<img src="${v.thumb}" alt="">` : "▶"}</div>
-      ${v.pilar ? `<span class="tag">${v.pilar}</span>` : ""}
-      <div class="video-title">${v.titulo}</div>
-      ${v.views ? `<div class="video-meta">${v.views}</div>` : ""}
-    </a>
-  `).join("");
-});
-</script>
 </body>
 </html>

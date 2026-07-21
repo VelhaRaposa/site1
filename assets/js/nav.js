@@ -167,33 +167,6 @@ function renderCookieBanner(){
   });
 }
 
-/* ---------- busca automática dos vídeos recentes do YouTube ----------
-   Usa o feed RSS público do canal (sem precisar de chave de API paga).
-   Se SITE.youtubeChannelId estiver vazio ou a busca falhar, usa a
-   lista manual SITE.videos do content.js. */
-async function getLatestVideos(limit = 6){
-  if (!SITE.youtubeChannelId) return SITE.videos.slice(0, limit);
-
-  try {
-    const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${SITE.youtubeChannelId}`;
-    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
-    const res = await fetch(proxyUrl);
-    const data = await res.json();
-    if (data.status !== "ok" || !data.items || data.items.length === 0) {
-      return SITE.videos.slice(0, limit);
-    }
-    return data.items.slice(0, limit).map(item => ({
-      titulo: item.title,
-      pilar: "",
-      views: "",
-      url: item.link,
-      thumb: item.thumbnail || (item.enclosure && item.enclosure.link) || "",
-    }));
-  } catch (e) {
-    return SITE.videos.slice(0, limit);
-  }
-}
-
 /* ---------- rastreamento de cliques em parceiros ----------
    Envia um evento para o Google Analytics (GA4) toda vez que alguém
    clica em um link de parceiro. Isso permite ver, no painel do GA4,
