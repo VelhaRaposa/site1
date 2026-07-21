@@ -81,7 +81,7 @@ def render_cards(videos):
     cards = []
     for v in videos:
         titulo = html.escape(v["titulo"])
-        thumb_html = f'<img src="{v["thumb"]}" alt="">' if v["thumb"] else "▶"
+        thumb_html = f'<img src="{v["thumb"]}" alt="" loading="lazy">' if v["thumb"] else "▶"
         cards.append(
             f'<a class="card video-card" href="{v["url"]}" target="_blank" rel="noopener">'
             f'<div class="video-thumb">{thumb_html}</div>'
