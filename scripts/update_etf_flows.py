@@ -5,9 +5,24 @@ update_etf_flows.py
 Atualiza assets/data/etf-flows-daily.json e assets/data/etf-flows-summary.json
 com os fluxos diários (US$ milhões) dos ETFs spot de Bitcoin dos EUA.
 
-Fonte única: https://farside.co.uk/btc/ — nenhuma outra fonte entra aqui
-(sem holdings, sem AUM, sem scraping de emissor individual). Ver README,
-seção ETF Flows.
+Fonte única: https://farside.co.uk/bitcoin-etf-flow-all-data/ — nenhuma
+outra fonte entra aqui (sem holdings, sem AUM, sem scraping de emissor
+individual). Ver README, seção ETF Flows.
+
+Por que esta página e não farside.co.uk/btc/: a página resumo (/btc/)
+só mostra uma janela recente de dias e mistura linhas extras (Fee,
+Average, Maximum, Minimum) com a tabela de fluxos. Esta página ("All
+Data") tem o histórico completo desde 11/jan/2024, uma linha por dia,
+e só uma linha de resumo ("Total") — estrutura mais simples e mais
+alinhada ao que o produto precisa (confirmado via diagnóstico real
+contra as duas páginas, não por suposição).
+
+IMPORTANTE — headers de requisição: farside.co.uk fica atrás de
+Cloudflare, que devolve 403 (challenge JS) para requisições com
+headers mínimos (ex.: só User-Agent). Confirmado em teste real que
+enviar um conjunto de headers de navegador comum (Accept,
+Accept-Language, Accept-Encoding, Sec-Fetch-*, etc.) é suficiente para
+passar — sem proxy, sem bypass, sem IP residencial. Ver HEADERS abaixo.
 
 O QUE ESTE SCRIPT NÃO FAZ:
 Não recalcula o "Total" acumulado por ETF nem o "Total" por data — a
@@ -30,6 +45,7 @@ FORMATO DOS ARQUIVOS:
 Este script roda só no GitHub Actions (.github/workflows/update-etf-flows.yml),
 nunca no navegador do visitante.
 """
+import gzip
 import html.parser
 import json
 import os
@@ -41,7 +57,27 @@ from datetime import datetime, timezone
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "data")
 DAILY_PATH = os.path.join(DATA_DIR, "etf-flows-daily.json")
 SUMMARY_PATH = os.path.join(DATA_DIR, "etf-flows-summary.json")
-URL = "https://farside.co.uk/btc/"
+URL = "https://farside.co.uk/bitcoin-etf-flow-all-data/"
+
+# Confirmado via diagnóstico real (ver commits de teste): headers
+# mínimos levam a 403 da Cloudflare; este conjunto, equivalente ao que
+# um navegador comum manda, passa sem nenhum truque.
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Cache-Control": "max-age=0",
+}
 
 SUMMARY_LABELS = {"total", "average", "maximum", "minimum"}
 MONTH_ABBR = {
@@ -123,9 +159,13 @@ def _parse_date(cell):
 
 
 def fetch_html():
-    req = urllib.request.Request(URL, headers={"User-Agent": "Mozilla/5.0"})
+    req = urllib.request.Request(URL, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=30) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+        raw = resp.read()
+        encoding = (resp.headers.get("Content-Encoding") or "").lower()
+    if encoding == "gzip":
+        raw = gzip.decompress(raw)
+    return raw.decode("utf-8", errors="replace")
 
 
 def extract(html_text):
