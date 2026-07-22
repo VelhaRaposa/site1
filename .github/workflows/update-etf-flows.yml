@@ -1,0 +1,40 @@
+name: Atualizar ETF Flows (Farside)
+
+# Roda automaticamente todo dia às 10:00 (horário de Brasília é UTC-3,
+# então 10:00 UTC — próximo horário livre depois dos robôs de Bitcoin
+# (09:00 UTC), mercado (09:20 UTC) e vídeos (09:40 UTC), pra não disputar
+# o mesmo commit), e também pode ser disparado manualmente na aba
+# "Actions" do GitHub, botão "Run workflow".
+#
+# Fonte única: farside.co.uk/btc/ (fluxos em US$, ETFs spot de Bitcoin
+# dos EUA). Ver scripts/update_etf_flows.py e o README, seção ETF Flows.
+on:
+  schedule:
+    - cron: "0 10 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Buscar e adicionar os dias novos (Farside)
+        run: python3 scripts/update_etf_flows.py
+
+      - name: Commitar alterações (se houver algo novo)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/data/etf-flows-daily.json assets/data/etf-flows-summary.json
+          git diff --cached --quiet && echo "Nada novo para commitar." || git commit -m "Atualiza ETF Flows (automático)"
+          git push
