@@ -24,21 +24,38 @@ enviar um conjunto de headers de navegador comum (Accept,
 Accept-Language, Accept-Encoding, Sec-Fetch-*, etc.) é suficiente para
 passar — sem proxy, sem bypass, sem IP residencial. Ver HEADERS abaixo.
 
-O QUE ESTE SCRIPT NÃO FAZ:
-Não recalcula o "Total" acumulado por ETF nem o "Total" por data — a
-própria tabela da Farside já publica os dois prontos (linha-resumo
-"Total" no rodapé da tabela = acumulado por ETF; coluna "Total" em cada
-linha de data = soma de todos os ETFs naquele dia). Este script só lê e
-guarda o que a fonte já calculou, sem reinterpretar.
+INDEPENDÊNCIA DA FONTE (importante):
+A Farside também publica sua própria linha-resumo "Total" (acumulado
+por ETF, todo o período). Esse número é útil como conferência, mas o
+produto NUNCA usa esse valor para exibir nada — os totais mostrados no
+site são sempre RECALCULADOS a partir de assets/data/etf-flows-daily.json
+(o histórico bruto que este script guarda dia a dia). Se a Farside
+parar de publicar essa linha, mudar o formato dela, ou até sair do ar
+depois de uma coleta bem-sucedida, o produto continua funcionando
+normalmente com os dados já salvos localmente — só o dado do dia atual
+deixa de ser atualizado, nada quebra silenciosamente e nada trava por
+causa de uma linha auxiliar da fonte.
+
+Por isso: encontrar a linha "Total" da Farside NUNCA é motivo para
+falhar a coleta (ver extract() — a ausência dela gera só um aviso). O
+que é obrigatório é conseguir ler as linhas de data — isso sim é a
+informação primária do produto.
 
 FORMATO DOS ARQUIVOS:
 - etf-flows-daily.json: array append-only, 1 objeto por data já
-  publicada pela Farside, nunca reescreve uma data já existente.
+  publicada pela Farside, nunca reescreve uma data já existente — é a
+  ÚNICA fonte de verdade do produto, tudo mais é derivado dela.
   [{"date": "2026-07-21", "flows": {"IBIT": 163.9, ..., "TOTAL": 203.2}}]
 - etf-flows-summary.json: snapshot (sobrescrito a cada execução, não é
-  histórico) com o acumulado atual por ETF, a lista de tickers na ordem
-  em que a Farside os publica, e o horário da última coleta.
-  {"totals": {"IBIT": 60770.0, ..., "TOTAL": 51835.0},
+  histórico).
+  {"totals": {"IBIT": 60770.0, ..., "TOTAL": 51838.0},   // RECALCULADO
+                                                          // a partir do daily,
+                                                          // nunca copiado da Farside
+   "farside_totals": {"IBIT": 60770.0, ...},              // linha "Total" da
+                                                          // própria Farside, só
+                                                          // para conferência —
+                                                          // pode faltar sem
+                                                          // quebrar a coleta
    "tickers": ["IBIT", "FBTC", ...],
    "last_date": "2026-07-21", "collected_at": "2026-...Z"}
 
@@ -169,9 +186,13 @@ def fetch_html():
 
 
 def extract(html_text):
-    """Retorna (tickers, daily_rows, totals) a partir do HTML bruto.
-    daily_rows: lista de {"date": ..., "flows": {ticker: valor_ou_None}}
-    totals: {ticker: valor_acumulado} (linha-resumo "Total" da própria Farside)
+    """Retorna (tickers, daily_rows, farside_totals) a partir do HTML bruto.
+    daily_rows: lista de {"date": ..., "flows": {ticker: valor_ou_None}} —
+    esta é a informação PRIMÁRIA e obrigatória (ver main(), que recalcula
+    os totais exibidos a partir dela, nunca a partir de farside_totals).
+    farside_totals: {ticker: valor_acumulado} — linha-resumo "Total" que a
+    própria Farside publica. É só um valor de CONFERÊNCIA: se não for
+    encontrada, retorna {} e a coleta continua normalmente (ver main()).
     """
     parser = _TableParser()
     parser.feed(html_text)
@@ -206,21 +227,19 @@ def extract(html_text):
     tickers = [c.strip() for c in header_row if re.fullmatch(r"[A-Z]{2,6}", c.strip())]
 
     daily_rows = []
-    totals = {}
+    farside_totals = {}
     for row in parser.rows[header_idx + 1:]:
         if not row:
             continue
         label = row[0].strip()
         if label.lower() in SUMMARY_LABELS:
-            if label.lower() == "total" and not totals:
+            if label.lower() == "total" and not farside_totals:
                 values = row[1:]
                 for i, ticker in enumerate(tickers):
                     if i < len(values):
-                        totals[ticker] = _parse_value(values[i])
-                # última célula da linha "Total" = acumulado geral (todos os
-                # ETFs, todo o período) — é o número de destaque do rodapé.
+                        farside_totals[ticker] = _parse_value(values[i])
                 if len(values) > len(tickers):
-                    totals["TOTAL"] = _parse_value(values[len(tickers)])
+                    farside_totals["TOTAL"] = _parse_value(values[len(tickers)])
             continue
 
         date_iso = _parse_date(label)
@@ -243,10 +262,15 @@ def extract(html_text):
             "Cabeçalho encontrado, mas nenhuma linha de data foi reconhecida. "
             "Formato de data pode ter mudado (esperado: 'DD Mon YYYY', ex. '21 Jul 2026')."
         )
-    if not totals:
-        raise RuntimeError("Linha-resumo 'Total' (acumulado por ETF) não encontrada.")
+    # NUNCA falhar por falta da linha "Total" da Farside — ela é só
+    # conferência (ver docstring do módulo). Se sumir, a coleta das
+    # linhas de data (a informação primária) segue normalmente.
+    if not farside_totals:
+        print("[aviso] Linha-resumo 'Total' da Farside não encontrada nesta "
+              "coleta — sem impacto no produto, os totais exibidos são "
+              "recalculados a partir do histórico salvo, não desta linha.")
 
-    return tickers, daily_rows, totals
+    return tickers, daily_rows, farside_totals
 
 
 def load_daily():
@@ -270,7 +294,7 @@ def main():
         sys.exit(1)
 
     try:
-        tickers, new_rows, totals = extract(html_text)
+        tickers, new_rows, farside_totals = extract(html_text)
     except Exception as e:
         # Em caso de falha de parsing, imprime uma amostra do HTML bruto
         # no log do Actions — é o diagnóstico real, não uma suposição.
@@ -292,9 +316,38 @@ def main():
     daily.sort(key=lambda row: row["date"])
     save_json(DAILY_PATH, daily)
 
+    # Totais exibidos no produto = SEMPRE recalculados a partir do
+    # histórico que acabamos de salvar (daily), nunca copiados da
+    # Farside — é isso que garante que o site continua funcionando
+    # normalmente mesmo que a Farside saia do ar ou mude de formato
+    # amanhã. Dia sem dado (None) é ignorado na soma, não vira 0.
+    computed_totals = {}
+    for ticker in tickers + ["TOTAL"]:
+        soma = None
+        for row in daily:
+            v = row["flows"].get(ticker)
+            if v is None:
+                continue
+            soma = (soma or 0) + v
+        computed_totals[ticker] = soma
+
+    # farside_totals é só conferência: se divergir de forma relevante do
+    # que recalculamos a partir do próprio histórico salvo, avisa (não
+    # falha) — normalmente indica um dia faltando ou um bug de parsing.
+    if farside_totals:
+        for ticker, farside_val in farside_totals.items():
+            nosso_val = computed_totals.get(ticker)
+            if nosso_val is None or farside_val is None:
+                continue
+            if abs(nosso_val - farside_val) > max(1.0, abs(farside_val) * 0.01):
+                print(f"[aviso] Total recalculado de {ticker} ({nosso_val}) diverge "
+                      f"do total publicado pela Farside ({farside_val}) além da "
+                      "tolerância — conferir se falta algum dia no histórico salvo.")
+
     summary = {
         "tickers": tickers,
-        "totals": totals,
+        "totals": computed_totals,
+        "farside_totals": farside_totals,
         "last_date": daily[-1]["date"] if daily else None,
         "collected_at": datetime.now(timezone.utc).isoformat(),
     }
