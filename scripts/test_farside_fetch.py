@@ -2,27 +2,24 @@
 """
 test_farside_fetch.py — TEMPORÁRIO, só para diagnóstico.
 ==========================================================
-Estritamente investigativo: sem proxy, sem serviço terceiro, sem IP
-residencial, sem tentativa de burlar proteção. Só duas requisições
-diretas (urllib puro) para farside.co.uk, comparando uma requisição
-mínima com uma requisição com headers completos de navegador comum —
-e mostrando tudo: status, headers de resposta, corpo, redirecionamentos.
+Etapa 2: já sabemos que farside.co.uk responde 200 com headers de
+navegador comum (Categoria A — coletável, confirmado). Este script
+agora localiza, entre todas as <table> da página, qual delas contém
+os tickers dos ETFs, e imprime o conteúdo bruto só dessa tabela —
+para corrigir o parser contra a estrutura real, não a presumida.
 
 Não salva nada, não commita nada. Este arquivo e o workflow
-.github/workflows/test-farside-fetch.yml são temporários — remover
-assim que o diagnóstico responder a pergunta.
+.github/workflows/test-farside-fetch.yml são temporários.
 """
-import gzip
+import html.parser
+import re
 import sys
 import urllib.error
 import urllib.request
+import gzip
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
-from update_etf_flows import URL, extract
-
-BASELINE_HEADERS = {
-    "User-Agent": "Mozilla/5.0",
-}
+from update_etf_flows import URL
 
 BROWSER_HEADERS = {
     "User-Agent": (
@@ -42,102 +39,98 @@ BROWSER_HEADERS = {
 }
 
 
-class LoggingRedirectHandler(urllib.request.HTTPRedirectHandler):
-    """Só registra cada redirecionamento seguido — o comportamento de
-    seguir continua sendo o padrão do urllib, nada customizado aqui."""
+class _TableGroupParser(html.parser.HTMLParser):
+    """Agrupa as linhas por tabela (lista de tabelas, cada uma com sua
+    própria lista de linhas) — só para identificar qual das N tabelas
+    da página é a tabela real de fluxos."""
 
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        print(f"   redirecionamento: {code} -> {newurl}")
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
+    def __init__(self):
+        super().__init__()
+        self.tables = []
+        self._current_table = None
+        self._row = None
+        self._in_cell = False
+        self._cell_text = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "table":
+            self._current_table = []
+            self.tables.append(self._current_table)
+        elif tag == "tr" and self._current_table is not None:
+            self._row = []
+        elif tag in ("td", "th") and self._current_table is not None:
+            self._in_cell = True
+            self._cell_text = []
+
+    def handle_endtag(self, tag):
+        if tag == "table":
+            self._current_table = None
+        elif tag == "tr" and self._row is not None:
+            self._current_table.append(self._row)
+            self._row = None
+        elif tag in ("td", "th") and self._in_cell:
+            text = "".join(self._cell_text).strip()
+            text = re.sub(r"\s+", " ", text)
+            if self._row is not None:
+                self._row.append(text)
+            self._in_cell = False
+
+    def handle_data(self, data):
+        if self._in_cell:
+            self._cell_text.append(data)
 
 
-def decode_body(raw_bytes, resp_headers):
-    encoding = (resp_headers.get("Content-Encoding") or "").lower()
-    if encoding == "gzip":
-        try:
-            raw_bytes = gzip.decompress(raw_bytes)
-        except Exception as e:
-            print(f"   [aviso] falha ao descomprimir gzip: {e}")
-    return raw_bytes.decode("utf-8", errors="replace")
-
-
-def do_request(label, headers):
-    print(f"\n{'=' * 70}\n{label}\n{'=' * 70}")
-    print("Headers enviados:")
-    for k, v in headers.items():
-        print(f"  {k}: {v}")
-
-    opener = urllib.request.build_opener(LoggingRedirectHandler)
-    req = urllib.request.Request(URL, headers=headers)
-
-    try:
-        with opener.open(req, timeout=30) as resp:
-            status = resp.status
-            final_url = resp.geturl()
-            resp_headers = dict(resp.headers.items())
-            raw = resp.read()
-    except urllib.error.HTTPError as e:
-        status = e.code
-        final_url = e.geturl() if hasattr(e, "geturl") else URL
-        resp_headers = dict(e.headers.items()) if e.headers else {}
-        raw = e.read()
-    except Exception as e:
-        print(f"[FALHA DE CONEXÃO — nem chegou a ter status HTTP] {type(e).__name__}: {e}")
-        return {"status": None, "headers": {}, "body": ""}
-
-    body = decode_body(raw, resp_headers)
-
-    print(f"\nStatus HTTP: {status}")
-    print(f"URL final: {final_url}")
-    print("Headers de resposta:")
-    for k, v in resp_headers.items():
-        print(f"  {k}: {v}")
-    print(f"Tamanho do corpo: {len(body)} caracteres")
-    print("Corpo (primeiros 2000 caracteres):")
-    print("-" * 70)
-    print(body[:2000])
-    print("-" * 70)
-
-    return {"status": status, "headers": resp_headers, "body": body}
+def fetch():
+    req = urllib.request.Request(URL, headers=BROWSER_HEADERS)
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        raw = resp.read()
+        headers = dict(resp.headers.items())
+    if (headers.get("Content-Encoding") or "").lower() == "gzip":
+        raw = gzip.decompress(raw)
+    return raw.decode("utf-8", errors="replace")
 
 
 def main():
-    baseline = do_request("REQUISIÇÃO 1 — headers mínimos (mesma do teste anterior)", BASELINE_HEADERS)
-    browser = do_request("REQUISIÇÃO 2 — headers completos de navegador comum", BROWSER_HEADERS)
+    try:
+        html_text = fetch()
+    except Exception as e:
+        print(f"[FALHA NO GET] {type(e).__name__}: {e}")
+        sys.exit(1)
 
-    print(f"\n{'=' * 70}\nDIFERENÇA ENTRE AS DUAS REQUISIÇÕES\n{'=' * 70}")
-    print(f"Status baseline: {baseline['status']}  |  Status com headers de navegador: {browser['status']}")
-    novos_headers_enviados = set(BROWSER_HEADERS) - set(BASELINE_HEADERS)
-    print(f"Headers adicionados na segunda requisição: {sorted(novos_headers_enviados)}")
+    print(f"Tamanho total da página: {len(html_text)} caracteres")
 
-    server_header = browser["headers"].get("Server") or baseline["headers"].get("Server")
-    if server_header:
-        print(f"Header 'Server' da resposta: {server_header}")
+    group_parser = _TableGroupParser()
+    group_parser.feed(html_text)
+    print(f"Total de <table> encontradas: {len(group_parser.tables)}")
 
-    print(f"\n{'=' * 70}\nCLASSIFICAÇÃO\n{'=' * 70}")
-    if browser["status"] == 200:
-        print("Categoria A — coletável: a requisição com headers de navegador comum funcionou (200).")
-        print("Testando o parser real contra esse corpo...")
-        try:
-            tickers, daily_rows, totals = extract(browser["body"])
-            print(f"Tickers: {tickers}")
-            print(f"Linhas de data: {len(daily_rows)}")
-            print(f"Totais: {totals}")
-        except Exception as e:
-            print(f"[parser falhou mesmo com 200] {type(e).__name__}: {e}")
-    elif browser["status"] in (403, 401, 429) and baseline["status"] in (403, 401, 429):
-        print(
-            "Categoria C — inadequada: tanto a requisição mínima quanto a com headers "
-            "completos de navegador foram bloqueadas do mesmo jeito. Isso é evidência de "
-            "bloqueio por IP/política (datacenter do GitHub Actions), não falta de header — "
-            "mudar headers não resolveria sem burlar a proteção, o que está fora de escopo."
-        )
-    else:
-        print(
-            "Categoria B — instável: resultado diferente entre as duas tentativas "
-            f"({baseline['status']} vs {browser['status']}). Precisaria de mais execuções "
-            "em horários diferentes para confirmar se é intermitente."
-        )
+    target_idx = None
+    for i, table in enumerate(group_parser.tables):
+        flat = " | ".join(" ".join(row) for row in table)
+        if "IBIT" in flat:
+            target_idx = i
+            break
+
+    if target_idx is None:
+        print("[NÃO ENCONTRADO] Nenhuma das tabelas contém o texto 'IBIT'.")
+        print("Listando um resumo de cada tabela encontrada (nº de linhas e primeira linha):")
+        for i, table in enumerate(group_parser.tables):
+            primeira = table[0] if table else []
+            print(f"  tabela {i}: {len(table)} linha(s) — primeira linha: {primeira}")
+        sys.exit(1)
+
+    table = group_parser.tables[target_idx]
+    print(f"\nTabela {target_idx} (de {len(group_parser.tables)}) contém os tickers dos ETFs.")
+    print(f"Quantidade de linhas nessa tabela: {len(table)}")
+    print("\nHTML BRUTO (todas as linhas dessa tabela, uma por linha de log):")
+    print("-" * 70)
+    for i, row in enumerate(table):
+        marca = ""
+        if i == 0:
+            marca = "  <-- primeira linha da tabela"
+        if i == len(table) - 1:
+            marca = "  <-- última linha da tabela"
+        print(f"[{i:02d}] {row}{marca}")
+    print("-" * 70)
 
 
 if __name__ == "__main__":
