@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF Flows — fluxos diários dos ETFs de Bitcoin | Caio Garé</title>
+<!-- Favicons — Caio Garé -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0B2138">
+<meta name="description" content="Para quais ETFs de Bitcoin está entrando ou saindo dinheiro? Fluxos diários, semanais e mensais em US$, organizados por ETF — dados da Farside Investors.">
+<link rel="canonical" href="https://caiogare.com.br/etf-flows/">
+<meta property="og:title" content="ETF Flows | Caio Garé">
+<meta property="og:description" content="Fluxos diários, semanais e mensais dos ETFs de Bitcoin nos EUA, em US$ — organizados por ETF, dados da Farside Investors.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://caiogare.com.br/etf-flows/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ETF Flows | Caio Garé">
+<meta name="twitter:description" content="Para quais ETFs de Bitcoin está entrando ou saindo dinheiro? Fluxos diários, semanais e mensais em US$.">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/ferramentas.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "O que é o ETF Flows?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Uma tabela que mostra os fluxos líquidos (criação/resgate de cotas, em dólares) dos ETFs spot de Bitcoin dos EUA, organizada com um ETF por linha. Os dados vêm da Farside Investors, atualizados uma vez por dia."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Fluxo é a mesma coisa que holdings ou patrimônio (AUM)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não. Fluxo é o dinheiro líquido que entrou ou saiu de um ETF num período — não representa quanto Bitcoin o fundo possui nem o valor total do seu patrimônio. Um ETF pode ter fluxo negativo num dia mesmo com o preço do Bitcoin subindo, e vice-versa."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Por que a coluna Total do GBTC é negativa?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A maior parte do resgate acumulado do GBTC vem da conversão do trust fechado (existente desde 2013) para ETF em janeiro de 2024 — um evento único, não uma tendência contínua de saída de dinheiro."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  .etf-flows-header-stats{
+    display:flex;flex-wrap:wrap;gap:24px;margin-top:6px;margin-bottom:28px;
+    font-family:var(--font-mono);font-size:.86rem;color:var(--text-tertiary);
+  }
+  .etf-flows-header-stats b{color:var(--text-primary);font-size:1rem;}
+  .etf-flows-header-stats span.lbl{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-tertiary);margin-bottom:2px;}
+
+  .etf-flows-modo{display:flex;gap:8px;margin-bottom:20px;}
+  .etf-flows-modo button{
+    font-family:var(--font-mono);font-size:.8rem;padding:8px 16px;
+    border:1px solid var(--border-strong);border-radius:20px;background:transparent;
+    color:var(--text-secondary);cursor:pointer;
+  }
+  .etf-flows-modo button:hover{border-color:var(--accent);color:var(--text-primary);}
+  .etf-flows-modo button.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
+
+  .etf-flows-frame{
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+    overflow-x:auto;
+  }
+  table.etf-flows-table{border-collapse:collapse;width:100%;font-family:var(--font-mono);font-size:.86rem;white-space:nowrap;}
+  .etf-flows-table th,.etf-flows-table td{padding:11px 16px;text-align:right;border-bottom:1px solid var(--border);}
+  .etf-flows-table thead th{color:var(--text-tertiary);font-weight:500;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;}
+  .etf-flows-table .etf-flows-col-etf{text-align:left;font-weight:600;color:var(--text-primary);}
+  .etf-flows-table .etf-flows-col-total{font-weight:600;}
+  .etf-flows-table .positivo{color:var(--green);}
+  .etf-flows-table .negativo{color:var(--red);}
+  .etf-flows-table .neutro{color:var(--text-tertiary);}
+  .etf-flows-info{cursor:help;color:var(--text-tertiary);}
+
+  /* colunas ETF e Total fixas ao rolar horizontalmente — é a correção
+     de UX central desta página: em telas pequenas, com vários ETFs e
+     várias colunas de período, o usuário nunca deve perder de vista
+     qual linha é qual ETF nem o número de ranking principal. */
+  .etf-flows-table .etf-flows-col-etf{position:sticky;left:0;background:var(--bg-card);z-index:2;min-width:70px;}
+  .etf-flows-table .etf-flows-col-total{position:sticky;left:70px;background:var(--bg-card);z-index:2;min-width:100px;box-shadow:2px 0 6px rgba(0,0,0,.25);}
+  .etf-flows-table thead th.etf-flows-col-etf,.etf-flows-table thead th.etf-flows-col-total{z-index:3;}
+
+  .etf-flows-table tbody tr:hover td{background:var(--bg-card-hover);}
+  .etf-flows-table tbody tr:hover .etf-flows-col-etf,
+  .etf-flows-table tbody tr:hover .etf-flows-col-total{background:var(--bg-card-hover);}
+
+  .etf-flows-linha-total td{border-top:1px solid var(--border-strong);border-bottom:none;font-weight:600;}
+  .etf-flows-linha-total .etf-flows-col-etf{color:var(--text-primary);}
+  /* célula de destaque: o número mais importante da página inteira
+     (Total Geral, canto inferior da coluna Total) — negrito + fundo
+     levemente diferente, sem virar card. */
+  .etf-flows-destaque{background:var(--accent-soft) !important;border-radius:6px;}
+
+  #etf-flows-erro{color:var(--red);font-size:.9rem;margin:16px 0;}
+  #etf-flows-nota-parcial{font-size:.78rem;color:var(--text-tertiary);margin-top:10px;}
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+
+<section class="tool-hero">
+  <div class="container container-wide">
+    <h1>ETF Flows</h1>
+    <p>Para quais ETFs de Bitcoin está entrando ou saindo dinheiro? Dados da Farside Investors, um ETF por linha.</p>
+  </div>
+</section>
+
+<section class="section-border-top">
+  <div class="container container-wide">
+
+    <div id="etf-flows-app">
+      <div class="etf-flows-header-stats">
+        <span><span class="lbl">Total Geral</span><b id="etf-flows-total-geral">—</b></span>
+        <span><span class="lbl">Fluxo de Hoje</span><b id="etf-flows-hoje">—</b></span>
+        <span><span class="lbl">Última atualização</span><b id="etf-flows-atualizado">—</b></span>
+      </div>
+
+      <div id="etf-flows-erro"></div>
+
+      <div class="etf-flows-modo">
+        <button type="button" data-modo="diario" class="active">Diário</button>
+        <button type="button" data-modo="semanal">Semanal</button>
+        <button type="button" data-modo="mensal">Mensal</button>
+      </div>
+
+      <div class="etf-flows-frame">
+        <table class="etf-flows-table">
+          <thead id="etf-flows-thead"></thead>
+          <tbody id="etf-flows-tbody"></tbody>
+          <tfoot id="etf-flows-tfoot"></tfoot>
+        </table>
+      </div>
+      <p id="etf-flows-nota-parcial" style="display:none;">* período em andamento (ainda não fechou).</p>
+    </div>
+
+    <div class="disclaimer-box">
+      <strong>Sobre esta ferramenta:</strong> mostra fluxo líquido (criação/resgate de cotas, em dólares) dos ETFs spot de Bitcoin dos EUA — não é holdings, não é patrimônio (AUM) e não é quantidade de Bitcoin. Fonte única: <a href="https://farside.co.uk/btc/" target="_blank" rel="noopener">Farside Investors</a>, que descreve seus próprios números como estimativas, priorizando velocidade sobre precisão total. "Total" é a soma dos fluxos desde jan/2024, na ordem em que a própria Farside publica. Não é recomendação de investimento.
+    </div>
+
+    <div class="cross-links">
+      <a href="/comparador/" class="cross-link-card">
+        <div class="icon" aria-hidden="true">⇄</div>
+        <div class="tit">Comparador de Investimentos</div>
+        <div class="sub">Bitcoin, CDI, Ibovespa, S&amp;P 500 e Ouro lado a lado</div>
+      </a>
+      <a href="/calculadora/" class="cross-link-card">
+        <div class="icon" aria-hidden="true">₿</div>
+        <div class="tit">Calculadora DCA Bitcoin</div>
+        <div class="sub">Compare aportes recorrentes com aporte único</div>
+      </a>
+      <a href="/guia-bitcoin/" class="cross-link-card">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H6V4h5v8l2.5-1.5L16 12V4h2v16z"/></svg></div>
+        <div class="tit">Guia Bitcoin</div>
+        <div class="sub">O caminho que eu seguiria se estivesse começando hoje</div>
+      </a>
+    </div>
+
+    <details class="seo-accordion">
+      <summary>Como funciona</summary>
+      <div class="seo-accordion-content">
+        <h2>O que é fluxo, exatamente</h2>
+        <p>Fluxo é o valor líquido de criação ou resgate de cotas de um ETF num período, em dólares — é diferente de holdings (quanto Bitcoin o fundo possui) e de patrimônio/AUM (o valor de mercado total do fundo). Um ETF grande e estável pode ter fluxo próximo de zero num dia sem que isso signifique nada de errado.</p>
+
+        <h2>Como a ordenação funciona</h2>
+        <p>Os ETFs são ordenados pelo "Total" — a soma de todos os fluxos diários desde o lançamento (jan/2024), com sinal. Um ETF com fluxo acumulado negativo aparece no final da lista, não no topo: a pergunta que a tabela responde é "quem recebeu mais dinheiro", não "quem teve mais movimentação".</p>
+
+        <h2>Diário, Semanal e Mensal</h2>
+        <p>As três visões usam os mesmos dados diários coletados da Farside — Semanal agrupa por semana do calendário (mesma convenção de outros trackers do mercado) e Mensal por mês calendário, com o mês em andamento marcado com "*". A tabela mostra até 8 períodos históricos, e cresce sozinha a cada dia coletado.</p>
+
+        <h2>O que esta ferramenta não mostra (ainda)</h2>
+        <p>Holdings reais em Bitcoin, patrimônio (AUM) e proof-of-reserves não fazem parte desta versão — são fontes diferentes, com metodologias diferentes, e misturar os conceitos numa mesma tabela gera mais confusão do que clareza. Fica para uma versão futura.</p>
+
+        <h2>FAQ</h2>
+        <p><strong>Fluxo é a mesma coisa que holdings?</strong> Não — fluxo é dinheiro entrando/saindo; holdings é quanto Bitcoin o fundo tem guardado.</p>
+        <p><strong>Por que o GBTC aparece com Total negativo?</strong> Majoritariamente por causa da conversão do trust fechado para ETF em jan/2024, um evento histórico único, não uma tendência atual.</p>
+        <p><strong>Os números são exatos?</strong> São os números publicados pela própria Farside, que se descreve como priorizando velocidade sobre precisão absoluta — trate como uma referência de mercado, não como dado auditado.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+<script src="/assets/js/content.js"></script>
+<script src="/assets/js/analytics.js"></script>
+<script src="/assets/js/nav.js"></script>
+<script src="/assets/js/utils.js"></script>
+<script src="/assets/js/etf-flows.js"></script>
+</body>
+</html>
