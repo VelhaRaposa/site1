@@ -114,7 +114,11 @@ function construirColunas(modo) {
   return Array.from(buckets.values()).slice(-ETF_FLOWS_MAX_COLS).reverse();
 }
 
-function renderHeader() {
+// Nome não pode ser "renderHeader" — nav.js já usa esse nome globalmente
+// para montar o cabeçalho/menu do site (script sem módulos, escopo
+// global compartilhado); antes da correção, essa colisão fazia esta
+// função rodar em vez da de nav.js, e o menu do site sumia.
+function renderStats() {
   const totals = etfFlowsSummary.totals || {};
   const ultimoDia = etfFlowsDaily.length ? etfFlowsDaily[etfFlowsDaily.length - 1] : null;
 
@@ -211,7 +215,7 @@ async function initEtfFlows() {
     return;
   }
 
-  renderHeader();
+  renderStats();
   render();
   initModoSwitch();
 }
