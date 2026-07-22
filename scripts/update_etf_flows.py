@@ -136,35 +136,34 @@ def extract(html_text):
     parser = _TableParser()
     parser.feed(html_text)
 
+    # ESTRUTURA REAL OBSERVADA (confirmada via diagnóstico contra a página
+    # ao vivo, não presumida): o rótulo "Total" mora na linha ACIMA da
+    # linha de tickers (provavelmente rowspan na tabela original), e a
+    # linha de tickers termina com uma célula vazia, não com "Total".
+    # Por isso identificamos a linha de cabeçalho pela quantidade de
+    # tickers que ela contém — não pela posição de nenhuma célula
+    # específica, o que também sobrevive à Farside adicionar/remover
+    # ETFs (já vimos MSBT entrar no meio do ano).
     header_row = None
     header_idx = None
+    best_count = 0
     for idx, row in enumerate(parser.rows):
-        # linha de cabeçalho real: >=3 células curtas em maiúsculas e a
-        # última célula é "Total" — não depende de posição fixa na página.
-        if len(row) < 3:
-            continue
-        if row[-1].strip().lower() != "total":
-            continue
-        candidatos = [c for c in row[:-1] if re.fullmatch(r"[A-Z]{2,6}", c.strip())]
-        if len(candidatos) >= 3:
+        candidatos = [c.strip() for c in row if re.fullmatch(r"[A-Z]{2,6}", c.strip())]
+        if len(candidatos) > best_count:
+            best_count = len(candidatos)
             header_row = row
             header_idx = idx
-            break
 
-    if header_row is None:
+    if header_row is None or best_count < 8:
         raise RuntimeError(
-            "Não encontrei a linha de cabeçalho (tickers + 'Total') no HTML. "
-            f"Total de linhas de tabela encontradas: {len(parser.rows)}. "
-            "A Farside provavelmente mudou o layout da página — inspecionar "
-            "o HTML bruto manualmente antes de ajustar este parser."
+            "Não encontrei uma linha com pelo menos 8 tickers de ETF no HTML "
+            f"(melhor candidata teve {best_count}). Total de linhas de tabela "
+            f"encontradas: {len(parser.rows)}. A Farside provavelmente mudou "
+            "o layout da página — inspecionar o HTML bruto manualmente antes "
+            "de ajustar este parser."
         )
 
-    # a linha de cabeçalho real da Farside tem uma célula vazia na
-    # primeira posição (a coluna onde as datas aparecem não tem título) —
-    # filtrar células em branco em vez de assumir uma posição fixa, pra
-    # não depender de quantas colunas "decorativas" existem antes do
-    # primeiro ticker.
-    tickers = [c.strip() for c in header_row[:-1] if c.strip()]
+    tickers = [c.strip() for c in header_row if re.fullmatch(r"[A-Z]{2,6}", c.strip())]
 
     daily_rows = []
     totals = {}

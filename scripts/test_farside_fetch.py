@@ -2,11 +2,13 @@
 """
 test_farside_fetch.py — TEMPORÁRIO, só para diagnóstico.
 ==========================================================
-Etapa 2: já sabemos que farside.co.uk responde 200 com headers de
-navegador comum (Categoria A — coletável, confirmado). Este script
-agora localiza, entre todas as <table> da página, qual delas contém
-os tickers dos ETFs, e imprime o conteúdo bruto só dessa tabela —
-para corrigir o parser contra a estrutura real, não a presumida.
+Etapa 3: comparando a página resumo (/btc/) com a página de histórico
+completo (/bitcoin-etf-flow-all-data/) — o usuário observou que esta
+segunda parece ter uma estrutura mais simples e já trazer o histórico
+inteiro, exatamente o formato que o produto precisa. Este script busca
+essa página (mesmos headers de navegador já validados) e imprime a
+estrutura real da tabela de tickers, sem presumir nada a partir do
+print visual — só o HTML bruto conta.
 
 Não salva nada, não commita nada. Este arquivo e o workflow
 .github/workflows/test-farside-fetch.yml são temporários.
@@ -18,8 +20,7 @@ import urllib.error
 import urllib.request
 import gzip
 
-sys.path.insert(0, __file__.rsplit("/", 1)[0])
-from update_etf_flows import URL
+TARGET_URL = "https://farside.co.uk/bitcoin-etf-flow-all-data/"
 
 BROWSER_HEADERS = {
     "User-Agent": (
@@ -80,28 +81,37 @@ class _TableGroupParser(html.parser.HTMLParser):
             self._cell_text.append(data)
 
 
-def fetch():
-    req = urllib.request.Request(URL, headers=BROWSER_HEADERS)
+def fetch(url):
+    req = urllib.request.Request(url, headers=BROWSER_HEADERS)
     with urllib.request.urlopen(req, timeout=30) as resp:
+        status = resp.status
+        final_url = resp.geturl()
         raw = resp.read()
         headers = dict(resp.headers.items())
     if (headers.get("Content-Encoding") or "").lower() == "gzip":
         raw = gzip.decompress(raw)
-    return raw.decode("utf-8", errors="replace")
+    return status, final_url, raw.decode("utf-8", errors="replace")
 
 
 def main():
+    print(f"GET {TARGET_URL}")
     try:
-        html_text = fetch()
+        status, final_url, html_text = fetch(TARGET_URL)
+    except urllib.error.HTTPError as e:
+        print(f"[FALHA NO GET] HTTP {e.code}: {e.reason}")
+        sys.exit(1)
     except Exception as e:
         print(f"[FALHA NO GET] {type(e).__name__}: {e}")
         sys.exit(1)
 
+    print(f"Status: {status}  |  URL final: {final_url}")
     print(f"Tamanho total da página: {len(html_text)} caracteres")
 
     group_parser = _TableGroupParser()
     group_parser.feed(html_text)
     print(f"Total de <table> encontradas: {len(group_parser.tables)}")
+    for i, table in enumerate(group_parser.tables):
+        print(f"  tabela {i}: {len(table)} linha(s)")
 
     target_idx = None
     for i, table in enumerate(group_parser.tables):
@@ -112,25 +122,27 @@ def main():
 
     if target_idx is None:
         print("[NÃO ENCONTRADO] Nenhuma das tabelas contém o texto 'IBIT'.")
-        print("Listando um resumo de cada tabela encontrada (nº de linhas e primeira linha):")
-        for i, table in enumerate(group_parser.tables):
-            primeira = table[0] if table else []
-            print(f"  tabela {i}: {len(table)} linha(s) — primeira linha: {primeira}")
         sys.exit(1)
 
     table = group_parser.tables[target_idx]
     print(f"\nTabela {target_idx} (de {len(group_parser.tables)}) contém os tickers dos ETFs.")
     print(f"Quantidade de linhas nessa tabela: {len(table)}")
-    print("\nHTML BRUTO (todas as linhas dessa tabela, uma por linha de log):")
-    print("-" * 70)
-    for i, row in enumerate(table):
-        marca = ""
-        if i == 0:
-            marca = "  <-- primeira linha da tabela"
-        if i == len(table) - 1:
-            marca = "  <-- última linha da tabela"
-        print(f"[{i:02d}] {row}{marca}")
-    print("-" * 70)
+
+    print("\nCabeçalho (linha 0):")
+    print(f"  {table[0]}")
+    if len(table) > 1:
+        print("Segunda linha (para checar se o cabeçalho tem 1 ou 2 linhas):")
+        print(f"  {table[1]}")
+
+    print("\nPrimeiras 3 linhas após o cabeçalho:")
+    for row in table[1:4]:
+        print(f"  {row}")
+
+    print("\nÚltimas 3 linhas da tabela:")
+    for row in table[-3:]:
+        print(f"  {row}")
+
+    print(f"\nTotal de linhas nesta tabela: {len(table)} (esperado: ~1 cabeçalho + 1 dia por linha desde 11 Jan 2024)")
 
 
 if __name__ == "__main__":
