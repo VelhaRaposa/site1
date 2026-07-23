@@ -32,6 +32,29 @@ let etfFlowsDaily = [];
 let etfFlowsSummary = {};
 let etfFlowsModo = "diario"; // diario | semanal | mensal
 
+// Emissor por ticker — dá contexto visual na 1a coluna (logo real + nome).
+// Arquivos em assets/img/logos-etf/ (fornecidos pelo usuário, 64x64 PNG
+// com fundo transparente). BTC (Grayscale Mini) usa um arquivo próprio,
+// diferente do GBTC, mesmo sendo o mesmo emissor.
+const ETF_ISSUERS = {
+  IBIT: { nome: "BlackRock", logo: "/assets/img/logos-etf/blackrock.png" },
+  FBTC: { nome: "Fidelity", logo: "/assets/img/logos-etf/fidelity.png" },
+  BITB: { nome: "Bitwise", logo: "/assets/img/logos-etf/bitwise.png" },
+  ARKB: { nome: "Ark Invest", logo: "/assets/img/logos-etf/ark.png" },
+  BTCO: { nome: "Invesco", logo: "/assets/img/logos-etf/invesco.png" },
+  EZBC: { nome: "Franklin Templeton", logo: "/assets/img/logos-etf/franklin.png" },
+  BRRR: { nome: "CoinShares", logo: "/assets/img/logos-etf/coinshares.png" },
+  HODL: { nome: "VanEck", logo: "/assets/img/logos-etf/vaneck.png" },
+  BTCW: { nome: "WisdomTree", logo: "/assets/img/logos-etf/wisdomtree.png" },
+  MSBT: { nome: "Morgan Stanley", logo: "/assets/img/logos-etf/morgan-stanley.png" },
+  GBTC: { nome: "Grayscale", logo: "/assets/img/logos-etf/grayscale.png" },
+  BTC: { nome: "Grayscale", logo: "/assets/img/logos-etf/grayscale-mini.png" },
+};
+
+function issuerInfo(ticker) {
+  return ETF_ISSUERS[ticker] || { nome: ticker, logo: "" };
+}
+
 function fmtUsdM(v) {
   if (v === null || v === undefined || Number.isNaN(v)) return "—";
   const abs = Math.abs(v);
@@ -145,14 +168,23 @@ function render() {
   const tbody = document.getElementById("etf-flows-tbody");
   const tfoot = document.getElementById("etf-flows-tfoot");
 
+  // 4 colunas independentes (rank / logo / ticker / emissor) em vez de
+  // uma célula combinada — pedido explícito pra parecer menos planilha
+  // e mais um terminal financeiro. Total deixou de ser sticky (só as
+  // 4 primeiras colunas ficam fixas agora, por pedido explícito).
   thead.innerHTML =
-    `<tr><th class="etf-flows-col-etf">ETF</th>` +
+    `<tr>` +
+    `<th class="etf-flows-col-rank">#</th>` +
+    `<th class="etf-flows-col-logo">Logo</th>` +
+    `<th class="etf-flows-col-ticker">ETF</th>` +
+    `<th class="etf-flows-col-emissor">Emissor</th>` +
     `<th class="etf-flows-col-total" title="Soma dos fluxos líquidos desde jan/2024.">Total <span class="etf-flows-info">ⓘ</span></th>` +
     colunas.map((c) => `<th>${c.label}${c.partial ? " *" : ""}</th>`).join("") +
     `</tr>`;
 
   tbody.innerHTML = tickers
-    .map((ticker) => {
+    .map((ticker, idx) => {
+      const info = issuerInfo(ticker);
       const total = totals[ticker];
       const cells = colunas
         .map((c) => {
@@ -161,7 +193,11 @@ function render() {
         })
         .join("");
       return (
-        `<tr><td class="etf-flows-col-etf">${ticker}</td>` +
+        `<tr>` +
+        `<td class="etf-flows-col-rank">#${idx + 1}</td>` +
+        `<td class="etf-flows-col-logo"><img class="etf-flows-logo" src="${info.logo}" alt="${info.nome}" loading="lazy"></td>` +
+        `<td class="etf-flows-col-ticker">${ticker}</td>` +
+        `<td class="etf-flows-col-emissor">${info.nome}</td>` +
         `<td class="etf-flows-col-total ${classeFluxo(total)}">${fmtUsdM(total)}</td>` +
         cells +
         `</tr>`
@@ -176,7 +212,11 @@ function render() {
     })
     .join("");
   tfoot.innerHTML =
-    `<tr class="etf-flows-linha-total"><td class="etf-flows-col-etf">TOTAL</td>` +
+    `<tr class="etf-flows-linha-total">` +
+    `<td class="etf-flows-col-rank"></td>` +
+    `<td class="etf-flows-col-logo"></td>` +
+    `<td class="etf-flows-col-ticker">TOTAL</td>` +
+    `<td class="etf-flows-col-emissor"></td>` +
     `<td class="etf-flows-col-total etf-flows-destaque ${classeFluxo(totals.TOTAL)}">${fmtUsdM(totals.TOTAL)}</td>` +
     totalCells +
     `</tr>`;

@@ -76,30 +76,102 @@
     background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
     overflow-x:auto;
   }
+  /* padding e altura de linha maiores que o padrão — pedido explícito de
+     "mais respiro", pra não parecer planilha comprimida. Vale pra
+     tabela inteira (rank/logo/ticker/emissor/total/datas), não só as
+     colunas novas. */
   table.etf-flows-table{border-collapse:collapse;width:100%;font-family:var(--font-mono);font-size:.86rem;white-space:nowrap;}
-  .etf-flows-table th,.etf-flows-table td{padding:11px 16px;text-align:right;border-bottom:1px solid var(--border);}
-  .etf-flows-table thead th{color:var(--text-tertiary);font-weight:500;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;}
-  .etf-flows-table .etf-flows-col-etf{text-align:left;font-weight:600;color:var(--text-primary);}
-  .etf-flows-table .etf-flows-col-total{font-weight:600;}
+  .etf-flows-table th,.etf-flows-table td{padding:16px 20px;text-align:right;border-bottom:1px solid var(--border);}
+  /* cabeçalho com um pouco mais de presença: cor mais clara, mais peso,
+     borda inferior mais forte separando do corpo da tabela. */
+  .etf-flows-table thead th{
+    color:var(--text-secondary);font-weight:600;font-size:.75rem;
+    text-transform:uppercase;letter-spacing:.05em;
+    border-bottom:2px solid var(--border-strong);
+  }
   .etf-flows-table .positivo{color:var(--green);}
   .etf-flows-table .negativo{color:var(--red);}
   .etf-flows-table .neutro{color:var(--text-tertiary);}
   .etf-flows-info{cursor:help;color:var(--text-tertiary);}
 
-  /* colunas ETF e Total fixas ao rolar horizontalmente — é a correção
-     de UX central desta página: em telas pequenas, com vários ETFs e
-     várias colunas de período, o usuário nunca deve perder de vista
-     qual linha é qual ETF nem o número de ranking principal. */
-  .etf-flows-table .etf-flows-col-etf{position:sticky;left:0;background:var(--bg-card);z-index:2;min-width:70px;}
-  .etf-flows-table .etf-flows-col-total{position:sticky;left:70px;background:var(--bg-card);z-index:2;min-width:100px;box-shadow:2px 0 6px rgba(0,0,0,.25);}
-  .etf-flows-table thead th.etf-flows-col-etf,.etf-flows-table thead th.etf-flows-col-total{z-index:3;}
+  /* 4 colunas de identidade (rank / logo / ticker / emissor) + Total —
+     hierarquia visual pretendida: ETF (ticker) > Total > datas > Emissor.
+     Rank +15% (1rem→1.15rem), padding entre as 4 primeiras mais justo
+     (item 7 — densidade sem desperdiçar espaço), Emissor com wrap
+     próprio (2 linhas se precisar, ex. "Franklin Templeton") em vez de
+     forçar a coluna a ficar larga o tempo todo por causa do nome mais
+     comprido de todos. */
+  .etf-flows-table .etf-flows-col-rank{
+    text-align:center;font-size:1.15rem;font-weight:600;color:var(--text-tertiary);
+    padding-left:12px;padding-right:8px;
+  }
+  .etf-flows-table .etf-flows-col-logo{text-align:center;padding-left:8px;padding-right:8px;}
+  .etf-flows-table .etf-flows-col-ticker{
+    text-align:left;font-weight:700;font-size:.98rem;color:var(--text-primary);
+    padding-left:8px;padding-right:6px;
+  }
+  .etf-flows-table .etf-flows-col-emissor{
+    text-align:left;font-weight:500;font-size:.7rem;color:var(--text-tertiary);
+    padding-left:6px;white-space:normal;line-height:1.35;
+  }
+  /* Total: 2o elemento mais importante da página — fonte maior e mais
+     pesada que as datas (que ficam no peso normal da tabela). */
+  .etf-flows-table .etf-flows-col-total{font-weight:700;font-size:.94rem;}
 
+  /* logo: caixa uniforme (36x36), logo ocupando ~83% dela (padding 3px),
+     nunca esticado (object-fit:contain), transparência preservada. Fundo
+     neutro ESCURO e discreto (não branco) — um branco cheio virava um
+     mosaico de quadrados que chamava mais atenção que o próprio logo, e
+     também apagava logos claros (ex. Bitwise, que é quase branco). Opacidade
+     .18 (subiu de .08) melhora contraste dos logos escuros/pretos sem virar
+     um cartão claro. */
+  .etf-flows-logo{
+    display:inline-block;width:36px;height:36px;padding:3px;box-sizing:border-box;
+    object-fit:contain;border-radius:7px;background:rgba(255,255,255,.18);
+    vertical-align:middle;
+  }
+
+  /* 5 colunas fixas ao rolar horizontalmente agora (rank/logo/ticker/
+     emissor/total) — Total passou a fazer parte do bloco fixo, por
+     pedido explícito. Larguras exatas (não só mínimas) definidas de
+     propósito, pra cada coluna ocupar só o espaço que precisa e o
+     offset "left" de cada uma bater certinho com a soma das anteriores.
+     Divisor mais forte depois de Emissor: é a fronteira visual entre
+     "identidade do ETF" (rank/logo/ticker/emissor) e "dado financeiro"
+     (Total + datas) — item mais importante desta rodada de ajuste. */
+  .etf-flows-table .etf-flows-col-rank{position:sticky;left:0;background:var(--bg-card);z-index:2;width:56px;}
+  .etf-flows-table .etf-flows-col-logo{position:sticky;left:56px;background:var(--bg-card);z-index:2;width:52px;}
+  .etf-flows-table .etf-flows-col-ticker{position:sticky;left:108px;background:var(--bg-card);z-index:2;width:88px;}
+  .etf-flows-table .etf-flows-col-emissor{
+    position:sticky;left:196px;background:var(--bg-card);z-index:2;width:116px;
+    border-right:2px solid var(--border-strong);
+  }
+  .etf-flows-table .etf-flows-col-total{
+    position:sticky;left:312px;background:var(--bg-card);z-index:2;width:140px;
+    box-shadow:2px 0 6px rgba(0,0,0,.25);
+  }
+  .etf-flows-table thead th.etf-flows-col-rank,
+  .etf-flows-table thead th.etf-flows-col-logo,
+  .etf-flows-table thead th.etf-flows-col-ticker,
+  .etf-flows-table thead th.etf-flows-col-emissor,
+  .etf-flows-table thead th.etf-flows-col-total{z-index:3;}
+
+  /* profundidade sutil: zebra quase imperceptível (linhas pares um tom
+     acima de --bg-card) + transição suave no hover, pra reduzir a
+     sensação de "planilha". Cor sólida (não rgba) mesmo nas colunas
+     sticky, senão o conteúdo das colunas de data "vaza" por trás delas
+     ao rolar horizontalmente. */
+  .etf-flows-table tbody tr:nth-child(even) td{background:#141824;}
+  .etf-flows-table tbody td{transition:background-color .15s ease;}
   .etf-flows-table tbody tr:hover td{background:var(--bg-card-hover);}
-  .etf-flows-table tbody tr:hover .etf-flows-col-etf,
+  .etf-flows-table tbody tr:hover .etf-flows-col-rank,
+  .etf-flows-table tbody tr:hover .etf-flows-col-logo,
+  .etf-flows-table tbody tr:hover .etf-flows-col-ticker,
+  .etf-flows-table tbody tr:hover .etf-flows-col-emissor,
   .etf-flows-table tbody tr:hover .etf-flows-col-total{background:var(--bg-card-hover);}
 
   .etf-flows-linha-total td{border-top:1px solid var(--border-strong);border-bottom:none;font-weight:600;}
-  .etf-flows-linha-total .etf-flows-col-etf{color:var(--text-primary);}
+  .etf-flows-linha-total .etf-flows-col-ticker{color:var(--text-primary);}
   /* célula de destaque: o número mais importante da página inteira
      (Total Geral, canto inferior da coluna Total) — negrito + fundo
      levemente diferente, sem virar card. */
