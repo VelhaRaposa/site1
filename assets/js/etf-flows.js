@@ -137,26 +137,6 @@ function construirColunas(modo) {
   return Array.from(buckets.values()).slice(-ETF_FLOWS_MAX_COLS).reverse();
 }
 
-// Nome não pode ser "renderHeader" — nav.js já usa esse nome globalmente
-// para montar o cabeçalho/menu do site (script sem módulos, escopo
-// global compartilhado); antes da correção, essa colisão fazia esta
-// função rodar em vez da de nav.js, e o menu do site sumia.
-function renderStats() {
-  const totals = etfFlowsSummary.totals || {};
-  const ultimoDia = etfFlowsDaily.length ? etfFlowsDaily[etfFlowsDaily.length - 1] : null;
-
-  document.getElementById("etf-flows-total-geral").textContent = fmtUsdM(totals.TOTAL);
-  document.getElementById("etf-flows-hoje").textContent = ultimoDia ? fmtUsdM(ultimoDia.flows.TOTAL) : "—";
-
-  const collectedAt = etfFlowsSummary.collected_at;
-  let atualizadoTxt = "—";
-  if (collectedAt) {
-    const d = new Date(collectedAt);
-    atualizadoTxt = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
-  }
-  document.getElementById("etf-flows-atualizado").textContent = atualizadoTxt;
-}
-
 function render() {
   const totals = etfFlowsSummary.totals || {};
   const tickers = (etfFlowsSummary.tickers || []).slice();
@@ -255,7 +235,6 @@ async function initEtfFlows() {
     return;
   }
 
-  renderStats();
   render();
   initModoSwitch();
 }
