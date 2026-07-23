@@ -45,4 +45,19 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add assets/data/btc-history.json assets/data/btc-history-usd.json
           git diff --cached --quiet && echo "Nada novo para commitar." || git commit -m "Atualiza histórico do Bitcoin (automático)"
-          git push
+          # Outros robôs agendados também commitam direto na main; se um deles
+          # empurrar um commit entre o nosso checkout e o push, o push é
+          # rejeitado (non-fast-forward). Sincroniza e tenta de novo antes de
+          # desistir — como cada robô mexe em arquivos diferentes, o rebase
+          # não deve gerar conflito real.
+          n=0
+          until git push; do
+            n=$((n + 1))
+            if [ "$n" -ge 5 ]; then
+              echo "git push falhou após $n tentativas." >&2
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
+            sleep $((n * 3))
+          done
