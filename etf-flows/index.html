@@ -123,6 +123,11 @@
   .etf-flows-table .positivo{color:var(--green);}
   .etf-flows-table .negativo{color:var(--red);}
   .etf-flows-table .neutro{color:var(--text-tertiary);}
+  /* dado ainda não publicado (ícone de relógio) — mesma cor "neutra" de
+     antes. Alinhado à direita, igual aos números (herda text-align:right
+     da regra base), pra ocupar a mesma posição que um valor tipo "+163.9M"
+     ocuparia — se um dia virar número de verdade, nada pula horizontalmente. */
+  .etf-flows-table .pendente{color:var(--text-tertiary);}
   /* ícone "ⓘ" do cabeçalho de Total removido apenas visualmente — o
      atributo title continua no <th> (gerado pelo JS, não tocado aqui),
      então o tooltip nativo ao passar o mouse no texto "Total" continua
@@ -203,10 +208,15 @@
   .etf-flows-table .etf-flows-col-ticker{position:sticky;left:116px;background:#101520;z-index:2;width:54px;}
   .etf-flows-table .etf-flows-col-emissor{position:sticky;left:170px;background:#101520;z-index:2;width:198px;}
   .etf-flows-table .etf-flows-col-total{position:sticky;left:368px;background:#101520;z-index:2;width:88px;}
+  /* cabeçalho unificado do bloco de identidade: um único <th colspan="3">
+     cobrindo exatamente a mesma faixa (left/width) que Logo+ETF+Emissor
+     somados no corpo da tabela — não muda nenhuma largura de coluna, só
+     substitui 3 rótulos por 1, centralizado. */
+  .etf-flows-table thead th.etf-flows-col-identidade{
+    position:sticky;left:54px;background:#101520;z-index:3;width:314px;
+    text-align:center;
+  }
   .etf-flows-table thead th.etf-flows-col-rank,
-  .etf-flows-table thead th.etf-flows-col-logo,
-  .etf-flows-table thead th.etf-flows-col-ticker,
-  .etf-flows-table thead th.etf-flows-col-emissor,
   .etf-flows-table thead th.etf-flows-col-total{z-index:3;}
 
   /* sem zebra, sem linha entre linhas — só o hover indica a leitura

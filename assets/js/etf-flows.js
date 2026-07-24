@@ -56,8 +56,16 @@ function issuerInfo(ticker) {
   return ETF_ISSUERS[ticker] || { nome: ticker, logo: "" };
 }
 
+// Ícone de relógio (dado ainda não publicado) — usa currentColor, então
+// herda a cor da célula (.pendente, ver classeFluxo) sem precisar de cor
+// própria. Só aparece no lugar do antigo "—"; zero continua "0.0M".
+const ICONE_PENDENTE =
+  '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+  'stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;" aria-hidden="true">' +
+  '<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+
 function fmtUsdM(v) {
-  if (v === null || v === undefined || Number.isNaN(v)) return "—";
+  if (v === null || v === undefined || Number.isNaN(v)) return ICONE_PENDENTE;
   const abs = Math.abs(v);
   const sinal = v > 0 ? "+" : v < 0 ? "-" : "";
   if (abs >= 1000) return `${sinal}${(abs / 1000).toFixed(1)}B`;
@@ -65,7 +73,7 @@ function fmtUsdM(v) {
 }
 
 function classeFluxo(v) {
-  if (v === null || v === undefined) return "neutro";
+  if (v === null || v === undefined) return "pendente";
   if (v > 0) return "positivo";
   if (v < 0) return "negativo";
   return "neutro";
@@ -159,12 +167,15 @@ function render() {
   // uma célula combinada — pedido explícito pra parecer menos planilha
   // e mais um terminal financeiro. Total deixou de ser sticky (só as
   // 4 primeiras colunas ficam fixas agora, por pedido explícito).
+  // Cabeçalho unificado: Logo+ETF+Emissor viram um único "ETF" (colspan=3)
+  // — pedido explícito pra tratar as três colunas como um bloco só de
+  // identidade, sem rótulos individuais "Logo"/"Emissor". O corpo da
+  // tabela continua com as 3 células separadas (cada uma com sua própria
+  // largura/alinhamento/sticky, nada disso muda).
   thead.innerHTML =
     `<tr>` +
     `<th class="etf-flows-col-rank">#</th>` +
-    `<th class="etf-flows-col-logo">Logo</th>` +
-    `<th class="etf-flows-col-ticker">ETF</th>` +
-    `<th class="etf-flows-col-emissor">Emissor</th>` +
+    `<th class="etf-flows-col-identidade" colspan="3">ETF</th>` +
     `<th class="etf-flows-col-total" title="Soma dos fluxos líquidos desde jan/2024.">Total <span class="etf-flows-info">ⓘ</span></th>` +
     colunas.map((c) => `<th>${c.label}${c.partial ? " *" : ""}</th>`).join("") +
     `</tr>`;
