@@ -245,6 +245,24 @@
 
   #etf-flows-erro{color:var(--red);font-size:.9rem;margin:16px 0;}
   #etf-flows-nota-parcial{font-size:.78rem;color:var(--text-tertiary);margin-top:10px;}
+
+  /* Gráfico de fluxo acumulado — abaixo da tabela (não altera a tabela
+     em nada). Usa exclusivamente os dados já carregados em
+     etf-flows-daily.json (soma progressiva do TOTAL diário) — nenhuma
+     nova fonte de dado. Mesma pegada visual dos gráficos de "Ciclos
+     Bitcoin" (Chart.js, moldura .chart-frame, grid discreta), com
+     nomes de classe próprios desta página. */
+  .etf-flows-chart-secao{margin-top:48px;}
+  .etf-flows-chart-titulo{
+    font-family:var(--font-display);color:var(--text-primary);
+    font-size:2.25rem;font-weight:700;line-height:1.15;margin-bottom:24px;
+  }
+  .etf-flows-chart-frame{
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding-top:16px;padding-bottom:16px;padding-left:12px;padding-right:12px;
+  }
+  #etf-flows-chart-wrap{position:relative;height:430px;}
+  @media (max-width:640px){#etf-flows-chart-wrap{height:320px;}}
 </style>
 </head>
 <body>
@@ -276,6 +294,15 @@
         </table>
       </div>
       <p id="etf-flows-nota-parcial" style="display:none;">* período em andamento (ainda não fechou).</p>
+    </div>
+
+    <div class="etf-flows-chart-secao">
+      <h2 class="etf-flows-chart-titulo">Fluxo acumulado dos ETFs Spot de Bitcoin</h2>
+      <div class="etf-flows-chart-frame">
+        <div id="etf-flows-chart-wrap">
+          <canvas id="etf-flows-chart-canvas"></canvas>
+        </div>
+      </div>
     </div>
 
     <div class="disclaimer-box">
@@ -339,6 +366,8 @@
 <script src="/assets/js/analytics.js"></script>
 <script src="/assets/js/nav.js"></script>
 <script src="/assets/js/utils.js"></script>
+<script src="/assets/js/vendor/chart.umd.min.js"></script>
+<script src="/assets/js/chart-watermark.js"></script>
 <script src="/assets/js/etf-flows.js"></script>
 </body>
 </html>
