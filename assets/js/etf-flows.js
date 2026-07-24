@@ -223,6 +223,143 @@ function render() {
   if (nota) nota.style.display = colunas.some((c) => c.partial) ? "" : "none";
 }
 
+/* ---------- gráfico de fluxo acumulado (abaixo da tabela) ----------
+   Usa exclusivamente etfFlowsDaily (já carregado para a tabela) — soma
+   progressiva do campo TOTAL de cada dia. Não depende do modo ativo da
+   tabela (diário/semanal/mensal) nem é afetado por ele. */
+let etfFlowsChartInstance = null;
+
+function formatarDataLonga(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return `${String(d).padStart(2, "0")} ${MESES_ABR[m - 1].toLowerCase()} ${y}`;
+}
+
+function fmtUsdBilhoes(milhoes) {
+  return `US$ ${(milhoes / 1000).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} bilhões`;
+}
+
+// dia sem dado (TOTAL null) não soma nada — o acumulado fica igual ao do
+// dia anterior, não é tratado como fluxo zero retroativo.
+function construirSerieAcumulada() {
+  let acumulado = 0;
+  return etfFlowsDaily.map((row, i) => {
+    const v = row.flows.TOTAL;
+    if (v !== null && v !== undefined) acumulado += v;
+    return { n: i, data: row.date, acumulado };
+  });
+}
+
+// índice do primeiro dia de cada mês presente na série — marcações
+// candidatas do eixo X (sempre alinhadas a um início de mês, nunca no
+// meio de um mês).
+function indicesInicioDeMes(serie) {
+  const indices = [];
+  let mesAnterior = null;
+  serie.forEach((p, i) => {
+    const mes = p.data.slice(0, 7);
+    if (mes !== mesAnterior) {
+      indices.push(i);
+      mesAnterior = mes;
+    }
+  });
+  return indices;
+}
+
+// reduz a lista de inícios de mês a ~ALVO marcações bem distribuídas por
+// toda a série (mesma ideia da Farside: poucas datas, espalhadas do
+// início ao fim, não uma a cada mês) — sempre inclui o primeiro e o
+// último mês disponível.
+function escolherTicksEspacados(indicesMes, alvo) {
+  if (indicesMes.length <= alvo) return indicesMes;
+  const passo = (indicesMes.length - 1) / (alvo - 1);
+  const escolhidos = new Set();
+  for (let i = 0; i < alvo; i++) {
+    escolhidos.add(indicesMes[Math.round(i * passo)]);
+  }
+  return Array.from(escolhidos).sort((a, b) => a - b);
+}
+
+function renderEtfFlowsChart() {
+  const canvasEl = document.getElementById("etf-flows-chart-canvas");
+  if (!canvasEl || typeof Chart === "undefined") return;
+
+  const serie = construirSerieAcumulada();
+  if (!serie.length) return;
+
+  const marcosMes = escolherTicksEspacados(indicesInicioDeMes(serie), 8);
+
+  if (etfFlowsChartInstance) etfFlowsChartInstance.destroy();
+  const ctx = canvasEl.getContext("2d");
+  etfFlowsChartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      datasets: [
+        {
+          data: serie.map((p) => ({ x: p.n, y: p.acumulado / 1000, data: p.data })),
+          borderColor: "#F7931A",
+          backgroundColor: "#F7931A",
+          borderWidth: 2.5,
+          pointRadius: 0,
+          fill: false,
+          tension: 0.1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: {
+          type: "linear",
+          bounds: "data",
+          min: 0,
+          max: serie.length - 1,
+          grid: { display: false },
+          afterBuildTicks: (axis) => {
+            axis.ticks = marcosMes.map((n) => ({ value: n }));
+          },
+          ticks: {
+            color: "#D7DCE5",
+            font: { family: "JetBrains Mono", size: 10 },
+            callback: (v) => {
+              const p = serie[v];
+              if (!p) return "";
+              const [y, m] = p.data.split("-");
+              return `${MESES_ABR[Number(m) - 1]}/${y.slice(2)}`;
+            },
+          },
+        },
+        y: {
+          grid: { color: "#1F2634" },
+          ticks: {
+            color: "#D7DCE5",
+            font: { family: "JetBrains Mono", size: 10 },
+            callback: (v) => `${Math.round(v)}B`,
+          },
+        },
+      },
+      plugins: {
+        legend: { display: false },
+        watermark: { enabled: true, opacity: 0.04 },
+        tooltip: {
+          displayColors: false,
+          backgroundColor: "#10141F",
+          borderColor: "#2B3448",
+          borderWidth: 1,
+          titleColor: "#F2F3F5",
+          bodyColor: "#8B93A7",
+          callbacks: {
+            title: (items) => formatarDataLonga(items[0].raw.data),
+            label: (item) => fmtUsdBilhoes(item.raw.y * 1000),
+          },
+        },
+      },
+    },
+  });
+}
+
 function initModoSwitch() {
   document.querySelectorAll(".etf-flows-modo button").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -255,6 +392,7 @@ async function initEtfFlows() {
 
   render();
   initModoSwitch();
+  renderEtfFlowsChart();
 }
 
 document.addEventListener("DOMContentLoaded", initEtfFlows);
