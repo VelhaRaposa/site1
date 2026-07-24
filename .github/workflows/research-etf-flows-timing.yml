@@ -1,0 +1,61 @@
+name: Pesquisa de horário ETF Flows (TEMPORÁRIO)
+
+# TEMPORÁRIO — remover este arquivo (e scripts/etf_flows_research.py)
+# assim que tivermos evidência suficiente para decidir o horário
+# definitivo do workflow de produção. Não afeta o site: nunca escreve
+# em assets/data/, só registra observações em scripts/research/.
+#
+# Roda de hora em hora, das 04:00 às 14:00 UTC (01:00–11:00 de
+# Brasília), cobrindo com folga a janela em que a Farside costuma
+# terminar de publicar os números definitivos de um dia. Depois de
+# ~1 mês de coleta, scripts/research/etf-flows-timing-log.jsonl tem
+# evidência real (percentis do horário de conclusão) pra essa decisão —
+# ver a proposta completa no README, seção ETF Flows.
+#
+# Também pode ser disparado manualmente na aba "Actions" do GitHub,
+# botão "Run workflow".
+on:
+  schedule:
+    - cron: "0 4-14 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Observar completude dos últimos dias (Farside)
+        run: python3 scripts/etf_flows_research.py
+
+      - name: Commitar alterações (se houver algo novo)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scripts/research/etf-flows-timing-window.json scripts/research/etf-flows-timing-log.jsonl
+          git diff --cached --quiet && echo "Nada novo para commitar." || git commit -m "Pesquisa de horário ETF Flows (automático, temporário)"
+          # Outros robôs agendados também commitam direto na main; se um deles
+          # empurrar um commit entre o nosso checkout e o push, o push é
+          # rejeitado (non-fast-forward). Sincroniza e tenta de novo antes de
+          # desistir — como cada robô mexe em arquivos diferentes, o rebase
+          # não deve gerar conflito real.
+          n=0
+          until git push; do
+            n=$((n + 1))
+            if [ "$n" -ge 5 ]; then
+              echo "git push falhou após $n tentativas." >&2
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
+            sleep $((n * 3))
+          done

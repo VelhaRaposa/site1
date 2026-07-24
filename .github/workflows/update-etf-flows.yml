@@ -1,16 +1,26 @@
 name: Atualizar ETF Flows (Farside)
 
-# Roda automaticamente todo dia às 10:00 (horário de Brasília é UTC-3,
-# então 10:00 UTC — próximo horário livre depois dos robôs de Bitcoin
-# (09:00 UTC), mercado (09:20 UTC) e vídeos (09:40 UTC), pra não disputar
-# o mesmo commit), e também pode ser disparado manualmente na aba
-# "Actions" do GitHub, botão "Run workflow".
+# PRODUÇÃO — alimenta o site. Roda todo dia às 11:00 de Brasília (UTC-3,
+# então 14:00 UTC), horário escolhido pra publicar antes da live das
+# 14h e ainda dar folga pra Farside consolidar o dia anterior (ver
+# decisão completa no README, seção ETF Flows). Também pode ser
+# disparado manualmente na aba "Actions" do GitHub, botão "Run workflow".
 #
-# Fonte única: farside.co.uk/btc/ (fluxos em US$, ETFs spot de Bitcoin
-# dos EUA). Ver scripts/update_etf_flows.py e o README, seção ETF Flows.
+# Reprocessa sempre os últimos REPROCESS_DAYS dias (não só datas novas)
+# — ver scripts/update_etf_flows.py, docstring do módulo e reprocessar().
+#
+# Este workflow tem 2 irmãos, mesmo script, mesmo comportamento:
+# - verify-etf-flows.yml: mesma chamada às 18:00 de Brasília, mais um
+#   log de auditoria (--audit-log) — camada extra de conferência.
+# - research-etf-flows-timing.yml: TEMPORÁRIO, só observação, nunca
+#   escreve dado público — descobre estatisticamente o horário ideal.
+#
+# Fonte única: farside.co.uk/bitcoin-etf-flow-all-data/ (fluxos em US$,
+# ETFs spot de Bitcoin dos EUA). Ver scripts/update_etf_flows.py e o
+# README, seção ETF Flows.
 on:
   schedule:
-    - cron: "0 10 * * *"
+    - cron: "0 14 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -28,7 +38,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Buscar e adicionar os dias novos (Farside)
+      - name: Buscar, adicionar dias novos e reprocessar os últimos dias (Farside)
         run: python3 scripts/update_etf_flows.py
 
       - name: Commitar alterações (se houver algo novo)
