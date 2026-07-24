@@ -43,8 +43,8 @@ informação primária do produto.
 
 FORMATO DOS ARQUIVOS:
 - etf-flows-daily.json: array append-only, 1 objeto por data já
-  publicada pela Farside, nunca reescreve uma data já existente — é a
-  ÚNICA fonte de verdade do produto, tudo mais é derivado dela.
+  publicada pela Farside — é a ÚNICA fonte de verdade do produto, tudo
+  mais é derivado dela.
   [{"date": "2026-07-21", "flows": {"IBIT": 163.9, ..., "TOTAL": 203.2}}]
 - etf-flows-summary.json: snapshot (sobrescrito a cada execução, não é
   histórico).
@@ -59,9 +59,43 @@ FORMATO DOS ARQUIVOS:
    "tickers": ["IBIT", "FBTC", ...],
    "last_date": "2026-07-21", "collected_at": "2026-...Z"}
 
-Este script roda só no GitHub Actions (.github/workflows/update-etf-flows.yml),
-nunca no navegador do visitante.
+JANELA DE REPROCESSAMENTO (REPROCESS_DAYS, hoje 7 dias):
+A Farside publica a linha de um dia bem antes de ela estar completa
+(no começo só com "-" em quase todo ETF) e vai preenchendo os valores
+reais ao longo do dia seguinte. Por isso este script NÃO trata mais o
+histórico inteiro como imutável: as últimas REPROCESS_DAYS datas
+retornadas pela Farside são sempre comparadas com o que já está salvo e
+SOBRESCRITAS se algum valor mudou — é assim que uma linha capturada
+incompleta se autocorrige nas execuções seguintes, sem precisar de
+nenhuma ação manual. Datas mais antigas que a janela nunca são tocadas
+(histórico assentado continua imutável). Ver README, seção ETF Flows,
+para a decisão completa por trás disso.
+
+FAIL-SAFE (FAILSAFE_MAX_OVERWRITTEN_DATES_PCT / _VALUES_PCT): como este
+script commita sozinho, sem revisão humana, reprocessar() distingue
+PREENCHIMENTO (None -> valor, sempre normal) de SOBRESCRITA (valor real
+-> outro valor real, ou -> None de novo — o padrão de um bug estrutural
+de parsing). Se a fração de datas ou de valores sobrescritos passar do
+limite, main() aborta ANTES de qualquer save_json() — nada é escrito
+nem commitado, e o job falha visivelmente na aba Actions. Ver README,
+seção ETF Flows, para o raciocínio completo.
+
+Este script roda 2x/dia no GitHub Actions, com o MESMO comportamento
+nas duas execuções (só o horário do cron muda):
+- .github/workflows/update-etf-flows.yml (produção, 11:00 Brasília) —
+  alimenta o site.
+- .github/workflows/verify-etf-flows.yml (conferência, 18:00 Brasília)
+  — mesma chamada, mais a flag --audit-log (ver parse_args()), que
+  grava 1 linha de auditoria por execução em scripts/research/
+  independente de ter havido mudança ou não. Nunca roda no navegador
+  do visitante.
+
+Ver também scripts/etf_flows_research.py — instrumento SEPARADO e
+TEMPORÁRIO (não decide nada aqui, só observa) que reaproveita
+fetch_html()/extract() deste arquivo para descobrir estatisticamente o
+horário em que a Farside costuma terminar de publicar um dia.
 """
+import argparse
 import gzip
 import html.parser
 import json
@@ -70,11 +104,37 @@ import re
 import sys
 import urllib.request
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "data")
 DAILY_PATH = os.path.join(DATA_DIR, "etf-flows-daily.json")
 SUMMARY_PATH = os.path.join(DATA_DIR, "etf-flows-summary.json")
 URL = "https://farside.co.uk/bitcoin-etf-flow-all-data/"
+
+# Quantos dos dias mais recentes (segundo a própria Farside, não do
+# calendário) são sempre comparados de novo e sobrescritos se mudarem.
+# Único lugar do pipeline que essa janela é definida — se um dia
+# decidirmos que o certo é 14 ou 30, muda só este número.
+REPROCESS_DAYS = 7
+
+# FAIL-SAFE: distingue PREENCHIMENTO (None -> valor — o que o
+# reprocessamento existe pra fazer, pode ser numeroso e legítimo, ex.:
+# recuperar um atraso de vários dias de uma vez) de SOBRESCRITA (um
+# valor que já era real virando outro valor real, ou virando None de
+# novo — raro em operação normal, é o padrão esperado de um bug
+# estrutural de parsing corrompendo a coleta em massa). Só sobrescritas
+# contam pro fail-safe; preenchimento nunca dispara isso, não importa o
+# volume. Ver reprocessar() e a checagem em main().
+#
+# Os dois limites abaixo são PROPORCIONAIS ao tamanho da janela (não
+# números fixos), pra continuarem corretos se REPROCESS_DAYS mudar.
+# Valores iniciais propositalmente conservadores (bem acima do único
+# caso real já observado: 1 data, 1 valor — ver README, seção ETF
+# Flows) — recalibrar depois de algumas semanas de dado real em
+# scripts/research/etf-flows-verify-log.jsonl, não são números
+# definitivos.
+FAILSAFE_MAX_OVERWRITTEN_DATES_PCT = 0.5   # fração das datas da janela com >=1 sobrescrita
+FAILSAFE_MAX_OVERWRITTEN_VALUES_PCT = 0.25  # fração do total de valores possíveis na janela
 
 # Confirmado via diagnóstico real (ver commits de teste): headers
 # mínimos levam a 403 da Cloudflare; este conjunto, equivalente ao que
@@ -286,7 +346,98 @@ def save_json(path, data):
         json.dump(data, f, separators=(",", ":"))
 
 
+def append_jsonl(path, obj):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(obj, separators=(",", ":")) + "\n")
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--audit-log",
+        default=None,
+        help=(
+            "Caminho para anexar 1 linha JSONL com estatísticas desta "
+            "execução (dias comparados, datas alteradas, ETFs alterados, "
+            "se haveria commit de dado público). Só o workflow de "
+            "conferência (18:00 Brasília) passa essa flag — a produção "
+            "(11:00) roda sem ela."
+        ),
+    )
+    return parser.parse_args()
+
+
+# Reprocessa as REPROCESS_DAYS datas mais recentes que a Farside está
+# publicando agora: se o valor salvo diverge do que acabou de ser
+# baixado, sobrescreve (é assim que uma linha capturada incompleta se
+# autocorrige sozinha nas execuções seguintes). Datas fora dessa janela
+# nunca são tocadas.
+#
+# Toda diferença é classificada em uma das duas categorias (ver
+# FAILSAFE_* acima para o porquê dessa distinção):
+# - preenchimento: valor salvo era None, o novo não é — sempre normal.
+# - sobrescrita: valor salvo já era real (não-None) e o novo é
+#   diferente (inclusive se o novo for None) — o sinal que alimenta o
+#   fail-safe em main().
+#
+# Retorna um dict de estatísticas (não uma tupla) pra facilitar adicionar
+# campos novos no futuro sem quebrar quem já chama esta função.
+def reprocessar(daily, new_rows):
+    existing_by_date = {row["date"]: row for row in daily}
+    new_rows_sorted = sorted(new_rows, key=lambda row: row["date"])
+    reproc_dates = {row["date"] for row in new_rows_sorted[-REPROCESS_DAYS:]}
+
+    added = 0
+    changed_dates = 0
+    fills = 0
+    overwrites = 0
+    overwritten_dates = 0
+    for row in new_rows_sorted:
+        date = row["date"]
+        if date not in existing_by_date:
+            daily.append(row)
+            existing_by_date[date] = row
+            added += 1
+            continue
+        if date not in reproc_dates:
+            continue  # histórico fora da janela: nunca reescrito
+        old_flows = existing_by_date[date]["flows"]
+        new_flows = row["flows"]
+        if old_flows == new_flows:
+            continue
+
+        date_has_overwrite = False
+        for t in new_flows:
+            old_v, new_v = old_flows.get(t), new_flows.get(t)
+            if old_v == new_v:
+                continue
+            if old_v is None:
+                fills += 1
+            else:
+                overwrites += 1
+                date_has_overwrite = True
+
+        existing_by_date[date]["flows"] = new_flows
+        changed_dates += 1
+        if date_has_overwrite:
+            overwritten_dates += 1
+
+    daily.sort(key=lambda row: row["date"])
+    return {
+        "added": added,
+        "changed_dates": changed_dates,
+        "etfs_changed": fills + overwrites,
+        "fills": fills,
+        "overwrites": overwrites,
+        "overwritten_dates": overwritten_dates,
+        "window_dates": len(reproc_dates),
+    }
+
+
 def main():
+    args = parse_args()
+
     try:
         html_text = fetch_html()
     except Exception as e:
@@ -304,16 +455,46 @@ def main():
         sys.exit(1)
 
     daily = load_daily()
-    existing_dates = {row["date"] for row in daily}
-    added = 0
-    for row in new_rows:
-        if row["date"] in existing_dates:
-            continue
-        daily.append(row)
-        existing_dates.add(row["date"])
-        added += 1
+    stats = reprocessar(daily, new_rows)
 
-    daily.sort(key=lambda row: row["date"])
+    # FAIL-SAFE — checado ANTES de qualquer save_json(): se a fração de
+    # datas/valores SOBRESCRITOS (não preenchidos, ver reprocessar())
+    # passar do limite, tratamos como possível bug estrutural de parsing
+    # e abortamos sem escrever nem commitar nada. Ver FAILSAFE_* acima.
+    window_dates = stats["window_dates"]
+    total_possible_values = window_dates * (len(tickers) + 1)  # +1 = chave "TOTAL"
+    overwritten_dates_pct = (stats["overwritten_dates"] / window_dates) if window_dates else 0.0
+    overwritten_values_pct = (stats["overwrites"] / total_possible_values) if total_possible_values else 0.0
+
+    if (
+        overwritten_dates_pct > FAILSAFE_MAX_OVERWRITTEN_DATES_PCT
+        or overwritten_values_pct > FAILSAFE_MAX_OVERWRITTEN_VALUES_PCT
+    ):
+        print("[FALHA] Possível mudança estrutural detectada na Farside.")
+        print(
+            f"  - {stats['overwritten_dates']}/{window_dates} datas reprocessadas "
+            f"tiveram sobrescrita de valor real "
+            f"({overwritten_dates_pct:.0%}, limite {FAILSAFE_MAX_OVERWRITTEN_DATES_PCT:.0%})"
+        )
+        print(
+            f"  - {stats['overwrites']}/{total_possible_values} valores possíveis "
+            f"da janela foram sobrescritos "
+            f"({overwritten_values_pct:.0%}, limite {FAILSAFE_MAX_OVERWRITTEN_VALUES_PCT:.0%})"
+        )
+        print("Commit automático cancelado. Necessária revisão manual.")
+        if args.audit_log:
+            now_utc = datetime.now(timezone.utc)
+            append_jsonl(args.audit_log, {
+                "run_at_utc": now_utc.isoformat(),
+                "run_at_brt": now_utc.astimezone(ZoneInfo("America/Sao_Paulo")).isoformat(),
+                "days_compared": REPROCESS_DAYS,
+                "dates_changed": stats["changed_dates"],
+                "etfs_changed": stats["etfs_changed"],
+                "commit_made": False,
+                "aborted": True,
+            })
+        sys.exit(2)
+
     save_json(DAILY_PATH, daily)
 
     # Totais exibidos no produto = SEMPRE recalculados a partir do
@@ -353,8 +534,25 @@ def main():
     }
     save_json(SUMMARY_PATH, summary)
 
-    print(f"OK: {added} dia(s) novo(s) adicionados. Último dia: {summary['last_date']}. "
-          f"Tickers: {', '.join(tickers)}.")
+    print(
+        f"OK: {stats['added']} dia(s) novo(s), {stats['changed_dates']} dia(s) "
+        f"reprocessado(s) ({stats['fills']} preenchimento(s), {stats['overwrites']} "
+        f"sobrescrita(s)) dentro da janela de {REPROCESS_DAYS} dias. "
+        f"Último dia: {summary['last_date']}. Tickers: {', '.join(tickers)}."
+    )
+
+    if args.audit_log:
+        now_utc = datetime.now(timezone.utc)
+        now_brt = now_utc.astimezone(ZoneInfo("America/Sao_Paulo"))
+        append_jsonl(args.audit_log, {
+            "run_at_utc": now_utc.isoformat(),
+            "run_at_brt": now_brt.isoformat(),
+            "days_compared": REPROCESS_DAYS,
+            "dates_changed": stats["changed_dates"],
+            "etfs_changed": stats["etfs_changed"],
+            "commit_made": bool(stats["added"] or stats["changed_dates"]),
+            "aborted": False,
+        })
 
 
 if __name__ == "__main__":

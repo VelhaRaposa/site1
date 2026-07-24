@@ -1,0 +1,62 @@
+name: Conferir ETF Flows (Farside)
+
+# CONFERÊNCIA — mesmo script, mesmo comportamento do workflow de
+# produção (update-etf-flows.yml), só que às 18:00 de Brasília (UTC-3,
+# então 21:00 UTC) e com a flag --audit-log. Captura correções tardias
+# da Farside (ou dos emissores) que só apareceram depois das 11h.
+#
+# Grava 1 linha de auditoria por execução em
+# scripts/research/etf-flows-verify-log.jsonl (dias comparados, datas
+# alteradas, ETFs alterados, se haveria commit de dado público) —
+# independente de ter havido mudança ou não. Serve pra decidir, com
+# evidência real depois de um tempo, se esta segunda execução diária
+# realmente agrega valor. Ver scripts/update_etf_flows.py (reprocessar())
+# e o README, seção ETF Flows.
+#
+# Também pode ser disparado manualmente na aba "Actions" do GitHub,
+# botão "Run workflow".
+on:
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  verify-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Reprocessar os últimos dias e registrar auditoria (Farside)
+        run: python3 scripts/update_etf_flows.py --audit-log scripts/research/etf-flows-verify-log.jsonl
+
+      - name: Commitar alterações (se houver algo novo)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/data/etf-flows-daily.json assets/data/etf-flows-summary.json scripts/research/etf-flows-verify-log.jsonl
+          git diff --cached --quiet && echo "Nada novo para commitar." || git commit -m "Confere ETF Flows (automático)"
+          # Outros robôs agendados também commitam direto na main; se um deles
+          # empurrar um commit entre o nosso checkout e o push, o push é
+          # rejeitado (non-fast-forward). Sincroniza e tenta de novo antes de
+          # desistir — como cada robô mexe em arquivos diferentes, o rebase
+          # não deve gerar conflito real.
+          n=0
+          until git push; do
+            n=$((n + 1))
+            if [ "$n" -ge 5 ]; then
+              echo "git push falhou após $n tentativas." >&2
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
+            sleep $((n * 3))
+          done

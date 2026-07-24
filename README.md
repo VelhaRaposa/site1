@@ -303,3 +303,64 @@ lista no topo do arquivo) for implementado, carregue-o via
 `<script src="/assets/js/halvings.js">` antes do script da ferramenta,
 no mesmo padrão já usado com `assets/js/utils.js`.
 
+## 12. ETF Flows — pipeline de dados (produção, conferência e pesquisa de horário)
+
+Fonte única: `farside.co.uk/bitcoin-etf-flow-all-data/` (fluxos em US$
+dos ETFs spot de Bitcoin dos EUA). Todo o parsing/coleta vive em
+`scripts/update_etf_flows.py`; a página em `/etf-flows/` só lê os JSONs
+já prontos em `assets/data/`, nunca acessa a Farside diretamente.
+
+**O problema que esta arquitetura resolve:** a Farside publica a linha
+de um dia bem antes dela estar completa (a maioria dos ETFs aparece só
+com "-" no começo) e vai preenchendo os valores reais ao longo do dia
+seguinte. Um scraper que trata o histórico como imutável (nunca revisita
+uma data já salva) acaba travando pra sempre uma linha capturada cedo
+demais — foi exatamente o que aconteceu em jul/2026, com dois dias
+ficando permanentemente incompletos no site mesmo depois da Farside já
+ter publicado os números reais.
+
+**A solução: janela de reprocessamento.** `update_etf_flows.py` sempre
+compara as últimas `REPROCESS_DAYS` datas (constante no topo do arquivo,
+hoje 7) com o que acabou de baixar da Farside e sobrescreve se algum
+valor mudou — histórico mais antigo que a janela nunca é tocado. Se um
+dia decidirmos que o certo é 14 ou 30 dias, muda só essa constante, sem
+mexer em mais nada do pipeline.
+
+**Três workflows, três responsabilidades:**
+
+| Workflow | Cron (Brasília / UTC) | Faz o quê |
+|---|---|---|
+| `update-etf-flows.yml` (produção) | 11:00 / 14:00 UTC | Roda `update_etf_flows.py` — busca, reprocessa os últimos 7 dias, atualiza `etf-flows-daily.json`/`etf-flows-summary.json`, commita só se mudou algo. É o que alimenta o site; o horário foi escolhido pra publicar antes da live das 14h e ainda dar folga pra Farside consolidar o dia anterior. |
+| `verify-etf-flows.yml` (conferência) | 18:00 / 21:00 UTC | Chama o **mesmíssimo script**, só que com `--audit-log`, pra capturar qualquer correção tardia que a Farside tenha publicado depois das 11h. Além do dado público, grava 1 linha por execução em `scripts/research/etf-flows-verify-log.jsonl` (dias comparados, datas alteradas, ETFs alterados, se haveria commit) — independente de ter mudado algo ou não. Serve pra decidir com evidência real, depois de um tempo, se essa segunda execução diária vale a pena manter. |
+| `research-etf-flows-timing.yml` (**TEMPORÁRIO**) | de hora em hora, 04:00–14:00 UTC (01:00–11:00 Brasília) | Roda `scripts/etf_flows_research.py` — observa, sem nunca escrever em `assets/data/`, em que horário cada dia fica 100% preenchido pela primeira vez. Grava em `scripts/research/etf-flows-timing-window.json` (janela ativa, reescrita inteira a cada execução) e `etf-flows-timing-log.jsonl` (histórico permanente, 1 linha por dia, só apêndice). Depois de ~1 mês de coleta, dá pra calcular percentis (p50/p95/p99) do horário real de conclusão da Farside e decidir com dado, não com impressão, se 11:00/18:00 continuam sendo os horários certos. **Remover este workflow e `scripts/etf_flows_research.py` assim que essa decisão for tomada** — não é parte permanente do pipeline.
+
+Os três chamam o mesmo par de funções (`fetch_html()`/`extract()` em
+`update_etf_flows.py`) — nenhum faz uma segunda implementação de
+parsing, e nenhum bate na Farside mais do que uma vez por execução.
+
+**Fail-safe contra bug estrutural de parsing.** Como produção e
+conferência commitam sozinhas, sem revisão humana, `reprocessar()`
+classifica toda diferença dentro da janela em duas categorias:
+- **preenchimento** (`None` → valor): o que o reprocessamento existe
+  pra fazer — pode ser numeroso e legítimo (ex.: recuperar um atraso de
+  vários dias de uma vez), nunca dispara o fail-safe.
+- **sobrescrita** (valor real → valor real diferente, ou valor real →
+  `None`): raro em operação normal (o único caso real já visto foi 1
+  data, 1 valor — um "Total" placeholder virando o número de verdade).
+  Um bug estrutural de parsing (formato mudou, coluna deslocou) tende a
+  produzir isso em massa, em várias datas ao mesmo tempo — é esse
+  padrão que o fail-safe procura.
+
+Se a fração de **datas** da janela com alguma sobrescrita passar de
+`FAILSAFE_MAX_OVERWRITTEN_DATES_PCT`, ou a fração de **valores**
+sobrescritos (sobre o total possível na janela) passar de
+`FAILSAFE_MAX_OVERWRITTEN_VALUES_PCT` (as duas constantes, junto de
+`REPROCESS_DAYS`, no topo de `update_etf_flows.py`), o script imprime o
+motivo, grava uma linha com `"aborted": true` no `--audit-log` (quando
+essa flag é usada) e sai com código 2 **antes** de qualquer
+`save_json()` — nada é escrito, nada é commitado, o job aparece com ❌
+na aba Actions. Os dois limites são frações da janela (não números
+fixos) e propositalmente conservadores no início; a ideia é recalibrá-
+los com dado real depois de algumas semanas de `etf-flows-verify-log.jsonl`,
+não são definitivos.
+
