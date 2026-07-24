@@ -158,14 +158,41 @@
     border-right:1px solid rgba(255,255,255,.08);
   }
 
-  /* logo: NÃO alterado nesta rodada (tamanho/preenchimento/fundo ficam
-     pro PR de identidade visual, junto da padronização das próprias
-     imagens). Só a largura da célula ao redor dele muda, abaixo. */
+  /* Logos reais (rodada de padronização visual). Caixa continua com
+     exatamente o mesmo tamanho (47x47) de antes — só o padding interno
+     muda, por marca, via seletor de atributo [src*="..."] (sem tocar
+     no HTML/JS: o <img> já tem src="/.../ticker.png", isso só lê o
+     valor que já existe). Duas famílias de fundo, nunca inventadas:
+     (A) 5 logos com fundo oficial da própria marca (preto da
+     BlackRock, verde da Fidelity, quase-preto da Bitwise, azul da
+     VanEck, azul-marinho da Morgan Stanley) — cor extraída direto do
+     pixel dominante de cada arquivo, pra não sobrar nenhuma emenda
+     visível na área de padding; (B) os demais, sem fundo de marca,
+     usam exatamente #F2F2F2. Os 6 arquivos sem fundo oficial (Ark,
+     CoinShares, Franklin, Grayscale, Invesco, WisdomTree) já vieram
+     recortados na própria imagem (bounding box do conteúdo, sem
+     esticar/recolorir a marca) — o padding abaixo só ajusta o quanto
+     de respiro sobra ao redor depois do recorte, pra equilibrar peso
+     visual (ex.: CoinShares e WisdomTree são wordmarks bem largos e
+     baixos — não tem como "crescer" além da largura da caixa sem
+     desproporcionar, então ficam com o padding mínimo possível). */
   .etf-flows-logo{
     display:inline-block;width:47px;height:47px;padding:3px;box-sizing:border-box;
-    object-fit:contain;border-radius:7px;background:rgba(255,255,255,.18);
+    object-fit:contain;border-radius:7px;background:#F2F2F2;
     vertical-align:middle;
   }
+  img.etf-flows-logo[src*="blackrock.png"]{padding:2px;background:#000000;}
+  img.etf-flows-logo[src*="fidelity.png"]{padding:3px;background:#6D933E;}
+  img.etf-flows-logo[src*="bitwise.png"]{padding:3px;background:#151718;}
+  img.etf-flows-logo[src*="vaneck.png"]{padding:2px;background:#17468F;}
+  img.etf-flows-logo[src*="morgan-stanley.png"]{padding:3px;background:#003061;}
+  img.etf-flows-logo[src*="ark.png"]{padding:4px;}
+  img.etf-flows-logo[src*="coinshares.png"]{padding:1px;}
+  img.etf-flows-logo[src*="franklin.png"]{padding:5px;}
+  img.etf-flows-logo[src*="grayscale.png"],
+  img.etf-flows-logo[src*="grayscale-mini.png"]{padding:4px;}
+  img.etf-flows-logo[src*="invesco.png"]{padding:2px;}
+  img.etf-flows-logo[src*="wisdomtree.png"]{padding:2px;}
 
   /* 5 colunas fixas ao rolar horizontalmente (rank/logo/ticker/emissor/
      total). Larguras recalculadas do zero pra essa arquitetura —
