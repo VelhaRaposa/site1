@@ -26,6 +26,7 @@
 const ETF_FLOWS_DAILY_URL = "/assets/data/etf-flows-daily.json";
 const ETF_FLOWS_SUMMARY_URL = "/assets/data/etf-flows-summary.json";
 const ETF_FLOWS_MAX_COLS = 8;
+const ETF_FLOWS_DAILY_COLS = 7;
 const MESES_ABR = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
 let etfFlowsDaily = [];
@@ -101,8 +102,14 @@ function somaFlows(rows, key) {
 // tabela cresce sozinha a cada dia que o robô roda, não é um bug).
 function construirColunas(modo) {
   if (modo === "diario") {
+    // O dia corrente nunca aparece no modo Diário, mesmo com dados parciais
+    // já publicados — só passa a aparecer no dia seguinte. Não é uma checagem
+    // de "coluna vazia": é sempre a data de hoje, incondicionalmente.
+    const hoje = new Date();
+    const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
     return etfFlowsDaily
-      .slice(-ETF_FLOWS_MAX_COLS)
+      .filter((row) => row.date !== hojeStr)
+      .slice(-ETF_FLOWS_DAILY_COLS)
       .reverse()
       .map((row) => {
         const [, m, d] = row.date.split("-").map(Number);

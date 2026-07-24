@@ -73,54 +73,94 @@
   .etf-flows-modo button:hover{border-color:var(--accent);color:var(--text-primary);}
   .etf-flows-modo button.active{border-color:var(--accent);color:var(--accent);font-weight:600;background:var(--accent-soft);}
 
+  /* Fundo e borda com valores exatos pedidos nesta rodada (não os
+     tokens --bg-card/--border do site) — só pra este componente,
+     separando a tabela do fundo da página sem virar um "cartão". */
   .etf-flows-frame{
-    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+    background:#101520;border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-md);
     overflow-x:auto;
   }
-  /* densidade maior que a rodada anterior — padding e altura de linha
-     reduzidos pra parecer menos "espalhado" e caber mais linhas na
-     primeira dobra, na linha do que a Root faz. */
-  table.etf-flows-table{border-collapse:collapse;width:100%;font-family:var(--font-mono);font-size:.86rem;white-space:nowrap;}
-  .etf-flows-table th,.etf-flows-table td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--border);}
-  /* cabeçalho com um pouco mais de presença: cor mais clara, mais peso,
-     borda inferior mais forte separando do corpo da tabela. */
+  /* ==========================================================
+     REBUILD COMPLETO desta rodada — arquitetura refeita do zero,
+     inspirada na Bitcoin Strategy Platform (bitcoinstrategyplatform.
+     com/etfs/view/week). Nada de classes/nomes/CSS copiados de lá —
+     só a lógica estrutural, reproduzida com nosso HTML/JS/dados
+     existentes (nenhum dos três foi tocado), nossa paleta e nossa
+     tipografia (só o tamanho da fonte subiu discretamente, peso e
+     cor continuam os mesmos).
+
+     Arquitetura: leitura por COLUNAS via linhas verticais, não por
+     linhas horizontais. Exatamente 3 divisórias verticais, todas com
+     o MESMO peso visual (nenhuma mais forte que outra):
+       1) depois do Ranking
+       2) depois do bloco de identidade (Logo+ETF+Emissor), antes do Total
+       3) depois do Total, antes das datas
+     Logo, ETF e Emissor não têm nenhuma linha entre si — leem como
+     um bloco só. Linhas horizontais praticamente não existem: só o
+     header→corpo e o corpo→rodapé (as únicas duas realmente
+     necessárias). A leitura de cada linha acontece só no hover
+     (muda o fundo, nunca borda/grid).
+
+     Restrição conhecida: nosso box de logo é fixo em 47x47 (não
+     alterado nesta rodada nem na anterior), então a altura da linha
+     não desce abaixo de ~47px + padding mínimo — a referência usa um
+     ícone bem menor e por isso consegue linhas mais baixas. Com
+     padding vertical quase zero, o logo passa a ser o único fator
+     de altura da linha (o mais denso possível sem mexer nele). */
+  /* Escala geral da tabela +17,5% (padding/largura) e fonte
+     discretamente maior (~0,7px) — só isso, sem mexer nas
+     proporções entre as partes. Altura da linha NÃO muda (padding
+     vertical continua o mesmo; quem manda na altura é a caixa do
+     logo, 47x47, que não muda). Colunas de data ficam de fora do
+     aumento de escala (padding delas só reduz, item 10). */
+  table.etf-flows-table{border-collapse:collapse;width:100%;font-family:var(--font-mono);font-size:.93rem;white-space:nowrap;}
+  .etf-flows-table th,.etf-flows-table td{padding:3px 5px;text-align:right;}
   .etf-flows-table thead th{
     color:var(--text-secondary);font-weight:600;font-size:.75rem;
     text-transform:uppercase;letter-spacing:.05em;
-    border-bottom:2px solid var(--border-strong);
+    border-bottom:1px solid rgba(255,255,255,.08);
   }
   .etf-flows-table .positivo{color:var(--green);}
   .etf-flows-table .negativo{color:var(--red);}
   .etf-flows-table .neutro{color:var(--text-tertiary);}
-  .etf-flows-info{cursor:help;color:var(--text-tertiary);}
+  /* ícone "ⓘ" do cabeçalho de Total removido apenas visualmente — o
+     atributo title continua no <th> (gerado pelo JS, não tocado aqui),
+     então o tooltip nativo ao passar o mouse no texto "Total" continua
+     funcionando normalmente. */
+  .etf-flows-info{display:none;}
 
-  /* Hierarquia revista: Logo → ETF → Emissor lidos como um bloco só
-     (ticker e emissor com tamanhos de fonte próximos entre si e da base
-     da tabela — .82–.9rem contra os .86rem das datas — diferenciados
-     por peso/cor, não por tamanho). Rank volta a ser só um indicador
-     discreto (era +15% maior; agora menor que o corpo da tabela). */
+  /* Bloco de identidade (Rank/Logo/ETF/Emissor): mesma fonte/peso/cor
+     entre si, sem nenhuma linha vertical interna. Emissor agora largo
+     o bastante pra não quebrar em 2 linhas (a referência nunca quebra
+     "Franklin Templeton" nem "Morgan Stanley" — usa uma coluna mais
+     larga pro nome, não um wrap). */
   .etf-flows-table .etf-flows-col-rank{
-    text-align:center;font-size:.78rem;font-weight:500;color:var(--text-tertiary);
-    padding-left:4px;padding-right:4px;
+    text-align:center;font-size:.91rem;font-weight:500;color:var(--text-secondary);
+    padding-left:12px;padding-right:12px;
+    border-right:1px solid rgba(255,255,255,.08);
   }
-  .etf-flows-table .etf-flows-col-logo{text-align:center;padding-left:6px;padding-right:6px;}
+  .etf-flows-table .etf-flows-col-logo{text-align:center;padding-left:9px;padding-right:6px;}
   .etf-flows-table .etf-flows-col-ticker{
-    text-align:left;font-weight:700;font-size:.9rem;color:var(--text-primary);
-    padding-left:6px;padding-right:4px;
+    text-align:left;font-weight:500;font-size:.91rem;color:var(--text-secondary);
+    padding-left:6px;padding-right:7px;
   }
   .etf-flows-table .etf-flows-col-emissor{
-    text-align:left;font-weight:500;font-size:.82rem;color:var(--text-tertiary);
-    padding-left:4px;padding-right:6px;white-space:normal;line-height:1.25;
+    text-align:left;font-weight:500;font-size:.91rem;color:var(--text-secondary);
+    padding-left:7px;padding-right:14px;
+    border-right:1px solid rgba(255,255,255,.08);
   }
-  /* Total: continua em destaque (negrito), mas com tamanho bem próximo
-     do resto da tabela agora — a diferenciação vem do peso, não do
-     tamanho. padding-left mais justo aproxima Total do bloco Emissor. */
-  .etf-flows-table .etf-flows-col-total{font-weight:700;font-size:.9rem;padding-left:8px;}
+  /* Total: NÃO alterado nesta rodada (largura, padding, peso e
+     tamanho continuam exatamente os mesmos) — só a cor da borda muda,
+     pro mesmo rgba(.08) de todas as verticais (pedido explícito:
+     nenhuma coluna deve parecer mais destacada que outra). */
+  .etf-flows-table .etf-flows-col-total{
+    font-weight:700;font-size:.9rem;padding-left:16px;padding-right:16px;
+    border-right:1px solid rgba(255,255,255,.08);
+  }
 
-  /* logo: caixa ~30% maior que antes (36px→47px), mesmo padding interno
-     (3px) — preenche mais a caixa sem esticar (object-fit:contain) nem
-     cortar nada. Fundo e opacidade do chip inalterados (ficam pro
-     próximo PR, de identidade visual). */
+  /* logo: NÃO alterado nesta rodada (tamanho/preenchimento/fundo ficam
+     pro PR de identidade visual, junto da padronização das próprias
+     imagens). Só a largura da célula ao redor dele muda, abaixo. */
   .etf-flows-logo{
     display:inline-block;width:47px;height:47px;padding:3px;box-sizing:border-box;
     object-fit:contain;border-radius:7px;background:rgba(255,255,255,.18);
@@ -128,43 +168,32 @@
   }
 
   /* 5 colunas fixas ao rolar horizontalmente (rank/logo/ticker/emissor/
-     total). Larguras reduzidas nesta rodada (rank e logo principalmente)
-     — offsets "left" recalculados pra bater com a soma exata das
-     larguras anteriores. Divisor movido: antes ficava depois de Emissor
-     (separando identidade de dado financeiro); agora fica depois de
-     Total, porque Total passou a ser lido junto do bloco de identidade
-     do ETF — a fronteira visual real é entre "informação fixa do ETF"
-     (rank/logo/ticker/emissor/total) e a série histórica (datas). */
-  .etf-flows-table .etf-flows-col-rank{position:sticky;left:0;background:var(--bg-card);z-index:2;width:34px;}
-  .etf-flows-table .etf-flows-col-logo{position:sticky;left:34px;background:var(--bg-card);z-index:2;width:60px;}
-  .etf-flows-table .etf-flows-col-ticker{position:sticky;left:94px;background:var(--bg-card);z-index:2;width:60px;}
-  .etf-flows-table .etf-flows-col-emissor{position:sticky;left:154px;background:var(--bg-card);z-index:2;width:96px;}
-  .etf-flows-table .etf-flows-col-total{
-    position:sticky;left:250px;background:var(--bg-card);z-index:2;width:124px;
-    border-right:2px solid var(--border-strong);
-    box-shadow:2px 0 6px rgba(0,0,0,.25);
-  }
+     total). Larguras recalculadas do zero pra essa arquitetura —
+     offsets "left" recalculados pra bater com a soma exata das
+     larguras anteriores. */
+  .etf-flows-table .etf-flows-col-rank{position:sticky;left:0;background:#101520;z-index:2;width:54px;}
+  .etf-flows-table .etf-flows-col-logo{position:sticky;left:54px;background:#101520;z-index:2;width:62px;}
+  .etf-flows-table .etf-flows-col-ticker{position:sticky;left:116px;background:#101520;z-index:2;width:54px;}
+  .etf-flows-table .etf-flows-col-emissor{position:sticky;left:170px;background:#101520;z-index:2;width:198px;}
+  .etf-flows-table .etf-flows-col-total{position:sticky;left:368px;background:#101520;z-index:2;width:88px;}
   .etf-flows-table thead th.etf-flows-col-rank,
   .etf-flows-table thead th.etf-flows-col-logo,
   .etf-flows-table thead th.etf-flows-col-ticker,
   .etf-flows-table thead th.etf-flows-col-emissor,
   .etf-flows-table thead th.etf-flows-col-total{z-index:3;}
 
-  /* profundidade sutil: zebra quase imperceptível (linhas pares um tom
-     acima de --bg-card) + transição suave no hover, pra reduzir a
-     sensação de "planilha". Cor sólida (não rgba) mesmo nas colunas
-     sticky, senão o conteúdo das colunas de data "vaza" por trás delas
-     ao rolar horizontalmente. */
-  .etf-flows-table tbody tr:nth-child(even) td{background:#141824;}
+  /* sem zebra, sem linha entre linhas — só o hover indica a leitura
+     horizontal (muda só o fundo, nunca borda/grid), igual à
+     referência. */
   .etf-flows-table tbody td{transition:background-color .15s ease;}
-  .etf-flows-table tbody tr:hover td{background:var(--bg-card-hover);}
+  .etf-flows-table tbody tr:hover td{background:rgba(255,255,255,.035);}
   .etf-flows-table tbody tr:hover .etf-flows-col-rank,
   .etf-flows-table tbody tr:hover .etf-flows-col-logo,
   .etf-flows-table tbody tr:hover .etf-flows-col-ticker,
   .etf-flows-table tbody tr:hover .etf-flows-col-emissor,
-  .etf-flows-table tbody tr:hover .etf-flows-col-total{background:var(--bg-card-hover);}
+  .etf-flows-table tbody tr:hover .etf-flows-col-total{background:rgba(255,255,255,.035);}
 
-  .etf-flows-linha-total td{border-top:1px solid var(--border-strong);border-bottom:none;font-weight:600;}
+  .etf-flows-linha-total td{border-top:1px solid rgba(255,255,255,.08);font-weight:600;}
   .etf-flows-linha-total .etf-flows-col-ticker{color:var(--text-primary);}
   /* célula de destaque: o número mais importante da página inteira
      (Total Geral, canto inferior da coluna Total) — negrito + fundo
