@@ -211,14 +211,20 @@
 
   /* sem zebra, sem linha entre linhas — só o hover indica a leitura
      horizontal (muda só o fundo, nunca borda/grid), igual à
-     referência. */
-  .etf-flows-table tbody td{transition:background-color .15s ease;}
-  .etf-flows-table tbody tr:hover td{background:rgba(255,255,255,.035);}
+     referência. Cor do hover em hex sólido (não rgba): é o mesmo tom
+     que rgba(255,255,255,.035) produziria sobre #101520, mas sólido —
+     assim as colunas sticky continuam 100% opacas durante o hover,
+     sem deixar o conteúdo das colunas de data (por baixo, ao rolar)
+     transparecer. cursor:pointer prepara a linha para uma futura ação
+     de clique (ainda não existe nenhuma). */
+  .etf-flows-table tbody tr:hover{cursor:pointer;}
+  .etf-flows-table tbody td{transition:background-color .12s ease;}
+  .etf-flows-table tbody tr:hover td{background:#181D28;}
   .etf-flows-table tbody tr:hover .etf-flows-col-rank,
   .etf-flows-table tbody tr:hover .etf-flows-col-logo,
   .etf-flows-table tbody tr:hover .etf-flows-col-ticker,
   .etf-flows-table tbody tr:hover .etf-flows-col-emissor,
-  .etf-flows-table tbody tr:hover .etf-flows-col-total{background:rgba(255,255,255,.035);}
+  .etf-flows-table tbody tr:hover .etf-flows-col-total{background:#181D28;}
 
   .etf-flows-linha-total td{border-top:1px solid rgba(255,255,255,.08);font-weight:600;}
   .etf-flows-linha-total .etf-flows-col-ticker{color:var(--text-primary);}
