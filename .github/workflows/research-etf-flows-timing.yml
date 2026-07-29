@@ -41,7 +41,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add scripts/research/etf-flows-timing-window.json scripts/research/etf-flows-timing-log.jsonl
+          # Todo o diretório, não os 2 arquivos por nome: o log
+          # (etf-flows-timing-log.jsonl) só passa a existir depois da
+          # primeira data "graduada" (pode levar dias) — `git add` num
+          # caminho que ainda não existe falha com "pathspec did not
+          # match any files" e mata o passo inteiro. Um diretório
+          # sempre "casa" (mesmo com só 1 dos 2 arquivos dentro), então
+          # este comando nunca falha por esse motivo.
+          git add scripts/research/
           git diff --cached --quiet && echo "Nada novo para commitar." || git commit -m "Pesquisa de horário ETF Flows (automático, temporário)"
           # Outros robôs agendados também commitam direto na main; se um deles
           # empurrar um commit entre o nosso checkout e o push, o push é

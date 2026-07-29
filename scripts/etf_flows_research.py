@@ -71,6 +71,18 @@ def append_log(record):
         f.write(json.dumps(record, separators=(",", ":")) + "\n")
 
 
+# Este arquivo é criado mesmo vazio para que o workflow de pesquisa
+# consiga persistir observações desde a primeira execução. Caso
+# contrário, o `git add` pode falhar (pathspec did not match any files)
+# enquanto nenhuma data ainda tiver "graduado" — o que pode levar dias —
+# impedindo toda a coleta estatística até lá. Chamado sempre que há algo
+# novo pra persistir (ver main()).
+def garantir_log_existe():
+    os.makedirs(RESEARCH_DIR, exist_ok=True)
+    if not os.path.exists(LOG_PATH):
+        open(LOG_PATH, "a", encoding="utf-8").close()
+
+
 def graduar(date, entry):
     runs_to_complete = None
     if entry["first_complete_at_utc"] is not None:
@@ -164,6 +176,7 @@ def main():
             del window[date]
 
     save_window(window)
+    garantir_log_existe()
     print(
         f"[pesquisa] {len(recent_dates)} data(s) observada(s) às "
         f"{now_utc.isoformat()} UTC ({now_brt.isoformat()} BRT). "
