@@ -21,3 +21,5 @@
 {"date":"2026-07-23","first_complete_at_utc":"2026-08-02T14:49:37.425759+00:00","first_complete_at_brt":"2026-08-02T11:49:37.425759-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-07-24","first_complete_at_utc":"2026-08-02T14:49:37.425759+00:00","first_complete_at_brt":"2026-08-02T11:49:37.425759-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-07-28","first_complete_at_utc":"2026-08-02T14:49:37.425759+00:00","first_complete_at_brt":"2026-08-02T11:49:37.425759-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-07-29","first_complete_at_utc":"2026-08-03T13:48:46.303487+00:00","first_complete_at_brt":"2026-08-03T10:48:46.303487-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-07-31","first_complete_at_utc":"2026-08-03T13:48:46.303487+00:00","first_complete_at_brt":"2026-08-03T10:48:46.303487-03:00","runs_to_complete":1,"changed_after_complete":false}
