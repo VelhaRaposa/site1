@@ -242,3 +242,4 @@
 {"date":"2026-08-12","first_complete_at_utc":"2026-08-17T08:40:35.414914+00:00","first_complete_at_brt":"2026-08-17T05:40:35.414914-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-08-10","first_complete_at_utc":"2026-08-17T09:38:47.853504+00:00","first_complete_at_brt":"2026-08-17T06:38:47.853504-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-08-11","first_complete_at_utc":"2026-08-17T09:38:47.853504+00:00","first_complete_at_brt":"2026-08-17T06:38:47.853504-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-08-14","first_complete_at_utc":"2026-08-17T10:29:47.474836+00:00","first_complete_at_brt":"2026-08-17T07:29:47.474836-03:00","runs_to_complete":1,"changed_after_complete":false}
