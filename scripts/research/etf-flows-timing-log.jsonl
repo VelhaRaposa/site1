@@ -398,3 +398,5 @@
 {"date":"2026-08-14","first_complete_at_utc":"2026-08-23T12:35:39.815723+00:00","first_complete_at_brt":"2026-08-23T09:35:39.815723-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-08-18","first_complete_at_utc":"2026-08-23T12:35:39.815723+00:00","first_complete_at_brt":"2026-08-23T09:35:39.815723-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-08-20","first_complete_at_utc":"2026-08-23T12:35:39.815723+00:00","first_complete_at_brt":"2026-08-23T09:35:39.815723-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-08-13","first_complete_at_utc":"2026-08-23T13:30:06.814130+00:00","first_complete_at_brt":"2026-08-23T10:30:06.814130-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-08-17","first_complete_at_utc":"2026-08-23T13:30:06.814130+00:00","first_complete_at_brt":"2026-08-23T10:30:06.814130-03:00","runs_to_complete":1,"changed_after_complete":false}
