@@ -542,3 +542,5 @@
 {"date":"2026-08-24","first_complete_at_utc":"2026-09-06T08:21:59.631862+00:00","first_complete_at_brt":"2026-09-06T05:21:59.631862-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-08-28","first_complete_at_utc":"2026-09-06T08:21:59.631862+00:00","first_complete_at_brt":"2026-09-06T05:21:59.631862-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-09-01","first_complete_at_utc":"2026-09-06T08:21:59.631862+00:00","first_complete_at_brt":"2026-09-06T05:21:59.631862-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-08-03","first_complete_at_utc":"2026-08-17T11:23:12.234526+00:00","first_complete_at_brt":"2026-08-17T08:23:12.234526-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-09-04","first_complete_at_utc":"2026-09-06T12:37:17.539092+00:00","first_complete_at_brt":"2026-09-06T09:37:17.539092-03:00","runs_to_complete":1,"changed_after_complete":false}
