@@ -705,3 +705,7 @@
 {"date":"2026-09-25","first_complete_at_utc":"2026-10-04T10:24:42.639383+00:00","first_complete_at_brt":"2026-10-04T07:24:42.639383-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-09-29","first_complete_at_utc":"2026-10-04T10:24:42.639383+00:00","first_complete_at_brt":"2026-10-04T07:24:42.639383-03:00","runs_to_complete":1,"changed_after_complete":false}
 {"date":"2026-10-01","first_complete_at_utc":"2026-10-04T10:24:42.639383+00:00","first_complete_at_brt":"2026-10-04T07:24:42.639383-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-10-02","first_complete_at_utc":"2026-10-05T11:10:49.193360+00:00","first_complete_at_brt":"2026-10-05T08:10:49.193360-03:00","runs_to_complete":6,"changed_after_complete":false}
+{"date":"2026-09-24","first_complete_at_utc":"2026-10-05T11:10:49.193360+00:00","first_complete_at_brt":"2026-10-05T08:10:49.193360-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-09-28","first_complete_at_utc":"2026-10-05T11:10:49.193360+00:00","first_complete_at_brt":"2026-10-05T08:10:49.193360-03:00","runs_to_complete":1,"changed_after_complete":false}
+{"date":"2026-09-30","first_complete_at_utc":"2026-10-05T11:10:49.193360+00:00","first_complete_at_brt":"2026-10-05T08:10:49.193360-03:00","runs_to_complete":1,"changed_after_complete":false}
