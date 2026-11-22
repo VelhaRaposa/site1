@@ -53,7 +53,7 @@
       "name": "Como os topos e fundos são definidos?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Os topos e os fundos de ciclos já encerrados usam os mesmos marcos canônicos do Comparador de Ciclos. O fundo do ciclo em andamento é calculado automaticamente como o menor preço registrado desde o último topo confirmado — sem categoria de 'fundo provisório': se o preço cair mais amanhã, o marcador se move sozinho."
+        "text": "Os topos e fundos exibidos são os marcos canônicos dos ciclos já encerrados, os mesmos usados no Comparador de Ciclos. Nenhum fundo é calculado ou marcado automaticamente para o ciclo atual enquanto não houver uma referência canônica definida."
       }
     }
   ]
@@ -230,7 +230,7 @@
     </div>
 
     <div class="disclaimer-box">
-      <strong>Sobre esta ferramenta:</strong> mostra o histórico real de preço do Bitcoin em dólar, projetado em coordenadas polares (ângulo = tempo ou blocos, raio = preço em escala log). Halvings, topos e fundos usam os mesmos marcos canônicos do Comparador de Ciclos; o fundo do ciclo em andamento é recalculado automaticamente. A conversão de data para altura de bloco no modo Blocos é uma estimativa (interpolação entre halvings reais), não um dado on-chain exato. Não é recomendação de investimento nem previsão de topo.
+      <strong>Sobre esta ferramenta:</strong> mostra o histórico real de preço do Bitcoin em dólar, projetado em coordenadas polares (ângulo = tempo ou blocos, raio = preço em escala log). Halvings, topos e fundos de ciclos encerrados usam os mesmos marcos canônicos do Comparador de Ciclos. Nenhum fundo é marcado para o ciclo atual enquanto não houver uma referência canônica definida. A conversão de data para altura de bloco no modo Blocos é uma estimativa (interpolação entre halvings reais), não um dado on-chain exato. Não é recomendação de investimento nem previsão de topo.
     </div>
 
     <details class="seo-accordion">
@@ -243,7 +243,7 @@
         <p>No modo Tempo, cada volta é ancorada no calendário (2009, 2013, 2017...) — como 210.000 blocos raramente fecham em exatos 4 anos, os halvings aparecem levemente deslocados a cada volta. No modo Blocos, cada volta é exatamente 210.000 blocos, e os halvings caem sempre no mesmo ângulo, no topo do círculo — é a própria definição da volta, sem nenhum deslocamento.</p>
 
         <h2>Topos, fundos e halvings</h2>
-        <p>Halvings vêm de datas e alturas de bloco canônicas (mesma tabela usada em todo o site). Topos e fundos de ciclos já encerrados usam os mesmos marcos canônicos do Comparador de Ciclos. O fundo do ciclo em andamento não tem categoria especial: é sempre "o menor preço registrado desde o último topo confirmado", recalculado a cada carregamento — se amanhã o preço cair mais, o marcador se move sozinho, sem virar um estado visual diferente.</p>
+        <p>Halvings vêm de datas e alturas de bloco canônicas (mesma tabela usada em todo o site). Topos e fundos exibidos são os marcos canônicos dos ciclos já encerrados, os mesmos usados no Comparador de Ciclos. O ciclo atual não recebe marcador de fundo até que exista uma referência canônica definida.</p>
 
         <h2>O que essa ferramenta não considera</h2>
         <p>A altura de bloco por data no modo Blocos é uma estimativa (interpolação linear entre os 4 halvings reais, com extrapolação a ~144 blocos/dia depois do mais recente) — não um dado on-chain exato dia a dia. A ferramenta não usa indicadores on-chain, liquidez global, DXY ou M2; é só preço histórico real, sem previsão.</p>
@@ -251,7 +251,7 @@
         <h2>FAQ</h2>
         <p><strong>O que é o Bitcoin Spiral?</strong> Uma forma de olhar pro histórico de preço do Bitcoin em coordenadas polares — ângulo é posição no ciclo, raio é preço em escala log.</p>
         <p><strong>Qual a diferença entre Tempo e Blocos?</strong> Tempo alinha por calendário (halvings escorregam um pouco); Blocos alinha pela emissão programada (halvings sempre no mesmo ângulo).</p>
-        <p><strong>Como os topos e fundos são definidos?</strong> Marcos canônicos pros ciclos encerrados; o fundo do ciclo atual é automático — menor preço desde o último topo, sem categoria "provisório".</p>
+        <p><strong>Como os topos e fundos são definidos?</strong> Topos e fundos são marcos canônicos dos ciclos encerrados. O ciclo atual não recebe marcador de fundo até que exista uma referência canônica definida.</p>
 
         <p style="margin-top:32px;">Quer comparar o ciclo atual lado a lado com os anteriores? Veja o <a href="/comparador-ciclos/">Comparador de Ciclos</a>. Para simular aportes recorrentes, veja a <a href="/calculadora/">Calculadora DCA</a>.</p>
       </div>

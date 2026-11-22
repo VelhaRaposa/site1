@@ -29,12 +29,10 @@
    mais recente. É uma estimativa assumida, não um dado congelado.
 
    TOPOS/FUNDOS: a ferramenta não interpreta mercado, só marca eventos.
-   Os topos e os fundos de eras já fechadas são os mesmos marcos
-   canônicos usados em CICLOS (assets/js/comparador-ciclos.js) — mesma
-   fonte, sem duplicar metodologia. O fundo da era EM ABERTO (depois do
-   último topo confirmado) é calculado ao vivo como "menor preço desde
-   esse topo": não existe categoria/cor/formato "provisório" — se
-   amanhã o preço cair mais, o ponto se move sozinho.
+   Os topos e os fundos exibidos são os marcos canônicos dos ciclos já
+   encerrados, os mesmos usados em CICLOS (assets/js/comparador-ciclos.js).
+   Nenhum fundo é calculado ou marcado automaticamente para o ciclo
+   atual enquanto não houver uma referência canônica definida.
    ========================================================= */
 
 const HISTORICO_URL = "/assets/data/btc-history-usd.json";
@@ -100,17 +98,6 @@ function ptoXY(cx, cy, rExt, frac, preco) {
   const angle = frac * Math.PI * 2 - Math.PI / 2;
   const r = raioNorm(preco) * rExt;
   return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r };
-}
-
-// fundo da era em aberto: menor preço real desde o último topo
-// confirmado — recalculado sempre que o histórico é recarregado
-function fundoEraAberta(serie) {
-  const ultimoTopo = TOPOS[TOPOS.length - 1].data;
-  let min = null;
-  for (const [data, preco] of serie) {
-    if (data > ultimoTopo && (min === null || preco < min.preco)) min = { data, preco };
-  }
-  return min;
 }
 
 async function carregarHistorico() {
@@ -390,7 +377,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const tooltipEl = document.getElementById("spiral-tooltip");
 
   btcSerie = await carregarHistorico();
-  fundos = [...FUNDOS_FECHADOS, fundoEraAberta(btcSerie)].filter(Boolean);
+  // Exibe apenas fundos canônicos de ciclos encerrados.
+  fundos = [...FUNDOS_FECHADOS];
 
   attachTooltip(tooltipEl);
   desenhar();
